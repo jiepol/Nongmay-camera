@@ -9,7 +9,7 @@
 
 ## ดาวน์โหลด
 
-👉 **[ดาวน์โหลด NongMayCamera-1.0.apk](https://github.com/jiepol/Nongmay-camera/releases/download/v1.0/NongMayCamera-1.0.apk)** (0.8 MB) — ใช้กับ Android 8.0 ขึ้นไป
+👉 **[ดาวน์โหลด NongMayCamera-1.0.apk](https://github.com/jiepol/Nongmay-camera/raw/main/NongMayCamera-1.0.apk)** (0.8 MB) — ใช้กับ Android 8.0 ขึ้นไป
 
 ## วิธีติดตั้ง
 
