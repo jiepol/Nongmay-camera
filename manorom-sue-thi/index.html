@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171b22">
+<meta name="description" content="เว็บแอปทดลองคำนวณเงินซื้อที่ต่อดวงตามสมมติฐานโครงเตียง สำหรับโรงพยาบาลมโนรมย์ จังหวัดชัยนาท — ไม่มีการใช้ข้อมูลผู้ป่วยจริง">
+<title>ซื้อที่ Calculator — โรงพยาบาลมโนรมย์ | Manorom Edition</title>
+<style>
+:root {--bg:#141820;--panel:#1b2028;--panel2:#222832;--panel3:#282c32;--line:#3a414b;--text:#f5f0e8;--sub:#b4bbc3;--gold:#e7b765;--gold2:#f1cf91;--red:#cb675a;--red2:#e18c77;--green:#8dd3b2;--shadow:0 18px 52px #07080c88}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--text);background:radial-gradient(circle at 8% 0%,#46282b 0,transparent 33%),radial-gradient(circle at 100% 0%,#27363b,transparent 36%),var(--bg);font-family:system-ui,-apple-system,"Noto Sans Thai","Segoe UI",Tahoma,sans-serif;line-height:1.6}
+button,input,select{font:inherit}
+button{cursor:pointer}
+a{color:var(--gold2)}a:hover{color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.shell{max-width:1210px;padding:20px 20px 70px;margin:auto}
+.sitebar{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;letter-spacing:.14em;color:var(--sub);margin-bottom:12px}
+.sitebar strong{font-weight:800;color:var(--gold2)}
+.hero{border-radius:22px;border:1px solid #695547;background:linear-gradient(118deg,#38232a 0%,#25222b 44%,#172731 100%);box-shadow:var(--shadow);padding:27px 30px;overflow:hidden;position:relative}
+.hero:after{content:"✧";position:absolute;color:#eec38a13;font-size:380px;right:-15px;top:-175px;pointer-events:none}
+.eyebrow{display:inline-block;color:var(--gold2);letter-spacing:.13em;font-size:12px;font-weight:800;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,4.3vw,55px);letter-spacing:-.045em;line-height:1.23;margin:7px 0 10px;position:relative;z-index:1}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero p{max-width:720px;color:#dfd3cc;position:relative;z-index:1;margin:0 0 16px;font-size:14px}
+.tags{display:flex;gap:7px;flex-wrap:wrap;position:relative;z-index:1}
+.tag{border:1px solid #80624d99;background:#241d1a88;border-radius:40px;padding:4px 10px;color:#ffdbad;font-size:12px;font-weight:700}
+.tag.quiet{border-color:#59646b;color:#bcccd4;background:#1b27318a}
+.fact-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0 22px}
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px 15px;min-height:105px}
+.fact .big{font-size:clamp(24px,3vw,34px);font-weight:900;color:var(--gold2);line-height:1.3}
+.fact .unit{font-size:14px;font-weight:500;color:#e0e3df}
+.fact .cap{font-size:12px;color:var(--sub);line-height:1.4;margin-top:7px}
+.section-grid{display:grid;grid-template-columns:390px minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:linear-gradient(150deg,#202630,#191e26);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 10px 35px #090b1040}
+.panel + .panel{margin-top:16px}
+.panelhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:15px}
+.hlabel{font-size:12px;color:var(--gold);letter-spacing:.14em;font-weight:800;margin-bottom:3px}
+h2{margin:0;font-size:21px;line-height:1.35}h3{margin:0 0 9px;font-size:16px}
+.desc{font-size:13px;color:var(--sub);margin:7px 0 0;line-height:1.7}
+.ornament{color:var(--gold);font-size:25px;line-height:1}
+.bed-scene{background:radial-gradient(circle at 40% 20%,#3e3b3b,#262a33 70%);border:1px solid #705c47;border-radius:16px;min-height:148px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:15px}
+.bed-scene:before{content:"";height:1px;position:absolute;bottom:28px;width:80%;background:linear-gradient(90deg,transparent,#bda07c,transparent)}
+.bed-scene svg{width:90%;max-width:310px;height:auto;filter:drop-shadow(0 11px 7px #0006)}
+.bed-scene .scene-label{position:absolute;bottom:7px;right:12px;font-size:10px;color:#bea78a;letter-spacing:.12em}
+.switches{display:flex;gap:5px;padding:5px;background:#10141b;border:1px solid var(--line);border-radius:12px}
+.switches button{border:0;border-radius:9px;color:#aeb3bd;background:transparent;flex:1;padding:10px 6px;font-size:13px;font-weight:700}
+.switches button[aria-pressed="true"]{background:#64513d;color:#fff1d5;box-shadow:inset 0 0 0 1px #95714b}
+.bed-map{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:15px 0 6px}
+.bed{background:#262c32;color:#c2c7cc;border:1px solid #45505b;border-radius:9px;padding:10px 0;text-align:center;font-size:13px;font-weight:800;transition:transform .12s}
+.bed:hover{transform:translateY(-2px);border-color:var(--gold)}
+.bed[aria-pressed="true"]{color:#191b22;background:linear-gradient(135deg,#f1d49e,#cfa46b);border-color:#f4d9ae}
+.bed.all-selected{border-color:#a48965;background:#463e36;color:#f3d5a5}
+.subnote{color:#d2b697;font-size:12px;margin:10px 0 0;line-height:1.6}
+.alert{background:#2b251e;border-left:3px solid var(--gold);border-radius:10px;color:#f8e0b6;padding:10px 12px;font-size:12px;line-height:1.6;margin-top:12px}
+.alert.red{background:#332224;border-left-color:var(--red2);color:#ffd2c9}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+.field{display:grid;gap:5px}
+.field label{color:#e7e1d7;font-size:12px;font-weight:700}
+.field .hint{font-size:11px;color:#a4adb6;line-height:1.45}
+input,select{width:100%;min-width:0;background:#11161e;border:1px solid #45515d;border-radius:11px;color:#f9f5ec;padding:11px 12px;outline:none}
+input:focus,select:focus{border-color:#d7a96b}
+input[type=date]{color-scheme:dark}
+hr{border:0;border-top:1px solid var(--line);margin:20px 0}
+.section-heading{display:flex;align-items:center;gap:9px;margin:0 0 12px;font-size:13px;color:#eed0a2;letter-spacing:.08em;font-weight:900}
+.section-heading:after{content:"";flex:1;height:1px;background:#5b4c42}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:19px}
+.btn{border-radius:11px;padding:12px 16px;border:0;font-weight:850;font-size:13px}
+.btn.primary{background:linear-gradient(120deg,#edc27e,#d99a5a);color:#291d15;flex:1}
+.btn.secondary{color:#ead1b1;background:#343036;border:1px solid #80664d}
+.btn.ghost{color:#c6cbd1;background:#292f39;border:1px solid #495461}
+.error{display:none;margin-top:12px;background:#4c2227;color:#ffdbdb;border-radius:9px;padding:10px;font-size:13px}
+.results-top{display:flex;justify-content:space-between;gap:15px;align-items:start}
+.kicker{color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.11em}
+.result-number{font-weight:900;font-size:clamp(39px,6vw,66px);line-height:1.12;letter-spacing:-.045em;color:#ffdcaa;margin:7px 0 2px}
+.result-number span{font-size:18px;letter-spacing:0;font-weight:700;color:#d1c0b6}
+.result-panel{margin-top:16px;border:1px solid #906744;background:linear-gradient(115deg,#3b2929,#282832 70%);padding:20px;border-radius:20px;box-shadow:0 12px 25px #0003}
+.range{font-size:13px;color:#e5d0c0;margin:4px 0 10px}
+.result-mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:17px}
+.rstat{border:1px solid #695449;border-radius:11px;padding:11px;background:#30292b}
+.rstat b{display:block;color:#fae0b4;font-size:19px;line-height:1.4}
+.rstat span{font-size:11px;color:#c8b5a7}
+.result-note{font-size:12px;color:#e1c9b0;margin-top:12px}
+.chart-wrap{margin:16px 0 0;padding:12px;background:#171b23;border:1px solid #4b4846;border-radius:12px}
+.chart-title{font-size:12px;color:#ccc6c0;margin-bottom:4px}
+#histogram{width:100%;height:156px;display:block}
+.axis{display:flex;justify-content:space-between;gap:12px;color:#aaaab0;font-size:11px;margin-top:2px}
+.calc-steps{display:grid;gap:9px;margin-top:16px}
+.calc-step{background:#171d26;border:1px solid #333f4b;border-radius:11px;padding:12px 13px;font-size:12px;color:#c4cbd2}
+.calc-step strong{color:#f2ddbf}
+.calc-step code{color:#f0c58d;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.source{margin:8px 0;padding:11px 13px;border:1px solid #444b51;background:#191e25;border-radius:12px;font-size:12px;color:#c4cbd1}
+.source strong{color:#f0e5d4}
+.source a{overflow-wrap:anywhere}
+.footer{color:#a2a8ad;font-size:12px;line-height:1.8;margin-top:24px;border-top:1px solid var(--line);padding:14px 2px}
+.mobile-only{display:none}
+@media(max-width:930px){.section-grid{grid-template-columns:1fr}.fact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bed-map{grid-template-columns:repeat(10,1fr)}}
+@media(max-width:580px){.shell{padding:10px 11px 40px}.sitebar{font-size:10px}.hero{padding:23px 19px;border-radius:17px}.hero h1{font-size:34px}.panel{padding:16px;border-radius:15px}.fact{padding:12px;min-height:90px}.fact-grid{gap:8px;margin-bottom:12px}.fact .big{font-size:24px}.grid2{grid-template-columns:1fr}.bed-map{grid-template-columns:repeat(6,1fr)}.result-mini{gap:6px}.rstat{padding:9px}.rstat b{font-size:16px}.result-panel{padding:16px}.result-number{font-size:43px}.tags .tag{font-size:11px}.actions .btn{flex:1 1 44%}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="sitebar"><span><strong>MANOROM</strong> / EXPERIMENTAL WEB TOOL</span><span>MODEL v1.0 · OFFLINE-FIRST</span></div>
+  <header class="hero">
+    <div class="eyebrow">The bed-frame folklore experiment · ชัยนาท</div>
+    <h1>ซื้อที่ <em>Calculator</em><br>โรงพยาบาลมโนรมย์</h1>
+    <p>ถ้าซื้อที่บนเตียงโรงพยาบาลด้วยเงิน 10 บาท จะเฉลี่ยตก “ดวงละกี่บาท”? แบบจำลองสนุก ๆ จากสมมติฐานว่าเรื่องเล่าผูกกับ <b>โครงหลักของเตียง</b> ไม่ใช่ตัวอาคาร — ไม่ใช่การนับวิญญาณจริงหรือข้อมูลเวชระเบียน</p>
+    <div class="tags"><span class="tag">สำหรับโรงพยาบาลมโนรมย์ จ.ชัยนาท</span><span class="tag quiet">ข้อมูลโรงพยาบาลที่ตรวจสอบได้ + ตัวเลขจำลอง</span><span class="tag quiet">ใช้ได้โดยไม่ต้องต่ออินเทอร์เน็ต</span></div>
+  </header>
+  <section class="fact-grid" aria-label="ข้อมูลพื้นฐานโรงพยาบาล">
+    <div class="fact"><div class="big">30 <span class="unit">เตียง</span></div><div class="cap">จำนวนเตียงผู้ป่วยใช้งานจริงที่ขึ้นทะเบียน</div></div>
+    <div class="fact"><div class="big">F2</div><div class="cap">ระดับโรงพยาบาลชุมชน</div></div>
+    <div class="fact"><div class="big">10802</div><div class="cap">รหัสสถานพยาบาล 5 หลัก</div></div>
+    <div class="fact"><div class="big">พ.ศ. 2534</div><div class="cap">เริ่มให้บริการ (เดิมเป็นโรงพยาบาลสาขา)</div></div>
+  </section>
+  <div class="section-grid">
+    <aside>
+      <section class="panel">
+        <div class="panelhead"><div><div class="hlabel">01 / เลือกโครงเตียง</div><h2>เตียงไหนที่เราจะซื้อที่?</h2><p class="desc">เลือกหมายเลขสมมติเพื่ออ้างอิงในแบบจำลอง หรือคำนวณภาพรวม 30 เตียง</p></div><div class="ornament">✦</div></div>
+        <div class="bed-scene" aria-hidden="true">
+          <svg viewBox="0 0 360 150" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <ellipse cx="178" cy="123" rx="148" ry="9" fill="#0b0c11" opacity=".55"/>
+            <path d="M36 46v77m288-94v94" stroke="#ceaa72" stroke-width="8" stroke-linecap="round"/>
+            <path d="M42 79h278v30H42z" fill="#65514c" stroke="#dfb57c" stroke-width="3"/>
+            <path d="M45 69h273v26H45z" fill="#b6bbb2" stroke="#dbd0bb" stroke-width="2"/>
+            <path d="M48 70c55-17 103-14 153-12 46 3 82-2 115 12v27H48z" fill="#d7c3a4"/>
+            <path d="M47 70c28-21 64-19 87-7v12H47z" fill="#f2e6d2"/>
+            <path d="M151 69c14 13 33 27 54 28m31-29c22 20 32 22 53 26" stroke="#a68d77" opacity=".4" stroke-width="2"/>
+            <path d="M33 40v50m292-63v66" stroke="#f2d6a5" stroke-width="3"/>
+            <path d="M28 40h11M319 27h11" stroke="#f7d5a5" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="180" cy="27" r="16" fill="#dfb675" opacity=".12"/><path d="M180 7v40m-20-20h40" stroke="#edcb97" opacity=".32" stroke-width="1"/>
+          </svg>
+          <div class="scene-label">SIMULATED FRAME</div>
+        </div>
+        <div class="switches" role="group" aria-label="ขอบเขตการคำนวณ">
+          <button id="scopeOne" type="button" aria-pressed="true">1 โครงเตียง</button>
+          <button id="scopeAll" type="button" aria-pressed="false">รวม 30 เตียง</button>
+        </div>
+        <div class="bed-map" id="bedMap" aria-label="ผังหมายเลขเตียงจำลอง"></div>
+        <p class="subnote" id="bedDescription">กำลังเลือกโครงเตียงสมมติหมายเลข 01</p>
+        <div class="alert">หมายเลข 01–30 เป็น <b>ดัชนีสมมติ ไม่ใช่ผังเตียง หมายเลขเตียง หรือการจัดหอผู้ป่วยจริง</b> ของโรงพยาบาล</div>
+      </section>
+      <section class="panel">
+        <div class="hlabel">02 / ข้อเท็จจริงและข้อจำกัด</div><h2>ข้อมูลที่ใช้ได้จริง</h2>
+        <div class="source"><strong>กระทรวงสาธารณสุข — ฐานรหัสหน่วยบริการ</strong><br>ยืนยัน รพ.มโนรมย์ รหัส 10802 ระดับ F2 และ 30 เตียง<br><a href="https://hcode.moph.go.th/code/18801/" target="_blank" rel="noopener noreferrer">เปิดข้อมูลหน่วยบริการ</a></div>
+        <div class="source"><strong>ประวัติโรงพยาบาล</strong><br>เริ่มเปิดเดือนตุลาคม 2534 และขยายเป็นโรงพยาบาล 30 เตียงในเดือนสิงหาคม 2539<br><a href="https://healthserv.net/hospd60106" target="_blank" rel="noopener noreferrer">อ่านข้อมูลประวัติ</a></div>
+        <p class="desc">ยังไม่มีข้อมูลอายุโครงเตียงแต่ละชุด, อัตราครองเตียง, วันนอนเฉลี่ย และอัตราเสียชีวิตเฉพาะเตียงที่ตรวจสอบได้สำหรับแบบจำลองนี้ ตัวเลขในช่องคำนวณจึงเป็น <b>สมมติฐานที่แก้ไขได้ทั้งหมด</b></p>
+      </section>
+    </aside>
+    <main>
+      <section class="panel">
+        <div class="panelhead"><div><div class="hlabel">03 / ตั้งสมมติฐาน</div><h2>ปรับอัตราและอายุโครงเตียง</h2><p class="desc">ค่าตั้งต้นยกมาจากต้นแบบทดลองเดิมของเรา <b>ไม่ใช่อัตราจริงของโรงพยาบาลมโนรมย์</b></p></div><div class="ornament">✳</div></div>
+        <div class="section-heading">ค่าใช้จ่ายและอัตราผู้ป่วย (จำลอง)</div>
+        <div class="grid2">
+          <div class="field"><label for="money">เงินซื้อที่ทั้งหมด (บาท)</label><input id="money" type="number" min="0.01" max="1000000000" step="0.01" value="10"><div class="hint">เงินก้อนเดียวสำหรับ 1 เตียง หรือสำหรับกลุ่ม 30 เตียงตามที่เลือก</div></div>
+          <div class="field"><label for="occupancy">อัตราครองเตียง (%)</label><input id="occupancy" type="number" min="0" max="100" step="0.1" value="85"><div class="hint">สัดส่วนวันในปีที่มีผู้ป่วยครองเตียง</div></div>
+          <div class="field"><label for="los">วันนอนเฉลี่ยต่อครั้ง (วัน)</label><input id="los" type="number" min="0.1" max="365" step="0.1" value="9"><div class="hint">Average length of stay / LOS</div></div>
+          <div class="field"><label for="mortality">อัตราเสียชีวิตต่อการรับไว้รักษา (%)</label><input id="mortality" type="number" min="0" max="100" step="0.01" value="4"><div class="hint">ใช้เพื่อสร้างแบบจำลองเท่านั้น ไม่ใช่อัตราของ รพ.มโนรมย์</div></div>
+        </div>
+        <hr>
+        <div class="section-heading">อายุของโครงหลักเตียง (ไม่ใช่อายุอาคาร)</div>
+        <div class="field"><label for="frameMode">วิธีระบุอายุโครง</label><select id="frameMode"><option value="unknown" selected>ไม่ทราบวันเริ่มใช้ — จำลองช่วงอายุ</option><option value="exact">ทราบวันเริ่มใช้โครงจริง</option></select></div>
+        <div class="grid2" id="unknownFrame" style="margin-top:12px">
+          <div class="field"><label for="lifeMin">อายุใช้งานเต็มรอบต่ำสุด (ปี)</label><input id="lifeMin" type="number" min="1" max="100" step="0.5" value="10"></div>
+          <div class="field"><label for="lifeMax">อายุใช้งานเต็มรอบสูงสุด (ปี)</label><input id="lifeMax" type="number" min="1" max="100" step="0.5" value="15"></div>
+        </div>
+        <p class="desc" id="unknownNote">ระบบสุ่มอายุโครงปัจจุบันระหว่าง 0 ถึงอายุใช้งานเต็มรอบที่สุ่มได้ ไม่ได้สมมติว่าโครงนี้ใช้งานครบ 10–15 ปีแล้ว</p>
+        <div class="field" id="exactFrame" style="display:none;margin-top:12px"><label for="frameDate">วันที่เริ่มใช้โครงเตียงปัจจุบัน</label><input id="frameDate" type="date" value="2018-01-01"><div class="hint">หากเลือก 30 เตียง จะสมมติว่าเริ่มใช้โครงทั้งหมดในวันเดียวกัน</div></div>
+        <hr>
+        <div class="grid2">
+          <div class="field"><label for="iterations">จำนวนรอบ Monte Carlo</label><select id="iterations"><option value="3000">3,000 รอบ (เร็ว)</option><option value="10000" selected>10,000 รอบ</option><option value="30000">30,000 รอบ (ละเอียด)</option></select></div>
+          <div class="field"><label for="uncertainty">ความไม่แน่นอนที่รวม</label><select id="uncertainty"><option value="age" selected>อายุโครงอย่างเดียว (ตาม MVP เดิม)</option><option value="rates">อายุโครง + อัตราผู้ป่วยจำลอง</option></select><div class="hint">แบบขยายใช้ความคลาดเคลื่อนสมมติ ±15% occupancy, ±20% LOS, ±30% mortality</div></div>
+        </div>
+        <div class="actions"><button id="calc" class="btn primary" type="button">✦ คำนวณเงินซื้อที่</button><button id="reset" class="btn secondary" type="button">คืนค่าเริ่มต้น</button><button id="export" class="btn ghost" type="button">บันทึกผล JSON</button><button id="copy" class="btn ghost" type="button">คัดลอกสรุป</button></div>
+        <div id="error" class="error" role="alert"></div>
+      </section>
+      <section class="result-panel" id="results" aria-live="polite">
+        <div class="results-top"><div><div class="kicker">04 / ผลคำนวณโดยประมาณ</div><div class="result-number"><span id="bahtPerSoul">—</span> <span>บาท / “ดวง”</span></div><div class="range" id="interval">—</div></div><span class="tag">สมมติฐานเชิงคติความเชื่อ</span></div>
+        <div class="result-mini">
+          <div class="rstat"><b id="souls">—</b><span>จำนวน “ดวง” คาดหมาย (ไม่ใช่จำนวนจริง)</span></div>
+          <div class="rstat"><b id="admissions">—</b><span>ครั้งรับไว้รักษา / ปี / เตียง</span></div>
+          <div class="rstat"><b id="age">—</b><span>อายุโครงเตียงค่ากลาง (ปี)</span></div>
+        </div>
+        <div class="chart-wrap"><div class="chart-title">การกระจายราคาซื้อที่ต่อ “ดวง” จากการจำลอง</div><svg id="histogram" viewBox="0 0 670 156" role="img" aria-label="แผนภูมิการกระจายผลคำนวณ"><text x="20" y="78" fill="#b9bdc3">กำลังประมวลผล…</text></svg><div class="axis"><span id="chartLo">—</span><span>ช่วง P10–P90 แสดงเป็นแถบสีทอง</span><span id="chartHi">—</span></div></div>
+        <p class="result-note" id="resultNote">แบบจำลองไม่สามารถพิสูจน์การมีอยู่ของวิญญาณได้</p>
+      </section>
+      <section class="panel" style="margin-top:16px">
+        <div class="hlabel">05 / วิธีคำนวณ</div><h2>แกะสูตรให้ตรวจสอบได้</h2>
+        <div class="calc-steps" id="steps"></div>
+        <div class="alert red"><strong>คำเตือนการตีความ:</strong> การคำนวณเป็นจำนวนเหตุการณ์เสียชีวิตที่คาดหมายในอดีตตามสมมติฐาน ไม่ใช่จำนวนผู้ป่วยเสียชีวิตจริงของโรงพยาบาล ไม่ได้หมายความว่าแต่ละเหตุการณ์เกิดบนเตียงที่เลือก และไม่เป็นหลักฐานว่ามีวิญญาณหรือความเฮี้ยน</div>
+      </section>
+    </main>
+  </div>
+  <footer class="footer">ซื้อที่ Calculator — Manorom Edition v1.0 · สร้างต่อจากต้นแบบ <i>Siriraj MVP v0.1</i> · ทำงานในเบราว์เซอร์ ไม่ส่งข้อมูลไปเซิร์ฟเวอร์ · ข้อมูลโรงพยาบาลที่ตรวจสอบได้: 30 เตียง / ระดับ F2 / รหัส 10802; ข้อมูลอายุโครงและอัตราทางคลินิกทั้งหมดเป็นค่าจำลองที่ผู้ใช้ควบคุมเอง</footer>
+</div>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const HOSPITAL_OPEN_DATE = new Date('1991-10-01T00:00:00'); // เดือนเริ่มให้บริการตามประวัติที่เผยแพร่; วัน 1 เป็นจุดอ้างอิงสมมติ
+let selectedBed=1, scope='one', lastResult=null;
+const BASE={money:10,occupancy:85,los:9,mortality:4,frameMode:'unknown',lifeMin:10,lifeMax:15,frameDate:'2018-01-01',iterations:'10000',uncertainty:'age'};
+const nf = (v, digits=2) => Number.isFinite(v)?v.toLocaleString('th-TH',{maximumFractionDigits:digits,minimumFractionDigits:digits}):'—';
+const yBetween=(a,b)=>Math.max(0,(b-a)/(365.2425*24*60*60*1000));
+const quantile=(values,p)=>{if(!values.length)return NaN;const x=(values.length-1)*p, a=Math.floor(x), b=Math.ceil(x);return values[a]*(1-(x-a))+values[b]*(x-a)};
+const seeded = seed => () => {seed|=0;seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^(seed>>>15),1|seed);t=(t+Math.imul(t^(t>>>7),61|t))^t;return ((t^(t>>>14))>>>0)/4294967296};
+const triangular=(rnd,mid,relative)=>{const u=rnd();return mid*(1+relative*(u<.5?Math.sqrt(2*u)-1:1-Math.sqrt(2*(1-u))))};
+function setScope(next){scope=next;$('scopeOne').setAttribute('aria-pressed',scope==='one');$('scopeAll').setAttribute('aria-pressed',scope==='all');renderMap();calculate()}
+function renderMap(){
+  const map=$('bedMap');map.replaceChildren();
+  for(let i=1;i<=30;i++){
+    const btn=document.createElement('button');btn.type='button';btn.className='bed'+(scope==='all'?' all-selected':'');
+    btn.textContent=String(i).padStart(2,'0');btn.setAttribute('aria-label','หมายเลขเตียงจำลอง '+i);
+    btn.setAttribute('aria-pressed',scope==='one'&&selectedBed===i?'true':'false');
+    btn.onclick=()=>{selectedBed=i;scope='one';$('scopeOne').setAttribute('aria-pressed','true');$('scopeAll').setAttribute('aria-pressed','false');renderMap();calculate()};map.appendChild(btn);
+  }
+  $('bedDescription').textContent=scope==='one'?'กำลังเลือกโครงเตียงสมมติหมายเลข '+String(selectedBed).padStart(2,'0')+' (คำนวณ 1 เตียง)':'กำลังคำนวณรวม 30 โครงเตียง โดยสมมติว่าทุกเตียงมีอัตราผู้ป่วยเหมือนกัน';
+}
+function toggleFrame(){const exact=$('frameMode').value==='exact';$('exactFrame').style.display=exact?'grid':'none';$('unknownFrame').style.display=exact?'none':'grid';$('unknownNote').style.display=exact?'none':'block'}
+function readAndValidate(){
+  const number=id=>Number($(id).value);
+  const p={money:number('money'),occupancy:number('occupancy'),los:number('los'),mortality:number('mortality'),lifeMin:number('lifeMin'),lifeMax:number('lifeMax'),frameMode:$('frameMode').value,frameDate:$('frameDate').value,iterations:number('iterations'),uncertainty:$('uncertainty').value,frames:scope==='all'?30:1};
+  let err='';
+  if(!Number.isFinite(p.money)||p.money<=0||p.money>1e9)err='จำนวนเงินต้องมากกว่า 0 และไม่เกินหนึ่งพันล้านบาท';
+  else if(!(p.occupancy>=0&&p.occupancy<=100)||!Number.isFinite(p.occupancy))err='อัตราครองเตียงต้องอยู่ระหว่าง 0–100%';
+  else if(!(p.los>0&&p.los<=365))err='จำนวนวันนอนเฉลี่ยต้องมากกว่า 0 และไม่เกิน 365 วัน';
+  else if(!(p.mortality>=0&&p.mortality<=100))err='อัตราเสียชีวิตต้องอยู่ระหว่าง 0–100%';
+  else if(p.frameMode==='unknown'&&!(p.lifeMin>0&&p.lifeMax>=p.lifeMin&&p.lifeMax<=100))err='อายุโครงต่ำสุด/สูงสุดต้องเป็นบวก และค่าสูงสุดต้องไม่ต่ำกว่าค่าต่ำสุด (ไม่เกิน 100 ปี)';
+  else if(p.frameMode==='exact'){
+    const d=new Date(p.frameDate+'T00:00:00'),now=new Date();
+    if(!p.frameDate||!Number.isFinite(d.getTime())||d>now)err='กรุณากรอกวันที่เริ่มใช้โครงเตียงที่ไม่ใช่วันในอนาคต';
+    else if(d<HOSPITAL_OPEN_DATE)err='วันที่เริ่มใช้โครงเตียงก่อนเดือนที่โรงพยาบาลเริ่มให้บริการ โปรดตรวจสอบอีกครั้ง';
+  }
+  else if(![3000,10000,30000].includes(p.iterations))err='จำนวนรอบจำลองไม่ถูกต้อง';
+  $('error').style.display=err?'block':'none';$('error').textContent=err;
+  return err?null:p;
+}
+function calculate(){
+  const p=readAndValidate();if(!p)return;
+  const occ=p.occupancy/100,mort=p.mortality/100;
+  const baseAdmissions=365.25*occ/p.los,baseDeaths=baseAdmissions*mort;
+  const knownAge=yBetween(new Date(p.frameDate+'T00:00:00'),new Date());
+  const hospitalAge=yBetween(HOSPITAL_OPEN_DATE,new Date());
+  const rnd=seeded(0xA2026116 + Math.floor(p.money*100)+Math.floor(p.occupancy*100)+Math.floor(p.los*100)+Math.floor(p.mortality*100)+p.frames*19+Math.floor(p.lifeMin*100)+Math.floor(p.lifeMax*100)+(p.frameMode==='exact'?139:0)+(p.uncertainty==='rates'?997:0));
+  const vals=[], soulVals=[], ageVals=[];
+  const N=(p.frameMode==='exact'&&p.uncertainty==='age')?1:p.iterations;
+  for(let j=0;j<N;j++){
+    const sampledOcc=p.uncertainty==='rates'?Math.min(1,Math.max(0,triangular(rnd,occ,.15))):occ;
+    const sampledLos=p.uncertainty==='rates'?Math.max(.1,triangular(rnd,p.los,.20)):p.los;
+    const sampledMort=p.uncertainty==='rates'?Math.max(0,triangular(rnd,mort,.30)):mort;
+    const rate=365.25*sampledOcc/sampledLos*sampledMort;
+    let ageSum=0;
+    if(p.frameMode==='exact')ageSum=knownAge*p.frames;
+    else for(let k=0;k<p.frames;k++){
+      const life=p.lifeMin+rnd()*(p.lifeMax-p.lifeMin);
+      ageSum+=Math.min(rnd()*life,hospitalAge);
+    }
+    const soul=rate*ageSum;
+    vals.push(soul>1e-12?p.money/soul:NaN);soulVals.push(soul);ageVals.push(ageSum/p.frames);
+  }
+  const finite=vals.filter(Number.isFinite).sort((a,b)=>a-b), souls=soulVals.sort((a,b)=>a-b), ages=ageVals.sort((a,b)=>a-b);
+  const mSoul=quantile(souls,.5),mAge=quantile(ages,.5),mBaht=quantile(finite,.5),p10=quantile(finite,.1),p90=quantile(finite,.9);
+  $('bahtPerSoul').textContent=finite.length?nf(mBaht,2):'คำนวณไม่ได้';
+  $('interval').textContent=finite.length?(N===1?'ผลคำนวณจากค่าที่ระบุ (ไม่มีช่วงการสุ่ม)':'ช่วง 80% ของราคาจำลอง: '+nf(p10,2)+' – '+nf(p90,2)+' บาท/ดวง (P10–P90)'):'เมื่อไม่มีจำนวนผู้เสียชีวิตคาดหมาย จะไม่สามารถหารเป็นบาทต่อดวงได้';
+  $('souls').textContent=nf(mSoul,2);$('admissions').textContent=nf(baseAdmissions,1);$('age').textContent=nf(mAge,1);
+  $('resultNote').textContent=(p.frames===30?'ขณะนี้คิดรวม 30 โครงเตียง (เงินซื้อที่ก้อนเดียวสำหรับทุกเตียง) · ':'ขณะนี้คิดหนึ่งโครงเตียง · ')+(p.frameMode==='exact'?'รู้อายุโครงตามวันที่กรอก':'ไม่ทราบอายุโครงจริง จึงจำลองการกระจายอายุ')+' · ข้อมูลผู้ป่วยทั้งหมดเป็นค่าทดลอง ไม่ใช่ข้อมูลของโรงพยาบาล';
+  $('steps').replaceChildren();
+  const items=[
+    ['1. จำนวนครั้งรับไว้รักษา / เตียง / ปี',`365.25 × ${nf(p.occupancy,1)}% ÷ ${nf(p.los,1)} วัน = ${nf(baseAdmissions,2)} ครั้ง`],
+    ['2. จำนวนเหตุการณ์เสียชีวิตคาดหมาย / เตียง / ปี',`${nf(baseAdmissions,2)} × ${nf(p.mortality,2)}% = ${nf(baseDeaths,3)} เหตุการณ์`],
+    ['3. ประมาณอายุโครงและขอบเขต',`${p.frameMode==='exact'?'อายุจากวันเริ่มใช้ที่กรอก':'อายุโครงจากการสุ่ม 0 ถึงรอบใช้งาน'} · ค่ากลาง ${nf(mAge,2)} ปี · ${p.frames} โครง`],
+    ['4. คำนวณเงินซื้อที่ต่อ “ดวง”',`${nf(p.money,2)} บาท ÷ จำนวนเหตุการณ์คาดหมาย ${nf(mSoul,3)} = ${Number.isFinite(mBaht)?nf(mBaht,2):'ไม่สามารถคำนวณ'} บาท/“ดวง” (ใช้ค่ามัธยฐานของผลสุ่ม)`]
+  ];
+  for(const [a,b] of items){const div=document.createElement('div');div.className='calc-step';const head=document.createElement('strong');head.textContent=a;const body=document.createElement('div');body.textContent=b;div.append(head,body);$('steps').append(div)}
+  renderHistogram(finite,p10,p90);
+  lastResult={application:'ซื้อที่ Calculator — Manorom',version:'1.0',generated_at:new Date().toISOString(),hospital:{name:'โรงพยาบาลมโนรมย์',province:'ชัยนาท',healthcare_code:'10802',official_inpatient_beds:30,level:'F2',official_source:'https://hcode.moph.go.th/code/18801/'},selected:{scope,simulated_bed_number:scope==='one'?selectedBed:null,frame_count:p.frames,bed_numbers_are_real:false},inputs:{...p},outputs:{admissions_per_bed_per_year:baseAdmissions,expected_deaths_per_bed_per_year:baseDeaths,median_frame_age_years:mAge,median_expected_events:mSoul,median_baht_per_soul:mBaht,p10_baht_per_soul:p10,p90_baht_per_soul:p90,iterations:N},disclaimer:'All patient parameters and bed-frame age are user-set assumptions, not Manorom Hospital patient data. Expected events are not evidence of deaths on a specific bed or of spirits.'};
+}
+function renderHistogram(finite,p10,p90){
+  const svg=$('histogram'),NS='http://www.w3.org/2000/svg';svg.replaceChildren();
+  const add=(tag,attrs,content)=>{const e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,String(v));if(content!=null)e.textContent=content;svg.appendChild(e);return e};
+  if(!finite.length){add('text',{x:15,y:76,fill:'#adb4bd','font-size':15},'ไม่มีผลลัพธ์ที่หารได้');$('chartLo').textContent='—';$('chartHi').textContent='—';return}
+  const small=finite[Math.floor(finite.length*.02)],large=finite[Math.floor((finite.length-1)*.98)];
+  const lo=Math.log10(Math.max(1e-9,small)),hi=Math.log10(Math.max(small*1.001,large));
+  const bins=25,hist=new Array(bins).fill(0),left=35,right=650,bottom=131,top=12;
+  for(const v of finite){let idx=Math.floor((Math.log10(Math.max(1e-9,v))-lo)/(hi-lo)*bins);idx=Math.max(0,Math.min(bins-1,idx));hist[idx]++}
+  const max=Math.max(1,...hist),width=(right-left)/bins;
+  add('rect',{x:left,y:top,width:right-left,height:bottom-top,fill:'#171a22',rx:4});
+  for(let i=0;i<=4;i++){const y=top+(bottom-top)*i/4;add('line',{x1:left,y1:y,x2:right,y2:y,stroke:'#45434a','stroke-width':.5})}
+  const px=v=>left+(Math.log10(Math.max(1e-9,v))-lo)/(hi-lo)*(right-left);
+  const in90=(a,b)=>b>=p10&&a<=p90;
+  hist.forEach((n,i)=>{const x=left+i*width+.7,h=(n/max)*(bottom-top-4);const a=10**(lo+(hi-lo)*i/bins),b=10**(lo+(hi-lo)*(i+1)/bins);add('rect',{x,y:bottom-h,width:width-1.5,height:Math.max(.1,h),fill:in90(a,b)?'#e8b972':'#7e7775',rx:2})});
+  const med=quantile(finite,.5);const mx=px(med);if(Number.isFinite(mx)){add('line',{x1:mx,y1:5,x2:mx,y2:bottom,stroke:'#fff1d6','stroke-width':2,'stroke-dasharray':'5 4'});add('text',{x:Math.min(right-80,Math.max(left+8,mx+6)),y:20,fill:'#fff0d3','font-size':13},'Median')}
+  $('chartLo').textContent=nf(small,2)+' บาท';$('chartHi').textContent=nf(large,2)+' บาท';
+}
+$('scopeOne').onclick=()=>setScope('one');$('scopeAll').onclick=()=>setScope('all');
+$('frameMode').addEventListener('change',()=>{toggleFrame();calculate()});
+$('calc').onclick=calculate;
+for(const id of ['money','occupancy','los','mortality','lifeMin','lifeMax','frameDate','iterations','uncertainty']){$(id).addEventListener('change',calculate)}
+$('reset').onclick=()=>{for(const [k,v] of Object.entries(BASE))$(k).value=v;selectedBed=1;scope='one';$('scopeOne').setAttribute('aria-pressed','true');$('scopeAll').setAttribute('aria-pressed','false');toggleFrame();renderMap();calculate()};
+$('export').onclick=()=>{if(!lastResult)calculate();if(!lastResult)return;const blob=new Blob([JSON.stringify(lastResult,null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='manorom-sue-thi-result.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$('copy').onclick=async()=>{if(!lastResult)calculate();if(!lastResult)return;const o=lastResult.outputs,bed=lastResult.selected;const summary=`ซื้อที่ Calculator — โรงพยาบาลมโนรมย์\nขอบเขต: ${bed.frame_count} โครงเตียง (หมายเลขสมมติ ${bed.simulated_bed_number??'ทั้งหมด'})\nเงินซื้อที่: ${nf(lastResult.inputs.money,2)} บาท\nจำนวนเหตุการณ์เสียชีวิตคาดหมาย: ${nf(o.median_expected_events,2)}\nค่าเฉลี่ยต่อ “ดวง” (มัธยฐานผลจำลอง): ${nf(o.median_baht_per_soul,2)} บาท\nช่วง P10–P90: ${nf(o.p10_baht_per_soul,2)}–${nf(o.p90_baht_per_soul,2)} บาท\nหมายเหตุ: ตัวเลขผู้ป่วยและอายุโครงเป็นค่าจำลอง ไม่ใช่สถิติของโรงพยาบาล`;try{await navigator.clipboard.writeText(summary);$('copy').textContent='คัดลอกแล้ว ✓';setTimeout(()=>$('copy').textContent='คัดลอกสรุป',2000)}catch(e){window.prompt('คัดลอกข้อความนี้',summary)}};
+renderMap();toggleFrame();calculate();
+</script>
+</body>
+</html>
