@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#171b22">
-<meta name="description" content="เว็บแอปทดลองคำนวณเงินซื้อที่ต่อดวงตามสมมติฐานโครงเตียง สำหรับโรงพยาบาลมโนรมย์ จังหวัดชัยนาท — ไม่มีการใช้ข้อมูลผู้ป่วยจริง">
-<title>ซื้อที่ Calculator — โรงพยาบาลมโนรมย์ | Manorom Edition</title>
+<meta name="version" content="2.0">
+<meta name="description" content="เว็บแอปสองโหมด: เทียบกำลังซื้อเงินบาทในอดีตกับค่าแรงขั้นต่ำชัยนาทจากข้อมูลสาธารณะ และเครื่องคำนวณซื้อที่แฟนตาซี ไม่มีข้อมูลผู้ป่วยจริง">
+<title>ซื้อที่ Calculator — Manorom 2.0 | ค่าเงินในอดีต × ผีซื้อที่</title>
 <style>
 :root {--bg:#141820;--panel:#1b2028;--panel2:#222832;--panel3:#282c32;--line:#3a414b;--text:#f5f0e8;--sub:#b4bbc3;--gold:#e7b765;--gold2:#f1cf91;--red:#cb675a;--red2:#e18c77;--green:#8dd3b2;--shadow:0 18px 52px #07080c88}
 *{box-sizing:border-box}
@@ -94,6 +95,55 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 .source strong{color:#f0e5d4}
 .source a{overflow-wrap:anywhere}
 .footer{color:#a2a8ad;font-size:12px;line-height:1.8;margin-top:24px;border-top:1px solid var(--line);padding:14px 2px}
+
+/* ============ 2.0 historical money experience ============ */
+.mode-nav{display:flex;gap:10px;margin:16px 0 17px;padding:7px;background:#111820;border:1px solid #675343;border-radius:17px;flex-wrap:wrap}
+.mode-tab{flex:1;min-width:145px;padding:14px 12px;background:transparent;color:#d4c8bb;border:1px solid transparent;border-radius:12px;font-weight:850;text-align:center}
+.mode-tab[aria-selected="true"]{background:linear-gradient(110deg,#f3ce8b,#d9a565);color:#251c18;box-shadow:0 4px 18px #16100d80}
+.mode-tab .small{display:block;font-size:11px;font-weight:500;opacity:.82}
+.real-mode{display:block}
+.real-hero{background:linear-gradient(120deg,#282b30,#22292c 63%,#35292a);border:1px solid #6f604b;border-radius:18px;padding:23px 24px;margin-bottom:16px}
+.real-hero h2{font-size:clamp(22px,3vw,32px);margin:5px 0}
+.real-hero p{color:#cdd1d4;margin:0;max-width:780px;font-size:13px}
+.money-layout{display:grid;grid-template-columns:minmax(280px,390px) 1fr;gap:16px;align-items:start}
+.history-controls{display:grid;gap:13px}
+.quick-years{display:flex;gap:7px;flex-wrap:wrap;margin-top:4px}
+.quick-year{border:1px solid #6c5c4c;background:#312c2b;color:#efd3ac;border-radius:7px;padding:5px 10px;font-size:12px}
+.quick-year:hover{background:#524038}
+.data-kicker{font-size:12px;letter-spacing:.08em;color:#e7be7d;font-weight:800}
+.data-result{background:linear-gradient(130deg,#48302c,#25292d);border:1px solid #956b4f;border-radius:19px;padding:20px 21px;margin-bottom:15px}
+.data-figure{font-size:clamp(32px,5vw,58px);font-weight:900;letter-spacing:-.035em;line-height:1.2;color:#ffe0ad;margin-top:5px}
+.data-figure span{font-size:17px;font-weight:700}
+.data-hint{font-size:12px;color:#dbc5af}
+.data-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
+.data-stat{padding:12px;border-radius:12px;border:1px solid #615249;background:#2c2b2f}
+.data-stat b{display:block;color:#ffe5b6;font-size:20px;line-height:1.4}
+.data-stat span{color:#c8c4bf;font-size:11px}
+#cpiChart{width:100%;height:230px;display:block}
+.insight{font-size:13px;color:#e2d9cb;margin:12px 0 0;line-height:1.7}
+.wage-box{padding:16px;background:#1b2528;border:1px solid #455961;border-radius:16px;margin-top:15px}
+.wage-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wage-pill{border:1px solid #59695f;border-radius:9px;padding:8px 12px;background:#25302e;color:#d1eee0;font-size:13px}
+.source-info{font-size:12px;margin:8px 0;color:#b8c5c9}
+.data-sources{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.real-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.real-actions button{flex:1}
+@media(max-width:860px){.money-layout{grid-template-columns:1fr}.data-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:580px){.real-hero{padding:17px}.real-hero h2{font-size:25px}.data-result{padding:16px}.data-stats{grid-template-columns:1fr}.data-stat{display:flex;align-items:center;gap:14px}.data-stat b{min-width:110px}.data-sources{grid-template-columns:1fr}.mode-nav{gap:4px}.mode-tab{min-width:unset;padding:10px 5px;font-size:12px}.mode-tab .small{font-size:10px}#cpiChart{height:185px}}
+
+/* Theatrical purchasing-power comparison: never an actual ghost rating */
+.gsi-panel{margin-top:16px;border:1px solid #a1764d;background:linear-gradient(125deg,#322b29,#1e272b);border-radius:17px;padding:16px 18px}
+.gsi-top{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.gsi-big{font-weight:900;color:#ffdfad;font-size:clamp(30px,5vw,48px);line-height:1.25}
+.gsi-big span{font-size:14px;color:#e6c5a3}
+.gsi-track{height:15px;border:1px solid #77624e;border-radius:24px;background:#16191d;overflow:hidden;margin:12px 0}
+.gsi-fill{width:0;height:100%;background:linear-gradient(90deg,#a75451,#e0a95d,#8ebfaa);transition:width .3s}
+.gsi-description{color:#d4c3ad;font-size:12px;margin:7px 0 0}
+.gsi-alert{background:#231d20;border:1px solid #594247;border-radius:12px;padding:11px;color:#e2c8be;font-size:12px;line-height:1.6;margin-top:12px}
+.gsi-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:13px}
+.gsi-cell{background:#24252b;border:1px solid #5b514a;padding:10px 12px;border-radius:10px}
+.gsi-cell b{color:#fff0d1;display:block;font-size:18px}
+.gsi-cell span{font-size:11px;color:#c4b8aa}
 .mobile-only{display:none}
 @media(max-width:930px){.section-grid{grid-template-columns:1fr}.fact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bed-map{grid-template-columns:repeat(10,1fr)}}
 @media(max-width:580px){.shell{padding:10px 11px 40px}.sitebar{font-size:10px}.hero{padding:23px 19px;border-radius:17px}.hero h1{font-size:34px}.panel{padding:16px;border-radius:15px}.fact{padding:12px;min-height:90px}.fact-grid{gap:8px;margin-bottom:12px}.fact .big{font-size:24px}.grid2{grid-template-columns:1fr}.bed-map{grid-template-columns:repeat(6,1fr)}.result-mini{gap:6px}.rstat{padding:9px}.rstat b{font-size:16px}.result-panel{padding:16px}.result-number{font-size:43px}.tags .tag{font-size:11px}.actions .btn{flex:1 1 44%}}
@@ -102,7 +152,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 </head>
 <body>
 <div class="shell">
-  <div class="sitebar"><span><strong>MANOROM</strong> / EXPERIMENTAL WEB TOOL</span><span>MODEL v1.0 · OFFLINE-FIRST</span></div>
+  <div class="sitebar"><span><strong>MANOROM</strong> / EXPERIMENTAL WEB TOOL</span><span>MODEL v2.0 · CPI + WAGES + GSI</span></div>
   <header class="hero">
     <div class="eyebrow">The bed-frame folklore experiment · ชัยนาท</div>
     <h1>ซื้อที่ <em>Calculator</em><br>โรงพยาบาลมโนรมย์</h1>
@@ -115,7 +165,44 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     <div class="fact"><div class="big">10802</div><div class="cap">รหัสสถานพยาบาล 5 หลัก</div></div>
     <div class="fact"><div class="big">พ.ศ. 2534</div><div class="cap">เริ่มให้บริการ (เดิมเป็นโรงพยาบาลสาขา)</div></div>
   </section>
-  <div class="section-grid">
+
+  <div class="mode-nav" role="tablist" aria-label="เลือกเครื่องมือ">
+    <button class="mode-tab" type="button" role="tab" id="tabReal" aria-controls="realMode" aria-selected="true"><span>◈ เงินยุคนั้น ≠ เงินวันนี้</span><span class="small">ข้อมูล CPI + ค่าแรงจริง</span></button>
+    <button class="mode-tab" type="button" role="tab" id="tabGhost" aria-controls="ghostMode" aria-selected="false"><span>✦ ซื้อที่ Calculator</span><span class="small">แบบจำลองผีสายมู</span></button>
+  </div>
+  <section id="realMode" class="real-mode" role="tabpanel" aria-labelledby="tabReal">
+    <div class="real-hero"><span class="eyebrow">01 / REAL DATA LAB · เครื่องมือใช้จริง</span><h2>เงิน 10 บาทในอดีต… วันนี้มีค่าเท่าไร?</h2><p>เทียบกำลังซื้อด้วย CPI ประเทศไทยและค่าแรงขั้นต่ำจังหวัดชัยนาทตามปีที่เลือก — ไม่ใช่การพยากรณ์ ไม่เกี่ยวกับวิญญาณ และไม่เกี่ยวกับข้อมูลผู้ป่วยของโรงพยาบาล</p><div class="tags" style="margin-top:13px"><span class="tag">CPI ไทย พ.ศ. 2533–2568</span><span class="tag quiet">ค่าแรงชัยนาท พ.ศ. 2556–2568</span><span class="tag quiet">เทียบกับปี 2568 · ไม่ใช่ 2569</span></div></div>
+    <div class="money-layout">
+      <section class="panel history-controls" aria-label="ค่าที่ใช้คำนวณอำนาจซื้อ">
+        <div><div class="hlabel">STEP 01</div><h2>ย้อนเวลาจำนวนเงิน</h2><p class="desc">แก้ตัวเลข แล้วผลจะเปลี่ยนทันที</p></div>
+        <div class="field"><label for="realAmount">จำนวนเงิน (บาท)</label><input id="realAmount" type="number" min="0" max="1000000000" step="0.01" value="10"></div>
+        <div class="field"><label for="realYear">เลือกปีในอดีต (พ.ศ.)</label><select id="realYear"></select><div class="quick-years"><button class="quick-year" type="button" data-year="1990">2533</button><button class="quick-year" type="button" data-year="1997">2540</button><button class="quick-year" type="button" data-year="2000">2543</button><button class="quick-year" type="button" data-year="2013">2556</button><button class="quick-year" type="button" data-year="2020">2563</button></div></div>
+        <div class="field"><label for="realDirection">ทิศทางเปรียบเทียบ</label><select id="realDirection"><option value="pastNow">เงินในปีที่เลือก → ค่าเทียบเท่าปี 2568</option><option value="nowPast">เงินปี 2568 → ค่าเทียบเท่าปีที่เลือก</option></select></div>
+        <div class="alert"><b>หลักการ:</b> มูลค่าเทียบเท่า = จำนวนเงินต้นทาง × (CPI ปีปลายทาง ÷ CPI ปีต้นทาง) · ใช้ดัชนีเฉลี่ยทั้งปี ไม่ใช่ราคาเฉพาะสินค้า</div>
+        <div class="real-actions"><button type="button" class="btn secondary" id="realCopy">คัดลอกผลเปรียบเทียบ</button><button type="button" class="btn ghost" id="realReset">คืนค่าเริ่มต้น</button></div>
+        <div id="realError" class="error" role="alert"></div>
+      </section>
+      <section>
+        <div class="data-result" aria-live="polite"><div class="data-kicker" id="realHeadline">มูลค่าเงินที่เปรียบเทียบแล้ว</div><div class="data-figure"><span id="realEquivalent">—</span> <span>บาท</span></div><p class="data-hint" id="realFormula">—</p>
+        <div class="data-stats"><div class="data-stat"><b id="realRatio">—</b><span>ตัวคูณของกำลังซื้อ</span></div><div class="data-stat"><b id="realChange">—</b><span>ผลต่างมูลค่า (%)</span></div><div class="data-stat"><b id="realCpi">—</b><span>ดัชนี CPI ปีที่เลือก (2010=100)</span></div></div>
+        <p class="insight" id="realInsight">—</p></div>
+        <div class="panel"><div class="hlabel">PRICE HISTORY</div><h2>กราฟค่าครองชีพไทย พ.ศ. 2533–2568</h2><p class="desc">ดัชนี CPI ปรับฐานปี 2553 = 100 · จุดสีทองคือปีที่เลือก</p>
+          <svg id="cpiChart" viewBox="0 0 800 230" role="img" aria-label="กราฟ CPI ไทยปี 1990 ถึง 2025"></svg>
+          <div class="axis"><span>2533</span><span>2553</span><span>2568</span></div>
+          <p class="source-info">ค่าปี 2533–2568 จากการทบอัตราเงินเฟ้อรายปีใน World Bank WDI เพื่อปรับดัชนีปี 2553 = 100 ไม่ใช่ CPI ของโรงพยาบาล</p></div>
+        <div class="wage-box" aria-live="polite"><div class="data-kicker">LOCAL WAGE / จังหวัดชัยนาท</div><h3 style="margin:6px 0">10 บาท คิดเป็นเวลาทำงานกี่นาที?</h3><p class="desc" id="wageExplanation">—</p>
+          <div class="wage-pills"><div class="wage-pill" id="wagePast">ค่าแรงปีที่เลือก: —</div><div class="wage-pill" id="wageNow">ค่าแรงปี 2568: 348 บาท/วัน</div></div>
+          <div class="data-stats"><div class="data-stat"><b id="wageMinutesPast">—</b><span id="wageLabelPast">เวลาแรงงานปีที่เลือก</span></div><div class="data-stat"><b id="wageMinutesNow">—</b><span>เวลาแรงงานในปี 2568</span></div><div class="data-stat"><b id="wageBurden">—</b><span>อัตราส่วนเวลาทำงาน (ปี 2568 / ปีเดิม)</span></div></div>
+          <p class="source-info">เวลาทำงานคิดสมมติ 8 ชม./วัน; ค่าแรงขั้นต่ำเป็นอัตราตามกฎหมายสำหรับแรงงานบางประเภท ไม่ใช่ค่าจ้างเฉลี่ยหรือรายได้ของผู้เสียชีวิต</p></div>
+      </section>
+    </div>
+    <div class="data-sources">
+      <section class="panel"><div class="hlabel">DATA SOURCE 01</div><h3>ดัชนีราคาผู้บริโภค — ประเทศไทย</h3><p class="desc">World Bank, World Development Indicators (IMF IFS), อัตราเงินเฟ้อเฉลี่ยรายปี 1991–2025 นำมาทบเป็นดัชนีฐาน 2010 = 100</p><p class="source-info"><a target="_blank" rel="noopener noreferrer" href="https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?locations=TH">ดูข้อมูล World Bank</a> · <a target="_blank" rel="noopener noreferrer" href="https://fred.stlouisfed.org/data/FPCPITOTLZGTHA">ตารางรายปี</a></p></section>
+      <section class="panel"><div class="hlabel">DATA SOURCE 02</div><h3>ค่าแรงขั้นต่ำ — จังหวัดชัยนาท</h3><p class="desc">สำนักงานจังหวัดชัยนาท / กระทรวงแรงงาน / สำนักงานสถิติแห่งชาติ: ข้อมูลหลังปี 2556 ใช้เรตที่มีผล ณ สิ้นปี; ปี 2568 อัตราทั่วไป 348 บาทต่อวัน ยกเว้นกิจการที่กำหนดอัตราพิเศษ</p><p class="source-info"><a target="_blank" rel="noopener noreferrer" href="https://data.go.th/th/dataset/minimum-wage-rate1?is_fullscreen=1">Open Government Data</a> · <a target="_blank" rel="noopener noreferrer" href="https://www.mol.go.th/%E0%B8%AD%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B9%88%E0%B8%B2%E0%B8%88%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B8%82%E0%B8%B1%E0%B9%89%E0%B8%99%E0%B8%95%E0%B9%88%E0%B8%B3">ประกาศกระทรวงแรงงาน</a></p></section>
+    </div>
+    <div class="alert red"><b>อ่านก่อนแชร์:</b> ค่า CPI เป็นค่าเฉลี่ยทั้งประเทศ ไม่ใช่ราคาสินค้าเฉพาะรายการ; ค่าแรงเป็นอัตราขั้นต่ำตามประกาศ ไม่ใช่ค่าแรงเฉลี่ยของคนไทย และข้อมูลอ้างอิงล่าสุดในโหมดนี้คือปี 2568 เท่านั้น</div>
+  </section>
+  <div class="section-grid" id="ghostMode" role="tabpanel" aria-labelledby="tabGhost" style="display:none">
     <aside>
       <section class="panel">
         <div class="panelhead"><div><div class="hlabel">01 / เลือกโครงเตียง</div><h2>เตียงไหนที่เราจะซื้อที่?</h2><p class="desc">เลือกหมายเลขสมมติเพื่ออ้างอิงในแบบจำลอง หรือคำนวณภาพรวม 30 เตียง</p></div><div class="ornament">✦</div></div>
@@ -173,6 +260,16 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
           <div class="field"><label for="iterations">จำนวนรอบ Monte Carlo</label><select id="iterations"><option value="3000">3,000 รอบ (เร็ว)</option><option value="10000" selected>10,000 รอบ</option><option value="30000">30,000 รอบ (ละเอียด)</option></select></div>
           <div class="field"><label for="uncertainty">ความไม่แน่นอนที่รวม</label><select id="uncertainty"><option value="age" selected>อายุโครงอย่างเดียว (ตาม MVP เดิม)</option><option value="rates">อายุโครง + อัตราผู้ป่วยจำลอง</option></select><div class="hint">แบบขยายใช้ความคลาดเคลื่อนสมมติ ±15% occupancy, ±20% LOS, ±30% mortality</div></div>
         </div>
+        <hr>
+        <div class="section-heading">06 / เกณฑ์ GSI อ้างอิงค่าแรงก่อนเสียชีวิต (สมมติ)</div>
+        <p class="desc" style="margin:0 0 13px">การเปรียบเทียบเชิงเล่นสนุก: แต่ละ “ดวง” มีค่าแรงไม่เท่ากัน จึงอิงค่าแรงในปีที่สมมติว่าเสียชีวิต แล้วปรับมูลค่าเป็นบาทปัจจุบัน ไม่ใช่การรู้รายได้ของผู้ป่วยจริง</p>
+        <div class="grid2">
+          <div class="field"><label for="dailyWage">ค่าแรงก่อนเสียชีวิต (บาท/วัน) · ค่าฐาน</label><input type="number" id="dailyWage" value="300" min="1" max="1000000" step="1"><div class="hint">ค่าฐานสมมติ แก้ไขได้ ไม่ใช่ค่าแรงเฉลี่ยจริงในปีนั้น</div></div>
+          <div class="field"><label for="deathYear">ปีที่เสียชีวิตโดยอ้างอิง (พ.ศ.)</label><input type="number" id="deathYear" value="2560" min="2534" max="2569" step="1"><div class="hint">ใช้ปีเดียวเป็นปีตัวแทนของกลุ่ม ไม่ใช่ปีเสียชีวิตจริงของแต่ละคน</div></div>
+          <div class="field"><label for="inflationRate">อัตราเงินเฟ้อต่อปีที่สมมติ (%)</label><input type="number" id="inflationRate" value="2.5" min="-5" max="20" step="0.1"><div class="hint">ใช้สมมติฐานทบต้น ไม่ใช่ CPI ทางการ</div></div>
+          <div class="field"><label for="payHours">ตั้งเป้าจ่ายเทียบเท่าค่าแรง (ชั่วโมง/ดวง)</label><input type="number" id="payHours" value="1" min="0.1" max="24" step="0.5"><div class="hint">เทียบวันทำงานสมมติ 8 ชั่วโมง; 1 ชั่วโมงเป็นเกณฑ์ที่ผู้ใช้เลือก ไม่ใช่เกณฑ์ของผี</div></div>
+          <div class="field" style="grid-column:1/-1"><label for="incomeMode">สมมติความต่างของรายได้</label><select id="incomeMode"><option value="mixed" selected>คนละค่าแรง (25% ได้ 0.6×, 50% ได้ 1×, 25% ได้ 1.8× ของค่าฐาน)</option><option value="equal">ทุกดวงมีค่าแรงเท่ากัน (1×)</option></select><div class="hint">ค่า 25/50/25 เป็นสัดส่วนตัวอย่าง ไม่ใช่ข้อมูลคนไข้หรืออาชีพจริง</div></div>
+        </div>
         <div class="actions"><button id="calc" class="btn primary" type="button">✦ คำนวณเงินซื้อที่</button><button id="reset" class="btn secondary" type="button">คืนค่าเริ่มต้น</button><button id="export" class="btn ghost" type="button">บันทึกผล JSON</button><button id="copy" class="btn ghost" type="button">คัดลอกสรุป</button></div>
         <div id="error" class="error" role="alert"></div>
       </section>
@@ -185,6 +282,23 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
         </div>
         <div class="chart-wrap"><div class="chart-title">การกระจายราคาซื้อที่ต่อ “ดวง” จากการจำลอง</div><svg id="histogram" viewBox="0 0 670 156" role="img" aria-label="แผนภูมิการกระจายผลคำนวณ"><text x="20" y="78" fill="#b9bdc3">กำลังประมวลผล…</text></svg><div class="axis"><span id="chartLo">—</span><span>ช่วง P10–P90 แสดงเป็นแถบสีทอง</span><span id="chartHi">—</span></div></div>
         <p class="result-note" id="resultNote">แบบจำลองไม่สามารถพิสูจน์การมีอยู่ของวิญญาณได้</p>
+        <section class="gsi-panel" aria-label="Ghost Satisfaction Index เชิงสมมติ">
+          <div class="kicker">BONUS / GHOST SALARY INDEX · GSI</div>
+          <h3 style="margin-top:4px">จ่าย “ซื้อที่” เทียบค่าแรงในอดีตพอหรือยัง?</h3>
+          <div class="gsi-top">
+            <div><div class="gsi-big"><span id="gsiValue">—</span> <span>% ของเงินเป้าหมาย</span></div><div id="gsiStatus" style="font-size:13px;color:#ffdebe">—</div></div>
+            <div class="tag">เนื้อหาแฟนตาซี · ไม่ใช่คะแนนความพอใจจริง</div>
+          </div>
+          <div class="gsi-track" role="progressbar" aria-label="สัดส่วนเงินที่จ่ายเทียบเกณฑ์ตั้งเอง" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gsiProgress"><div class="gsi-fill" id="gsiFill"></div></div>
+          <div class="gsi-two">
+            <div class="gsi-cell"><b id="gsiPerSoul">—</b><span>เป้าหมายบาท/“ดวง” เทียบค่าแรงปัจจุบัน</span></div>
+            <div class="gsi-cell"><b id="gsiNeeded">—</b><span>งบเป้าหมายสำหรับโครงเตียงที่เลือก</span></div>
+            <div class="gsi-cell"><b id="gsiShortfall">—</b><span>ส่วนที่ยังขาดจากงบเป้าหมาย</span></div>
+            <div class="gsi-cell"><b id="gsiWageNow">—</b><span>ค่าแรงฐานเดิมที่ปรับเป็นบาทปัจจุบัน / วัน</span></div>
+          </div>
+          <p class="gsi-description" id="gsiAssumptions">คำนวณจากค่าแรงและปีอ้างอิงที่กำหนดเอง</p>
+          <div class="gsi-alert">⚠ GSI ย่อมาจาก Ghost Salary Index ในฉบับนี้: เป็นสัดส่วนของเงินสมมติที่จ่ายได้เทียบกับเกณฑ์ค่าแรงสมมติ ไม่สามารถบอกความรู้สึกจริงของผู้เสียชีวิต ความเฮี้ยน หรือว่าการให้เงินทำให้ปลอดภัยได้</div>
+        </section>
       </section>
       <section class="panel" style="margin-top:16px">
         <div class="hlabel">05 / วิธีคำนวณ</div><h2>แกะสูตรให้ตรวจสอบได้</h2>
@@ -193,14 +307,14 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       </section>
     </main>
   </div>
-  <footer class="footer">ซื้อที่ Calculator — Manorom Edition v1.0 · สร้างต่อจากต้นแบบ <i>Siriraj MVP v0.1</i> · ทำงานในเบราว์เซอร์ ไม่ส่งข้อมูลไปเซิร์ฟเวอร์ · ข้อมูลโรงพยาบาลที่ตรวจสอบได้: 30 เตียง / ระดับ F2 / รหัส 10802; ข้อมูลอายุโครงและอัตราทางคลินิกทั้งหมดเป็นค่าจำลองที่ผู้ใช้ควบคุมเอง</footer>
+  <footer class="footer">ซื้อที่ Calculator — Manorom Edition v2.0 · สร้างต่อจากต้นแบบ <i>Siriraj MVP v0.1</i> · ทำงานในเบราว์เซอร์ ไม่ส่งตัวเลขที่กรอกไปเซิร์ฟเวอร์ · ข้อมูลโรงพยาบาลที่ตรวจสอบได้: 30 เตียง / ระดับ F2 / รหัส 10802; ข้อมูลอายุโครงและอัตราทางคลินิกทั้งหมดเป็นค่าจำลองที่ผู้ใช้ควบคุมเอง</footer>
 </div>
 <script>
 'use strict';
 const $ = id => document.getElementById(id);
 const HOSPITAL_OPEN_DATE = new Date('1991-10-01T00:00:00'); // เดือนเริ่มให้บริการตามประวัติที่เผยแพร่; วัน 1 เป็นจุดอ้างอิงสมมติ
 let selectedBed=1, scope='one', lastResult=null;
-const BASE={money:10,occupancy:85,los:9,mortality:4,frameMode:'unknown',lifeMin:10,lifeMax:15,frameDate:'2018-01-01',iterations:'10000',uncertainty:'age'};
+const BASE={money:10,occupancy:85,los:9,mortality:4,frameMode:'unknown',lifeMin:10,lifeMax:15,frameDate:'2018-01-01',iterations:'10000',uncertainty:'age',dailyWage:300,deathYear:2560,inflationRate:2.5,payHours:1,incomeMode:'mixed'};
 const nf = (v, digits=2) => Number.isFinite(v)?v.toLocaleString('th-TH',{maximumFractionDigits:digits,minimumFractionDigits:digits}):'—';
 const yBetween=(a,b)=>Math.max(0,(b-a)/(365.2425*24*60*60*1000));
 const quantile=(values,p)=>{if(!values.length)return NaN;const x=(values.length-1)*p, a=Math.floor(x), b=Math.ceil(x);return values[a]*(1-(x-a))+values[b]*(x-a)};
@@ -220,7 +334,7 @@ function renderMap(){
 function toggleFrame(){const exact=$('frameMode').value==='exact';$('exactFrame').style.display=exact?'grid':'none';$('unknownFrame').style.display=exact?'none':'grid';$('unknownNote').style.display=exact?'none':'block'}
 function readAndValidate(){
   const number=id=>Number($(id).value);
-  const p={money:number('money'),occupancy:number('occupancy'),los:number('los'),mortality:number('mortality'),lifeMin:number('lifeMin'),lifeMax:number('lifeMax'),frameMode:$('frameMode').value,frameDate:$('frameDate').value,iterations:number('iterations'),uncertainty:$('uncertainty').value,frames:scope==='all'?30:1};
+  const p={money:number('money'),occupancy:number('occupancy'),los:number('los'),mortality:number('mortality'),lifeMin:number('lifeMin'),lifeMax:number('lifeMax'),frameMode:$('frameMode').value,frameDate:$('frameDate').value,iterations:number('iterations'),uncertainty:$('uncertainty').value,dailyWage:number('dailyWage'),deathYear:number('deathYear'),inflationRate:number('inflationRate'),payHours:number('payHours'),incomeMode:$('incomeMode').value,frames:scope==='all'?30:1};
   let err='';
   if(!Number.isFinite(p.money)||p.money<=0||p.money>1e9)err='จำนวนเงินต้องมากกว่า 0 และไม่เกินหนึ่งพันล้านบาท';
   else if(!(p.occupancy>=0&&p.occupancy<=100)||!Number.isFinite(p.occupancy))err='อัตราครองเตียงต้องอยู่ระหว่าง 0–100%';
@@ -233,6 +347,11 @@ function readAndValidate(){
     else if(d<HOSPITAL_OPEN_DATE)err='วันที่เริ่มใช้โครงเตียงก่อนเดือนที่โรงพยาบาลเริ่มให้บริการ โปรดตรวจสอบอีกครั้ง';
   }
   else if(![3000,10000,30000].includes(p.iterations))err='จำนวนรอบจำลองไม่ถูกต้อง';
+  if(!err&&!(p.dailyWage>0&&p.dailyWage<=1000000))err='กรุณาใส่ค่าแรงฐานเป็นบวกและไม่เกินหนึ่งล้านบาทต่อวัน';
+  if(!err&&(!Number.isInteger(p.deathYear)||p.deathYear<2534||p.deathYear>new Date().getFullYear()+543))err='ปีเสียชีวิตที่อ้างอิงต้องอยู่ระหว่าง พ.ศ.2534 ถึงปีปัจจุบัน';
+  if(!err&&!(p.inflationRate>=-5&&p.inflationRate<=20))err='อัตราเงินเฟ้อสมมติต้องอยู่ระหว่าง -5% ถึง 20%';
+  if(!err&&!(p.payHours>=0.1&&p.payHours<=24))err='จำนวนชั่วโมงค่าแรงเป้าหมายต้องอยู่ระหว่าง 0.1 ถึง 24';
+  if(!err&&!['mixed','equal'].includes(p.incomeMode))err='โหมดรายได้ไม่ถูกต้อง';
   $('error').style.display=err?'block':'none';$('error').textContent=err;
   return err?null:p;
 }
@@ -264,17 +383,38 @@ function calculate(){
   $('bahtPerSoul').textContent=finite.length?nf(mBaht,2):'คำนวณไม่ได้';
   $('interval').textContent=finite.length?(N===1?'ผลคำนวณจากค่าที่ระบุ (ไม่มีช่วงการสุ่ม)':'ช่วง 80% ของราคาจำลอง: '+nf(p10,2)+' – '+nf(p90,2)+' บาท/ดวง (P10–P90)'):'เมื่อไม่มีจำนวนผู้เสียชีวิตคาดหมาย จะไม่สามารถหารเป็นบาทต่อดวงได้';
   $('souls').textContent=nf(mSoul,2);$('admissions').textContent=nf(baseAdmissions,1);$('age').textContent=nf(mAge,1);
+  // Fictional affordability metric, NOT a measurement of spirit satisfaction.
+  // Compound an explicitly assumed price-change rate; do not claim official CPI.
+  const nowBE=new Date().getFullYear()+543;
+  const years=nowBE-p.deathYear;
+  const wageNow=p.dailyWage*Math.pow(1+p.inflationRate/100,years);
+  const wageMix=p.incomeMode==='mixed'?(0.25*0.6+0.5*1+0.25*1.8):1;
+  const thresholdPerSoul=wageNow/8*p.payHours*wageMix;
+  const targetTotal=mSoul*thresholdPerSoul;
+  const coverage=targetTotal>1e-9?p.money/targetTotal*100:NaN;
+  const shortfall=Number.isFinite(targetTotal)?Math.max(0,targetTotal-p.money):NaN;
+  const gsiStatus=!Number.isFinite(coverage)?'แบบจำลองไม่มีจำนวนเหตุการณ์ให้เทียบ':coverage<10?'ผีฝ่ายแรงงาน (ในจินตนาการ) ขอเปิดโต๊ะเจรจา':coverage<50?'ยังต่ำกว่าเกณฑ์ค่าแรงที่เราตั้งเอง':coverage<100?'ใกล้ครบเกณฑ์ค่าแรงแล้ว':'ถึงเกณฑ์ค่าแรงที่กำหนดเองแล้ว (ไม่ได้ยืนยันว่าผีพอใจ)';
+  $('gsiValue').textContent=Number.isFinite(coverage)?nf(coverage,1):'—';
+  $('gsiStatus').textContent=gsiStatus;
+  $('gsiProgress').setAttribute('aria-valuenow',Number.isFinite(coverage)?Math.max(0,Math.min(100,coverage)).toFixed(1):'0');
+  $('gsiFill').style.width=Number.isFinite(coverage)?Math.max(0,Math.min(100,coverage))+'%':'0%';
+  $('gsiPerSoul').textContent=nf(thresholdPerSoul,2)+' บาท';
+  $('gsiNeeded').textContent=nf(targetTotal,2)+' บาท';
+  $('gsiShortfall').textContent=nf(shortfall,2)+' บาท';
+  $('gsiWageNow').textContent=nf(wageNow,2)+' บาท';
+  $('gsiAssumptions').textContent=`อิงค่าแรงสมมติ ${nf(p.dailyWage,0)} บาท/วัน ใน พ.ศ.${p.deathYear} → เงินเฟ้อสมมติ ${nf(p.inflationRate,1)}% ต่อปี นาน ${years} ปี → เป้าหมาย ${nf(p.payHours,1)} ชั่วโมง/“ดวง” · ${p.incomeMode==='mixed'?'คละค่าแรง 0.6× / 1× / 1.8× (25/50/25%)':'ค่าแรงเท่ากันทุกดวง'}`;
   $('resultNote').textContent=(p.frames===30?'ขณะนี้คิดรวม 30 โครงเตียง (เงินซื้อที่ก้อนเดียวสำหรับทุกเตียง) · ':'ขณะนี้คิดหนึ่งโครงเตียง · ')+(p.frameMode==='exact'?'รู้อายุโครงตามวันที่กรอก':'ไม่ทราบอายุโครงจริง จึงจำลองการกระจายอายุ')+' · ข้อมูลผู้ป่วยทั้งหมดเป็นค่าทดลอง ไม่ใช่ข้อมูลของโรงพยาบาล';
   $('steps').replaceChildren();
   const items=[
     ['1. จำนวนครั้งรับไว้รักษา / เตียง / ปี',`365.25 × ${nf(p.occupancy,1)}% ÷ ${nf(p.los,1)} วัน = ${nf(baseAdmissions,2)} ครั้ง`],
     ['2. จำนวนเหตุการณ์เสียชีวิตคาดหมาย / เตียง / ปี',`${nf(baseAdmissions,2)} × ${nf(p.mortality,2)}% = ${nf(baseDeaths,3)} เหตุการณ์`],
     ['3. ประมาณอายุโครงและขอบเขต',`${p.frameMode==='exact'?'อายุจากวันเริ่มใช้ที่กรอก':'อายุโครงจากการสุ่ม 0 ถึงรอบใช้งาน'} · ค่ากลาง ${nf(mAge,2)} ปี · ${p.frames} โครง`],
-    ['4. คำนวณเงินซื้อที่ต่อ “ดวง”',`${nf(p.money,2)} บาท ÷ จำนวนเหตุการณ์คาดหมาย ${nf(mSoul,3)} = ${Number.isFinite(mBaht)?nf(mBaht,2):'ไม่สามารถคำนวณ'} บาท/“ดวง” (ใช้ค่ามัธยฐานของผลสุ่ม)`]
+    ['4. คำนวณเงินซื้อที่ต่อ “ดวง”',`${nf(p.money,2)} บาท ÷ จำนวนเหตุการณ์คาดหมาย ${nf(mSoul,3)} = ${Number.isFinite(mBaht)?nf(mBaht,2):'ไม่สามารถคำนวณ'} บาท/“ดวง” (ใช้ค่ามัธยฐานของผลสุ่ม)`],
+    ['5. GSI — เงินซื้อที่เทียบค่าแรงก่อนเสียชีวิต',`${nf(p.dailyWage,0)} บาท/วัน × (1 + ${nf(p.inflationRate,1)}%)^${years} × ${nf(p.payHours,1)}/8 ชม. × ตัวคูณรายได้ ${nf(wageMix,2)} × ${nf(mSoul,2)} “ดวง” = งบเป้าหมาย ${nf(targetTotal,2)} บาท; จ่าย ${nf(p.money,2)} บาท คิดเป็น ${nf(coverage,1)}% ของงบเป้าหมาย (สมมติทั้งหมด)`]
   ];
   for(const [a,b] of items){const div=document.createElement('div');div.className='calc-step';const head=document.createElement('strong');head.textContent=a;const body=document.createElement('div');body.textContent=b;div.append(head,body);$('steps').append(div)}
   renderHistogram(finite,p10,p90);
-  lastResult={application:'ซื้อที่ Calculator — Manorom',version:'1.0',generated_at:new Date().toISOString(),hospital:{name:'โรงพยาบาลมโนรมย์',province:'ชัยนาท',healthcare_code:'10802',official_inpatient_beds:30,level:'F2',official_source:'https://hcode.moph.go.th/code/18801/'},selected:{scope,simulated_bed_number:scope==='one'?selectedBed:null,frame_count:p.frames,bed_numbers_are_real:false},inputs:{...p},outputs:{admissions_per_bed_per_year:baseAdmissions,expected_deaths_per_bed_per_year:baseDeaths,median_frame_age_years:mAge,median_expected_events:mSoul,median_baht_per_soul:mBaht,p10_baht_per_soul:p10,p90_baht_per_soul:p90,iterations:N},disclaimer:'All patient parameters and bed-frame age are user-set assumptions, not Manorom Hospital patient data. Expected events are not evidence of deaths on a specific bed or of spirits.'};
+  lastResult={application:'ซื้อที่ Calculator — Manorom',version:'2.0',generated_at:new Date().toISOString(),hospital:{name:'โรงพยาบาลมโนรมย์',province:'ชัยนาท',healthcare_code:'10802',official_inpatient_beds:30,level:'F2',official_source:'https://hcode.moph.go.th/code/18801/'},selected:{scope,simulated_bed_number:scope==='one'?selectedBed:null,frame_count:p.frames,bed_numbers_are_real:false},inputs:{...p},outputs:{admissions_per_bed_per_year:baseAdmissions,expected_deaths_per_bed_per_year:baseDeaths,median_frame_age_years:mAge,median_expected_events:mSoul,median_baht_per_soul:mBaht,p10_baht_per_soul:p10,p90_baht_per_soul:p90,iterations:N,ghost_salary_index_percent:coverage,fictional_target_baht_per_soul:thresholdPerSoul,fictional_target_total_baht:targetTotal,fictional_shortfall_baht:shortfall,assumed_daily_wage_in_current_baht:wageNow,income_weighted_multiplier:wageMix},disclaimer:'All patient parameters and bed-frame age are user-set assumptions, not Manorom Hospital patient data. Expected events are not evidence of deaths on a specific bed or of spirits.'};
 }
 function renderHistogram(finite,p10,p90){
   const svg=$('histogram'),NS='http://www.w3.org/2000/svg';svg.replaceChildren();
@@ -296,10 +436,106 @@ function renderHistogram(finite,p10,p90){
 $('scopeOne').onclick=()=>setScope('one');$('scopeAll').onclick=()=>setScope('all');
 $('frameMode').addEventListener('change',()=>{toggleFrame();calculate()});
 $('calc').onclick=calculate;
-for(const id of ['money','occupancy','los','mortality','lifeMin','lifeMax','frameDate','iterations','uncertainty']){$(id).addEventListener('change',calculate)}
+for(const id of ['money','occupancy','los','mortality','lifeMin','lifeMax','frameDate','iterations','uncertainty','dailyWage','deathYear','inflationRate','payHours','incomeMode']){$(id).addEventListener('change',calculate)}
 $('reset').onclick=()=>{for(const [k,v] of Object.entries(BASE))$(k).value=v;selectedBed=1;scope='one';$('scopeOne').setAttribute('aria-pressed','true');$('scopeAll').setAttribute('aria-pressed','false');toggleFrame();renderMap();calculate()};
 $('export').onclick=()=>{if(!lastResult)calculate();if(!lastResult)return;const blob=new Blob([JSON.stringify(lastResult,null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='manorom-sue-thi-result.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
-$('copy').onclick=async()=>{if(!lastResult)calculate();if(!lastResult)return;const o=lastResult.outputs,bed=lastResult.selected;const summary=`ซื้อที่ Calculator — โรงพยาบาลมโนรมย์\nขอบเขต: ${bed.frame_count} โครงเตียง (หมายเลขสมมติ ${bed.simulated_bed_number??'ทั้งหมด'})\nเงินซื้อที่: ${nf(lastResult.inputs.money,2)} บาท\nจำนวนเหตุการณ์เสียชีวิตคาดหมาย: ${nf(o.median_expected_events,2)}\nค่าเฉลี่ยต่อ “ดวง” (มัธยฐานผลจำลอง): ${nf(o.median_baht_per_soul,2)} บาท\nช่วง P10–P90: ${nf(o.p10_baht_per_soul,2)}–${nf(o.p90_baht_per_soul,2)} บาท\nหมายเหตุ: ตัวเลขผู้ป่วยและอายุโครงเป็นค่าจำลอง ไม่ใช่สถิติของโรงพยาบาล`;try{await navigator.clipboard.writeText(summary);$('copy').textContent='คัดลอกแล้ว ✓';setTimeout(()=>$('copy').textContent='คัดลอกสรุป',2000)}catch(e){window.prompt('คัดลอกข้อความนี้',summary)}};
+$('copy').onclick=async()=>{if(!lastResult)calculate();if(!lastResult)return;const o=lastResult.outputs,bed=lastResult.selected;const summary=`ซื้อที่ Calculator — โรงพยาบาลมโนรมย์\nขอบเขต: ${bed.frame_count} โครงเตียง (หมายเลขสมมติ ${bed.simulated_bed_number??'ทั้งหมด'})\nเงินซื้อที่: ${nf(lastResult.inputs.money,2)} บาท\nจำนวนเหตุการณ์เสียชีวิตคาดหมาย: ${nf(o.median_expected_events,2)}\nค่าเฉลี่ยต่อ “ดวง” (มัธยฐานผลจำลอง): ${nf(o.median_baht_per_soul,2)} บาท\nช่วง P10–P90: ${nf(o.p10_baht_per_soul,2)}–${nf(o.p90_baht_per_soul,2)} บาท\nGSI (สมมติ): ${nf(o.ghost_salary_index_percent,1)}% ของเป้าหมายค่าแรง; งบเป้าหมาย ${nf(o.fictional_target_total_baht,2)} บาท\nหมายเหตุ: ตัวเลขผู้ป่วยและอายุโครงเป็นค่าจำลอง ไม่ใช่สถิติของโรงพยาบาล`;try{await navigator.clipboard.writeText(summary);$('copy').textContent='คัดลอกแล้ว ✓';setTimeout(()=>$('copy').textContent='คัดลอกสรุป',2000)}catch(e){window.prompt('คัดลอกข้อความนี้',summary)}};
+
+// --------- Verified historical data (offline, embedded) ---------
+// World Bank WDI FP.CPI.TOTL.ZG Thailand annual % observations (not future forecasts).
+// CPI level is reconstructed from rates, normalized 2010=100.
+const CPI_INFLATION = {"1991":5.70985259891396,"1992":4.13914575077053,"1993":3.31219168428468,"1994":5.04774897680754,"1995":5.81818181818192,"1996":5.80510554737349,"1997":5.62579747129105,"1998":7.99472875027456,"1999":0.284726459223047,"2000":1.59196917460971,"2001":1.62690887314091,"2002":0.697308976625448,"2003":1.80434994635718,"2004":2.75914926231082,"2005":4.54036919634536,"2006":4.63747436011763,"2007":2.24154095286801,"2008":5.46848949649846,"2009":-0.84571609231672,"2010":3.24758842443725,"2011":3.81191694558332,"2012":3.00948610403357,"2013":2.18617704418966,"2014":1.89455652481545,"2015":-0.898143410569433,"2016":0.186235191075453,"2017":0.664415139830892,"2018":1.06683487370757,"2019":0.705524801910316,"2020":-0.846087518861798,"2021":1.23104516549814,"2022":6.07589952842432,"2023":1.22908986612448,"2024":0.398333333333422,"2025":-0.133634356480206};
+const WAGE_CHAI_NAT = {"2013":300,"2014":300,"2015":300,"2016":300,"2017":305,"2018":315,"2019":315,"2020":320,"2021":320,"2022":335,"2023":335,"2024":341,"2025":348}; // Legal minimum baht/day, year-end general rate. No wages for 1990-2012.
+const CPI_INDEX = {2010:100};
+for(let year=2009;year>=1990;year--) CPI_INDEX[year]=CPI_INDEX[year+1]/(1+CPI_INFLATION[year+1]/100);
+for(let year=2011;year<=2025;year++) CPI_INDEX[year]=CPI_INDEX[year-1]*(1+CPI_INFLATION[year]/100);
+let activeMode='real';
+const moneyFmt=(n,digits=2)=>Number.isFinite(n)?n.toLocaleString('th-TH',{minimumFractionDigits:digits,maximumFractionDigits:digits}):'—';
+function setMode(mode){
+ activeMode=mode;
+ $('realMode').style.display=mode==='real'?'block':'none';
+ $('ghostMode').style.display=mode==='ghost'?'grid':'none';
+ $('tabReal').setAttribute('aria-selected',String(mode==='real'));
+ $('tabGhost').setAttribute('aria-selected',String(mode==='ghost'));
+ if(mode==='ghost')calculate();else computeReal();
+}
+function makeRealYears(){
+ const select=$('realYear');select.replaceChildren();
+ for(let y=2025;y>=1990;y--){
+   const o=document.createElement('option');o.value=y;o.textContent=`พ.ศ. ${y+543} (${y})`;select.appendChild(o);
+ }
+ select.value='1997';
+}
+function computeReal(){
+ const v=$('realAmount').value.trim(),amount=Number(v),y=Number($('realYear').value),direction=$('realDirection').value;
+ const bad=v===''||!Number.isFinite(amount)||amount<0||amount>1e9||!Number.isInteger(y)||y<1990||y>2025||!['pastNow','nowPast'].includes(direction);
+ $('realError').style.display=bad?'block':'none'; $('realError').textContent=bad?'กรุณาใส่จำนวนเงินตั้งแต่ 0 ถึง 1,000,000,000 บาท และเลือกปีที่ถูกต้อง':'';
+ if(bad)return;
+ const pastCPI=CPI_INDEX[y],latestCPI=CPI_INDEX[2025];
+ const sourceCPI=direction==='pastNow'?pastCPI:latestCPI;
+ const destCPI=direction==='pastNow'?latestCPI:pastCPI;
+ const ratio=destCPI/sourceCPI;
+ const output=amount*ratio;
+ $('realEquivalent').textContent=moneyFmt(output);
+ $('realRatio').textContent='×'+moneyFmt(ratio,3);
+ $('realChange').textContent=(ratio>1?'+':'')+moneyFmt((ratio-1)*100,1)+'%';
+ $('realCpi').textContent=moneyFmt(pastCPI,2);
+ $('realHeadline').textContent=direction==='pastNow'?`เงิน พ.ศ. ${y+543} เทียบเท่าปี 2568`:`เงินปี 2568 เทียบเท่าค่าเงิน พ.ศ. ${y+543}`;
+ $('realFormula').textContent=`${moneyFmt(amount)} บาท × (${moneyFmt(destCPI,3)} ÷ ${moneyFmt(sourceCPI,3)}) = ${moneyFmt(output)} บาท · ดัชนี 2553 = 100`;
+ $('realInsight').textContent=direction==='pastNow'?`เงิน ${moneyFmt(amount)} บาท ในปี พ.ศ. ${y+543} ต้องใช้ประมาณ ${moneyFmt(output)} บาท ใน พ.ศ. 2568 เพื่อซื้อสินค้าและบริการในตะกร้า CPI โดยเฉลี่ยให้ได้ใกล้เคียงเดิม`:`เงิน ${moneyFmt(amount)} บาท ณ พ.ศ. 2568 มีอำนาจซื้อเฉลี่ยเทียบเท่าประมาณ ${moneyFmt(output)} บาท ใน พ.ศ. ${y+543}`;
+ renderCpiChart(y);
+ // Value both years in their own nominal baht; do NOT mistake CPI-adjusted nominal for wage burden.
+ const wageOld=WAGE_CHAI_NAT[y], wage2025=WAGE_CHAI_NAT[2025];
+ const oldNominal=direction==='pastNow'?amount:output;
+ const newNominal=direction==='pastNow'?output:amount;
+ $('wageNow').textContent=`ค่าจ้างขั้นต่ำ 2568: ${wage2025} บาท/วัน`;
+ $('wagePast').textContent=wageOld?`ค่าจ้างขั้นต่ำ ${y+543}: ${wageOld} บาท/วัน`:'ก่อนปี 2556: ไม่รวมข้อมูลค่าแรงในชุดนี้';
+ $('wageLabelPast').textContent=`เวลาทำงานใน พ.ศ. ${y+543}`;
+ if(!wageOld){
+   $('wageMinutesPast').textContent='ไม่มีข้อมูล';
+   $('wageMinutesNow').textContent=moneyFmt(newNominal*480/wage2025,1)+' นาที';
+   $('wageBurden').textContent='—';
+   $('wageExplanation').textContent=`ไม่มีค่าแรงขั้นต่ำชัยนาทก่อน พ.ศ. 2556 ในชุดข้อมูลที่ฝังไว้ จึงไม่คำนวณเวลาทำงานย้อนหลังสำหรับปี ${y+543} เพื่อหลีกเลี่ยงการเดาข้อมูล`;
+ }else{
+   const oldMinutes=oldNominal*480/wageOld,nowMinutes=newNominal*480/wage2025;
+   $('wageMinutesPast').textContent=moneyFmt(oldMinutes,1)+' นาที';
+   $('wageMinutesNow').textContent=moneyFmt(nowMinutes,1)+' นาที';
+   $('wageBurden').textContent=oldMinutes>0?moneyFmt(nowMinutes/oldMinutes,2)+' เท่า':'—';
+   $('wageExplanation').textContent=`เทียบจำนวนเงินที่มีอำนาจซื้อเฉลี่ยเท่ากันใน 2 ปี แล้วหารด้วยค่าจ้างขั้นต่ำทั่วไปของชัยนาทแต่ละปี เพื่อดูว่าคนทำงานค่าแรงขั้นต่ำต้องใช้เวลาทำงานเท่าไร`;
+ }
+}
+function renderCpiChart(selected){
+ const svg=$('cpiChart'),NS='http://www.w3.org/2000/svg';svg.replaceChildren();
+ const add=(tag,attrs={},content)=>{const e=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,''+v));if(content!==undefined)e.textContent=content;svg.append(e);return e};
+ const xFor=y=>52+(y-1990)/35*710,yFor=val=>203-(val-42)/88*174;
+ for(let value=50;value<=130;value+=20){const ty=yFor(value);add('line',{x1:50,x2:768,y1:ty,y2:ty,stroke:'#52616b','stroke-width':.65});add('text',{x:6,y:ty+5,fill:'#b8c4c8','font-size':12},value)}
+ const points=Array.from({length:36},(_,i)=>{const year=1990+i;return `${xFor(year)},${yFor(CPI_INDEX[year])}`}).join(' ');
+ add('polyline',{points,fill:'none',stroke:'#e3b36b','stroke-width':3.7,'stroke-linecap':'round','stroke-linejoin':'round'});
+ const x=xFor(selected),y=yFor(CPI_INDEX[selected]);
+ add('line',{x1:x,y1:21,x2:x,y2:205,stroke:'#f4dcb2','stroke-dasharray':'4 4','stroke-width':1.5});
+ add('circle',{cx:x,cy:y,r:7,stroke:'#38282b','stroke-width':3,fill:'#fff2d1'});
+ const label=`${selected+543} · ${moneyFmt(CPI_INDEX[selected],1)}`;
+ add('rect',{x:Math.max(7,Math.min(656,x-40)),y:Math.max(7,y-42),width:131,height:25,rx:7,fill:'#f1d5a8'});
+ add('text',{x:Math.max(7,Math.min(656,x-40))+7,y:Math.max(7,y-42)+17,fill:'#1d2026','font-size':12,'font-weight':800},label);
+}
+$('tabReal').onclick=()=>setMode('real');
+$('tabGhost').onclick=()=>setMode('ghost');
+$('realAmount').addEventListener('input',computeReal);
+$('realYear').addEventListener('change',computeReal);
+$('realDirection').addEventListener('change',computeReal);
+for(const btn of document.querySelectorAll('.quick-year'))btn.onclick=()=>{$('realYear').value=btn.dataset.year;computeReal()};
+$('realReset').onclick=()=>{$('realAmount').value='10';$('realYear').value='1997';$('realDirection').value='pastNow';computeReal()};
+$('realCopy').onclick=async()=>{
+ const t=`ซื้อที่ Calculator — เครื่องมืออำนาจซื้อ
+${$('realHeadline').textContent}
+ผลลัพธ์ ${$('realEquivalent').textContent} บาท
+${$('realFormula').textContent}
+${$('wagePast').textContent} · ${$('wageNow').textContent}
+แหล่งข้อมูล World Bank WDI / ค่าจ้างขั้นต่ำชัยนาท (ข้อมูล ณ ปี 2568)`;
+ try{await navigator.clipboard.writeText(t);$('realCopy').textContent='คัดลอกแล้ว ✓';setTimeout(()=>$('realCopy').textContent='คัดลอกผลเปรียบเทียบ',1700)}catch(e){window.prompt('คัดลอกข้อความนี้',t)};
+};
+makeRealYears();computeReal();
+
 renderMap();toggleFrame();calculate();
 </script>
 </body>
