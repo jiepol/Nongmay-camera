@@ -2,541 +2,206 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#171b22">
-<meta name="version" content="2.0">
-<meta name="description" content="เว็บแอปสองโหมด: เทียบกำลังซื้อเงินบาทในอดีตกับค่าแรงขั้นต่ำชัยนาทจากข้อมูลสาธารณะ และเครื่องคำนวณซื้อที่แฟนตาซี ไม่มีข้อมูลผู้ป่วยจริง">
-<title>ซื้อที่ Calculator — Manorom 2.0 | ค่าเงินในอดีต × ผีซื้อที่</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#191c1c">
+<meta name="description" content="ซื้อที่ Advisor — เว็บสายมูแนวโปสเตอร์หนังผีไทยเก่า ตอบคำถามสั้น ๆ แล้วลองปรับเงินซื้อที่กับดัชนีความพอใจของผี (จำลองเพื่อความบันเทิง)">
+<title>ซื้อที่ Advisor 3.0 — โรงพยาบาลมโนรมย์ (ฉบับสนุก)</title>
 <style>
-:root {--bg:#141820;--panel:#1b2028;--panel2:#222832;--panel3:#282c32;--line:#3a414b;--text:#f5f0e8;--sub:#b4bbc3;--gold:#e7b765;--gold2:#f1cf91;--red:#cb675a;--red2:#e18c77;--green:#8dd3b2;--shadow:0 18px 52px #07080c88}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;color:var(--text);background:radial-gradient(circle at 8% 0%,#46282b 0,transparent 33%),radial-gradient(circle at 100% 0%,#27363b,transparent 36%),var(--bg);font-family:system-ui,-apple-system,"Noto Sans Thai","Segoe UI",Tahoma,sans-serif;line-height:1.6}
-button,input,select{font:inherit}
-button{cursor:pointer}
-a{color:var(--gold2)}a:hover{color:#fff}
-button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-.shell{max-width:1210px;padding:20px 20px 70px;margin:auto}
-.sitebar{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;letter-spacing:.14em;color:var(--sub);margin-bottom:12px}
-.sitebar strong{font-weight:800;color:var(--gold2)}
-.hero{border-radius:22px;border:1px solid #695547;background:linear-gradient(118deg,#38232a 0%,#25222b 44%,#172731 100%);box-shadow:var(--shadow);padding:27px 30px;overflow:hidden;position:relative}
-.hero:after{content:"✧";position:absolute;color:#eec38a13;font-size:380px;right:-15px;top:-175px;pointer-events:none}
-.eyebrow{display:inline-block;color:var(--gold2);letter-spacing:.13em;font-size:12px;font-weight:800;text-transform:uppercase}
-.hero h1{font-size:clamp(32px,4.3vw,55px);letter-spacing:-.045em;line-height:1.23;margin:7px 0 10px;position:relative;z-index:1}
-.hero h1 em{color:var(--gold);font-style:normal}
-.hero p{max-width:720px;color:#dfd3cc;position:relative;z-index:1;margin:0 0 16px;font-size:14px}
-.tags{display:flex;gap:7px;flex-wrap:wrap;position:relative;z-index:1}
-.tag{border:1px solid #80624d99;background:#241d1a88;border-radius:40px;padding:4px 10px;color:#ffdbad;font-size:12px;font-weight:700}
-.tag.quiet{border-color:#59646b;color:#bcccd4;background:#1b27318a}
-.fact-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0 22px}
-.fact{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px 15px;min-height:105px}
-.fact .big{font-size:clamp(24px,3vw,34px);font-weight:900;color:var(--gold2);line-height:1.3}
-.fact .unit{font-size:14px;font-weight:500;color:#e0e3df}
-.fact .cap{font-size:12px;color:var(--sub);line-height:1.4;margin-top:7px}
-.section-grid{display:grid;grid-template-columns:390px minmax(0,1fr);gap:18px;align-items:start}
-.panel{background:linear-gradient(150deg,#202630,#191e26);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 10px 35px #090b1040}
-.panel + .panel{margin-top:16px}
-.panelhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:15px}
-.hlabel{font-size:12px;color:var(--gold);letter-spacing:.14em;font-weight:800;margin-bottom:3px}
-h2{margin:0;font-size:21px;line-height:1.35}h3{margin:0 0 9px;font-size:16px}
-.desc{font-size:13px;color:var(--sub);margin:7px 0 0;line-height:1.7}
-.ornament{color:var(--gold);font-size:25px;line-height:1}
-.bed-scene{background:radial-gradient(circle at 40% 20%,#3e3b3b,#262a33 70%);border:1px solid #705c47;border-radius:16px;min-height:148px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:15px}
-.bed-scene:before{content:"";height:1px;position:absolute;bottom:28px;width:80%;background:linear-gradient(90deg,transparent,#bda07c,transparent)}
-.bed-scene svg{width:90%;max-width:310px;height:auto;filter:drop-shadow(0 11px 7px #0006)}
-.bed-scene .scene-label{position:absolute;bottom:7px;right:12px;font-size:10px;color:#bea78a;letter-spacing:.12em}
-.switches{display:flex;gap:5px;padding:5px;background:#10141b;border:1px solid var(--line);border-radius:12px}
-.switches button{border:0;border-radius:9px;color:#aeb3bd;background:transparent;flex:1;padding:10px 6px;font-size:13px;font-weight:700}
-.switches button[aria-pressed="true"]{background:#64513d;color:#fff1d5;box-shadow:inset 0 0 0 1px #95714b}
-.bed-map{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:15px 0 6px}
-.bed{background:#262c32;color:#c2c7cc;border:1px solid #45505b;border-radius:9px;padding:10px 0;text-align:center;font-size:13px;font-weight:800;transition:transform .12s}
-.bed:hover{transform:translateY(-2px);border-color:var(--gold)}
-.bed[aria-pressed="true"]{color:#191b22;background:linear-gradient(135deg,#f1d49e,#cfa46b);border-color:#f4d9ae}
-.bed.all-selected{border-color:#a48965;background:#463e36;color:#f3d5a5}
-.subnote{color:#d2b697;font-size:12px;margin:10px 0 0;line-height:1.6}
-.alert{background:#2b251e;border-left:3px solid var(--gold);border-radius:10px;color:#f8e0b6;padding:10px 12px;font-size:12px;line-height:1.6;margin-top:12px}
-.alert.red{background:#332224;border-left-color:var(--red2);color:#ffd2c9}
-.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
-.field{display:grid;gap:5px}
-.field label{color:#e7e1d7;font-size:12px;font-weight:700}
-.field .hint{font-size:11px;color:#a4adb6;line-height:1.45}
-input,select{width:100%;min-width:0;background:#11161e;border:1px solid #45515d;border-radius:11px;color:#f9f5ec;padding:11px 12px;outline:none}
-input:focus,select:focus{border-color:#d7a96b}
-input[type=date]{color-scheme:dark}
-hr{border:0;border-top:1px solid var(--line);margin:20px 0}
-.section-heading{display:flex;align-items:center;gap:9px;margin:0 0 12px;font-size:13px;color:#eed0a2;letter-spacing:.08em;font-weight:900}
-.section-heading:after{content:"";flex:1;height:1px;background:#5b4c42}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:19px}
-.btn{border-radius:11px;padding:12px 16px;border:0;font-weight:850;font-size:13px}
-.btn.primary{background:linear-gradient(120deg,#edc27e,#d99a5a);color:#291d15;flex:1}
-.btn.secondary{color:#ead1b1;background:#343036;border:1px solid #80664d}
-.btn.ghost{color:#c6cbd1;background:#292f39;border:1px solid #495461}
-.error{display:none;margin-top:12px;background:#4c2227;color:#ffdbdb;border-radius:9px;padding:10px;font-size:13px}
-.results-top{display:flex;justify-content:space-between;gap:15px;align-items:start}
-.kicker{color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.11em}
-.result-number{font-weight:900;font-size:clamp(39px,6vw,66px);line-height:1.12;letter-spacing:-.045em;color:#ffdcaa;margin:7px 0 2px}
-.result-number span{font-size:18px;letter-spacing:0;font-weight:700;color:#d1c0b6}
-.result-panel{margin-top:16px;border:1px solid #906744;background:linear-gradient(115deg,#3b2929,#282832 70%);padding:20px;border-radius:20px;box-shadow:0 12px 25px #0003}
-.range{font-size:13px;color:#e5d0c0;margin:4px 0 10px}
-.result-mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:17px}
-.rstat{border:1px solid #695449;border-radius:11px;padding:11px;background:#30292b}
-.rstat b{display:block;color:#fae0b4;font-size:19px;line-height:1.4}
-.rstat span{font-size:11px;color:#c8b5a7}
-.result-note{font-size:12px;color:#e1c9b0;margin-top:12px}
-.chart-wrap{margin:16px 0 0;padding:12px;background:#171b23;border:1px solid #4b4846;border-radius:12px}
-.chart-title{font-size:12px;color:#ccc6c0;margin-bottom:4px}
-#histogram{width:100%;height:156px;display:block}
-.axis{display:flex;justify-content:space-between;gap:12px;color:#aaaab0;font-size:11px;margin-top:2px}
-.calc-steps{display:grid;gap:9px;margin-top:16px}
-.calc-step{background:#171d26;border:1px solid #333f4b;border-radius:11px;padding:12px 13px;font-size:12px;color:#c4cbd2}
-.calc-step strong{color:#f2ddbf}
-.calc-step code{color:#f0c58d;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
-.source{margin:8px 0;padding:11px 13px;border:1px solid #444b51;background:#191e25;border-radius:12px;font-size:12px;color:#c4cbd1}
-.source strong{color:#f0e5d4}
-.source a{overflow-wrap:anywhere}
-.footer{color:#a2a8ad;font-size:12px;line-height:1.8;margin-top:24px;border-top:1px solid var(--line);padding:14px 2px}
-
-/* ============ 2.0 historical money experience ============ */
-.mode-nav{display:flex;gap:10px;margin:16px 0 17px;padding:7px;background:#111820;border:1px solid #675343;border-radius:17px;flex-wrap:wrap}
-.mode-tab{flex:1;min-width:145px;padding:14px 12px;background:transparent;color:#d4c8bb;border:1px solid transparent;border-radius:12px;font-weight:850;text-align:center}
-.mode-tab[aria-selected="true"]{background:linear-gradient(110deg,#f3ce8b,#d9a565);color:#251c18;box-shadow:0 4px 18px #16100d80}
-.mode-tab .small{display:block;font-size:11px;font-weight:500;opacity:.82}
-.real-mode{display:block}
-.real-hero{background:linear-gradient(120deg,#282b30,#22292c 63%,#35292a);border:1px solid #6f604b;border-radius:18px;padding:23px 24px;margin-bottom:16px}
-.real-hero h2{font-size:clamp(22px,3vw,32px);margin:5px 0}
-.real-hero p{color:#cdd1d4;margin:0;max-width:780px;font-size:13px}
-.money-layout{display:grid;grid-template-columns:minmax(280px,390px) 1fr;gap:16px;align-items:start}
-.history-controls{display:grid;gap:13px}
-.quick-years{display:flex;gap:7px;flex-wrap:wrap;margin-top:4px}
-.quick-year{border:1px solid #6c5c4c;background:#312c2b;color:#efd3ac;border-radius:7px;padding:5px 10px;font-size:12px}
-.quick-year:hover{background:#524038}
-.data-kicker{font-size:12px;letter-spacing:.08em;color:#e7be7d;font-weight:800}
-.data-result{background:linear-gradient(130deg,#48302c,#25292d);border:1px solid #956b4f;border-radius:19px;padding:20px 21px;margin-bottom:15px}
-.data-figure{font-size:clamp(32px,5vw,58px);font-weight:900;letter-spacing:-.035em;line-height:1.2;color:#ffe0ad;margin-top:5px}
-.data-figure span{font-size:17px;font-weight:700}
-.data-hint{font-size:12px;color:#dbc5af}
-.data-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
-.data-stat{padding:12px;border-radius:12px;border:1px solid #615249;background:#2c2b2f}
-.data-stat b{display:block;color:#ffe5b6;font-size:20px;line-height:1.4}
-.data-stat span{color:#c8c4bf;font-size:11px}
-#cpiChart{width:100%;height:230px;display:block}
-.insight{font-size:13px;color:#e2d9cb;margin:12px 0 0;line-height:1.7}
-.wage-box{padding:16px;background:#1b2528;border:1px solid #455961;border-radius:16px;margin-top:15px}
-.wage-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.wage-pill{border:1px solid #59695f;border-radius:9px;padding:8px 12px;background:#25302e;color:#d1eee0;font-size:13px}
-.source-info{font-size:12px;margin:8px 0;color:#b8c5c9}
-.data-sources{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
-.real-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.real-actions button{flex:1}
-@media(max-width:860px){.money-layout{grid-template-columns:1fr}.data-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:580px){.real-hero{padding:17px}.real-hero h2{font-size:25px}.data-result{padding:16px}.data-stats{grid-template-columns:1fr}.data-stat{display:flex;align-items:center;gap:14px}.data-stat b{min-width:110px}.data-sources{grid-template-columns:1fr}.mode-nav{gap:4px}.mode-tab{min-width:unset;padding:10px 5px;font-size:12px}.mode-tab .small{font-size:10px}#cpiChart{height:185px}}
-
-/* Theatrical purchasing-power comparison: never an actual ghost rating */
-.gsi-panel{margin-top:16px;border:1px solid #a1764d;background:linear-gradient(125deg,#322b29,#1e272b);border-radius:17px;padding:16px 18px}
-.gsi-top{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.gsi-big{font-weight:900;color:#ffdfad;font-size:clamp(30px,5vw,48px);line-height:1.25}
-.gsi-big span{font-size:14px;color:#e6c5a3}
-.gsi-track{height:15px;border:1px solid #77624e;border-radius:24px;background:#16191d;overflow:hidden;margin:12px 0}
-.gsi-fill{width:0;height:100%;background:linear-gradient(90deg,#a75451,#e0a95d,#8ebfaa);transition:width .3s}
-.gsi-description{color:#d4c3ad;font-size:12px;margin:7px 0 0}
-.gsi-alert{background:#231d20;border:1px solid #594247;border-radius:12px;padding:11px;color:#e2c8be;font-size:12px;line-height:1.6;margin-top:12px}
-.gsi-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:13px}
-.gsi-cell{background:#24252b;border:1px solid #5b514a;padding:10px 12px;border-radius:10px}
-.gsi-cell b{color:#fff0d1;display:block;font-size:18px}
-.gsi-cell span{font-size:11px;color:#c4b8aa}
-.mobile-only{display:none}
-@media(max-width:930px){.section-grid{grid-template-columns:1fr}.fact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bed-map{grid-template-columns:repeat(10,1fr)}}
-@media(max-width:580px){.shell{padding:10px 11px 40px}.sitebar{font-size:10px}.hero{padding:23px 19px;border-radius:17px}.hero h1{font-size:34px}.panel{padding:16px;border-radius:15px}.fact{padding:12px;min-height:90px}.fact-grid{gap:8px;margin-bottom:12px}.fact .big{font-size:24px}.grid2{grid-template-columns:1fr}.bed-map{grid-template-columns:repeat(6,1fr)}.result-mini{gap:6px}.rstat{padding:9px}.rstat b{font-size:16px}.result-panel{padding:16px}.result-number{font-size:43px}.tags .tag{font-size:11px}.actions .btn{flex:1 1 44%}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;scroll-behavior:auto!important}}
+:root {color-scheme:dark;--ink:#191b1c;--ink2:#22272a;--paper:#f1dcb3;--paper2:#e4c491;--red:#aa382d;--gold:#eabb67;--sage:#a6b7a1;--line:#6d6255;--muted:#dbc8aa;--cream:#fff0cf}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#151819;color:var(--cream);font-family:Tahoma,"Noto Sans Thai",system-ui,sans-serif;min-width:315px;line-height:1.55}
+body:before{content:"";position:fixed;inset:0;z-index:-1;opacity:.3;pointer-events:none;background:radial-gradient(circle at 14% 12%,#5e302c 0,transparent 32%),radial-gradient(circle at 96% 78%,#51462e 0,transparent 41%),repeating-linear-gradient(90deg,transparent 0,transparent 73px,#ffffff06 74px,#ffffff06 75px)}
+[hidden]{display:none!important}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.app{width:min(100%,820px);margin:auto;padding:17px 17px 38px}
+.ticket{border:1px solid #866b4e;background:linear-gradient(135deg,#27292a 0%,#1d2122 64%,#2f2522 100%);border-radius:16px;overflow:hidden;position:relative;box-shadow:0 16px 54px #080b0ba0}
+.ticket:before{content:"";position:absolute;inset:7px;pointer-events:none;border:1px solid #94775055;border-radius:10px}
+.hero{padding:29px 27px 24px;position:relative;overflow:hidden;min-height:230px;background:radial-gradient(circle at 87% 20%,#a37e5c21,transparent 35%),linear-gradient(95deg,#2c2526,#1b2122 68%,#252323)}
+.hero:after{content:"";position:absolute;pointer-events:none;right:-33px;bottom:-95px;width:255px;height:255px;border:1px solid #c5a36b4a;border-radius:50%;box-shadow:0 0 0 18px #c5a36b0c,0 0 0 43px #c5a36b07;background:radial-gradient(circle,#d6a66228,transparent 64%)}
+.mini-label{color:#f1cf95;letter-spacing:.14em;text-transform:uppercase;font-weight:700;font-size:11px}
+.eyebrow{display:flex;align-items:center;gap:9px;position:relative;z-index:2}
+.eyebrow:before{content:"★";color:#ce9b58;font-size:18px}
+h1{margin:15px 0 0;position:relative;z-index:2;font-weight:900;letter-spacing:-.065em;line-height:1.19;font-size:clamp(33px,7vw,58px);color:#efdfbc;text-shadow:2px 3px #542d2a}
+h1 em{font-style:normal;color:#d45848}
+.herosub{font-size:15px;max-width:520px;color:#e8c99e;margin:10px 0 0;position:relative;z-index:2}
+.ribbon{display:inline-flex;gap:7px;align-items:center;background:#a63c30;padding:5px 12px;transform:rotate(-2deg);color:#fff5e0;letter-spacing:.08em;font-size:11px;font-weight:800;margin-top:17px;position:relative;z-index:2}
+.film{height:21px;border-top:1px solid #9e7748;border-bottom:1px solid #9e7748;background:repeating-linear-gradient(90deg,#b98b55 0 13px,transparent 13px 24px);opacity:.55}
+.content{padding:24px 23px 27px;position:relative}
+.progressline{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:#ddc59c;margin-bottom:10px}
+.progressrail{height:5px;border-radius:20px;background:#4b4540;overflow:hidden;margin:0 0 25px}.progressbar{background:linear-gradient(90deg,#a63b32,#edc37e);height:100%;width:33.333%;transition:width .3s}
+.stage-num{color:#d3a768;font-size:12px;font-weight:800;letter-spacing:.1em}
+h2{font-size:clamp(22px,4.4vw,31px);line-height:1.4;margin:7px 0 9px;letter-spacing:-.025em}
+.q-sub{font-size:13px;color:#c5b69d;margin:0 0 22px}
+.options{display:grid;gap:10px}.option{width:100%;display:flex;gap:13px;align-items:center;text-align:left;color:var(--cream);background:#30302c;border:1px solid #6e5f4a;border-radius:13px;padding:15px 16px;min-height:69px;transition:background .15s,border-color .15s,transform .1s;position:relative}
+.option:hover{background:#40382f;border-color:#d6ac76}.option[aria-pressed="true"]{background:linear-gradient(90deg,#543833,#3d3830);border:2px solid #e4b76d;padding:14px 15px}
+.opt-ico{width:41px;height:41px;border:1px solid #8a7461;background:#242525;border-radius:11px;display:grid;place-items:center;flex:none;color:#e6bd7b;font-size:19px}
+.opt-text{display:flex;flex-direction:column;gap:2px;min-width:0}.opt-text b{font-size:15px}.opt-text small{font-size:12px;color:#c9b9a2;line-height:1.4}.mark{margin-left:auto;color:#e7b76d;font-size:18px;flex:none}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:23px}.btn{border-radius:11px;padding:13px 19px;min-height:49px;font-weight:800;border:1px solid #a88a5e;background:transparent;color:#ead1ac}.btn.primary{background:linear-gradient(135deg,#d0a066,#edc58d);border:1px solid #eac68f;color:#292220;box-shadow:0 4px 0 #765038}.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}.btn:hover:not(:disabled){filter:brightness(1.09)}.btn.share{background:#363530}
+.micro{font-size:11px;color:#b4aa98}.softline{height:1px;background:linear-gradient(90deg,transparent,#997956,transparent);margin:22px 0}
+.result-heading{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}.seal{border:1px solid #d5a968;border-radius:999px;padding:5px 10px;font-size:11px;color:#f2ce94}.sumlabel{margin:19px 0 3px;font-size:14px;color:#e3c9a1}.moneybig{font-weight:900;letter-spacing:-.06em;font-size:clamp(64px,13vw,107px);line-height:1.05;color:#f1c481;text-shadow:2px 4px #4e2926}.moneybig small{font-size:21px;letter-spacing:0;margin-left:9px;color:#eee0c1}
+.reason{background:#302c2a;border:1px solid #755d47;border-radius:12px;padding:15px 17px;margin:17px 0 24px;font-size:14px;color:#f1ddbf}.reason strong{color:#edbd73}.reason p{margin:6px 0 0}
+.gsi{border-radius:14px;padding:21px 18px 20px;border:1px solid #9c7952;background:radial-gradient(circle at 100% 0,#743f342d,transparent 51%),#252827}
+.gsi-title{display:flex;align-items:center;justify-content:space-between;gap:12px}.gsi-title h3{margin:0;font-size:18px}.pill{padding:4px 9px;border-radius:99px;border:1px solid #866a4b;color:#ecc88c;font-size:10px;white-space:nowrap}
+.gsi-stat{display:flex;align-items:baseline;gap:8px;margin-top:12px}.gsi-value{font-size:clamp(49px,11vw,75px);font-weight:900;color:#f7d28b;line-height:1.1;letter-spacing:-.04em}.gsi-value small{font-size:24px}.gsi-grade{font-weight:700;color:#f7d28b;font-size:13px}.barbg{height:11px;background:#4a443e;border-radius:99px;margin:10px 0 13px;overflow:hidden;border:1px solid #715a49}.barfill{height:100%;background:linear-gradient(90deg,#ae4538,#eeb96b,#a6c0a0);width:0;transition:width .3s}
+.slider-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:19px}.slider-top b{font-size:15px}.chosen{font-weight:900;font-size:24px;color:#f2cf92}.range{width:100%;accent-color:#ebbf7a;cursor:pointer;margin:15px 0 10px;height:27px;touch-action:pan-y}
+.range-labels{display:flex;justify-content:space-between;font-size:11px;color:#c3ae91}.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.chip{font-weight:700;color:#edd5af;border:1px solid #87694a;background:#35312e;border-radius:9px;padding:6px 13px;min-width:55px}.chip.active{border-color:#f5d193;background:#5a4536}
+.gsi-msg{font-size:13px;color:#e9d9bd;margin:15px 0 0;min-height:42px}
+.disclaimer{background:#30251f;border-left:3px solid #cb8959;padding:10px 13px;color:#e7c9aa;border-radius:0 9px 9px 0;font-size:11px;line-height:1.7;margin-top:20px}
+.result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.result-actions .btn{flex:1}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:11px;color:#b7a48c;margin:18px 3px 0}.foot b{color:#e0b177}
+@media(min-width:660px){.options{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding:35px 36px 31px}.content{padding:28px 36px 32px}.option{min-height:94px}.ticket{margin-top:14px}.result-actions{gap:14px}}
+@media(max-width:360px){.app{padding:10px 10px 23px}.hero{padding:22px 19px}.content{padding:21px 15px}.nav .btn{padding:11px 14px}.option{padding:11px}.option[aria-pressed="true"]{padding:10px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<div class="shell">
-  <div class="sitebar"><span><strong>MANOROM</strong> / EXPERIMENTAL WEB TOOL</span><span>MODEL v2.0 · CPI + WAGES + GSI</span></div>
-  <header class="hero">
-    <div class="eyebrow">The bed-frame folklore experiment · ชัยนาท</div>
-    <h1>ซื้อที่ <em>Calculator</em><br>โรงพยาบาลมโนรมย์</h1>
-    <p>ถ้าซื้อที่บนเตียงโรงพยาบาลด้วยเงิน 10 บาท จะเฉลี่ยตก “ดวงละกี่บาท”? แบบจำลองสนุก ๆ จากสมมติฐานว่าเรื่องเล่าผูกกับ <b>โครงหลักของเตียง</b> ไม่ใช่ตัวอาคาร — ไม่ใช่การนับวิญญาณจริงหรือข้อมูลเวชระเบียน</p>
-    <div class="tags"><span class="tag">สำหรับโรงพยาบาลมโนรมย์ จ.ชัยนาท</span><span class="tag quiet">ข้อมูลโรงพยาบาลที่ตรวจสอบได้ + ตัวเลขจำลอง</span><span class="tag quiet">ใช้ได้โดยไม่ต้องต่ออินเทอร์เน็ต</span></div>
-  </header>
-  <section class="fact-grid" aria-label="ข้อมูลพื้นฐานโรงพยาบาล">
-    <div class="fact"><div class="big">30 <span class="unit">เตียง</span></div><div class="cap">จำนวนเตียงผู้ป่วยใช้งานจริงที่ขึ้นทะเบียน</div></div>
-    <div class="fact"><div class="big">F2</div><div class="cap">ระดับโรงพยาบาลชุมชน</div></div>
-    <div class="fact"><div class="big">10802</div><div class="cap">รหัสสถานพยาบาล 5 หลัก</div></div>
-    <div class="fact"><div class="big">พ.ศ. 2534</div><div class="cap">เริ่มให้บริการ (เดิมเป็นโรงพยาบาลสาขา)</div></div>
-  </section>
-
-  <div class="mode-nav" role="tablist" aria-label="เลือกเครื่องมือ">
-    <button class="mode-tab" type="button" role="tab" id="tabReal" aria-controls="realMode" aria-selected="true"><span>◈ เงินยุคนั้น ≠ เงินวันนี้</span><span class="small">ข้อมูล CPI + ค่าแรงจริง</span></button>
-    <button class="mode-tab" type="button" role="tab" id="tabGhost" aria-controls="ghostMode" aria-selected="false"><span>✦ ซื้อที่ Calculator</span><span class="small">แบบจำลองผีสายมู</span></button>
-  </div>
-  <section id="realMode" class="real-mode" role="tabpanel" aria-labelledby="tabReal">
-    <div class="real-hero"><span class="eyebrow">01 / REAL DATA LAB · เครื่องมือใช้จริง</span><h2>เงิน 10 บาทในอดีต… วันนี้มีค่าเท่าไร?</h2><p>เทียบกำลังซื้อด้วย CPI ประเทศไทยและค่าแรงขั้นต่ำจังหวัดชัยนาทตามปีที่เลือก — ไม่ใช่การพยากรณ์ ไม่เกี่ยวกับวิญญาณ และไม่เกี่ยวกับข้อมูลผู้ป่วยของโรงพยาบาล</p><div class="tags" style="margin-top:13px"><span class="tag">CPI ไทย พ.ศ. 2533–2568</span><span class="tag quiet">ค่าแรงชัยนาท พ.ศ. 2556–2568</span><span class="tag quiet">เทียบกับปี 2568 · ไม่ใช่ 2569</span></div></div>
-    <div class="money-layout">
-      <section class="panel history-controls" aria-label="ค่าที่ใช้คำนวณอำนาจซื้อ">
-        <div><div class="hlabel">STEP 01</div><h2>ย้อนเวลาจำนวนเงิน</h2><p class="desc">แก้ตัวเลข แล้วผลจะเปลี่ยนทันที</p></div>
-        <div class="field"><label for="realAmount">จำนวนเงิน (บาท)</label><input id="realAmount" type="number" min="0" max="1000000000" step="0.01" value="10"></div>
-        <div class="field"><label for="realYear">เลือกปีในอดีต (พ.ศ.)</label><select id="realYear"></select><div class="quick-years"><button class="quick-year" type="button" data-year="1990">2533</button><button class="quick-year" type="button" data-year="1997">2540</button><button class="quick-year" type="button" data-year="2000">2543</button><button class="quick-year" type="button" data-year="2013">2556</button><button class="quick-year" type="button" data-year="2020">2563</button></div></div>
-        <div class="field"><label for="realDirection">ทิศทางเปรียบเทียบ</label><select id="realDirection"><option value="pastNow">เงินในปีที่เลือก → ค่าเทียบเท่าปี 2568</option><option value="nowPast">เงินปี 2568 → ค่าเทียบเท่าปีที่เลือก</option></select></div>
-        <div class="alert"><b>หลักการ:</b> มูลค่าเทียบเท่า = จำนวนเงินต้นทาง × (CPI ปีปลายทาง ÷ CPI ปีต้นทาง) · ใช้ดัชนีเฉลี่ยทั้งปี ไม่ใช่ราคาเฉพาะสินค้า</div>
-        <div class="real-actions"><button type="button" class="btn secondary" id="realCopy">คัดลอกผลเปรียบเทียบ</button><button type="button" class="btn ghost" id="realReset">คืนค่าเริ่มต้น</button></div>
-        <div id="realError" class="error" role="alert"></div>
+<main class="app">
+  <div class="ticket">
+    <header class="hero">
+      <div class="eyebrow mini-label">THE SUPERNATURAL TIP ADVISOR · EPISODE 03</div>
+      <h1>ซื้อที่<em>เท่าไหร่</em><br>ผีถึงจะพอใจ?</h1>
+      <p class="herosub">รพ.มโนรมย์ · ที่ปรึกษาสายมูฉบับหนังผีเก่า<br>ตอบเพียง 3 คำถาม แล้วรับตัวเลขแนะนำทันที</p>
+      <div class="ribbon">ฉบับสนุก • ไม่ใช่ข้อมูลผู้ป่วยจริง</div>
+    </header>
+    <div class="film" aria-hidden="true"></div>
+    <div class="content">
+      <section id="wizard" aria-label="ตอบคำถามเพื่อรับคำแนะนำ">
+        <div class="progressline"><span id="stepTitle">คำถาม 1 จาก 3</span><span>ซื้อที่ ADVISOR 3.0</span></div>
+        <div class="progressrail" aria-hidden="true"><div class="progressbar" id="progress"></div></div>
+        <div class="stage-num" id="stageNum">QUESTION ONE</div>
+        <h2 id="question">คุณกำลังคิดถึงเตียงแบบไหน?</h2>
+        <p class="q-sub" id="hint">เลือกสถานการณ์สมมติที่ใกล้เคียงที่สุด</p>
+        <div id="options" class="options" role="group" aria-labelledby="question"></div>
+        <div class="nav"><button type="button" class="btn" id="prev" disabled>ย้อนกลับ</button><button type="button" class="btn primary" id="next" disabled>ถัดไป →</button></div>
+        <p class="micro" style="text-align:center;margin:16px 0 0">แตะคำตอบทีละข้อ · บนมือถือปัดซ้ายหรือขวาเพื่อไปหน้าถัดไปได้</p>
       </section>
-      <section>
-        <div class="data-result" aria-live="polite"><div class="data-kicker" id="realHeadline">มูลค่าเงินที่เปรียบเทียบแล้ว</div><div class="data-figure"><span id="realEquivalent">—</span> <span>บาท</span></div><p class="data-hint" id="realFormula">—</p>
-        <div class="data-stats"><div class="data-stat"><b id="realRatio">—</b><span>ตัวคูณของกำลังซื้อ</span></div><div class="data-stat"><b id="realChange">—</b><span>ผลต่างมูลค่า (%)</span></div><div class="data-stat"><b id="realCpi">—</b><span>ดัชนี CPI ปีที่เลือก (2010=100)</span></div></div>
-        <p class="insight" id="realInsight">—</p></div>
-        <div class="panel"><div class="hlabel">PRICE HISTORY</div><h2>กราฟค่าครองชีพไทย พ.ศ. 2533–2568</h2><p class="desc">ดัชนี CPI ปรับฐานปี 2553 = 100 · จุดสีทองคือปีที่เลือก</p>
-          <svg id="cpiChart" viewBox="0 0 800 230" role="img" aria-label="กราฟ CPI ไทยปี 1990 ถึง 2025"></svg>
-          <div class="axis"><span>2533</span><span>2553</span><span>2568</span></div>
-          <p class="source-info">ค่าปี 2533–2568 จากการทบอัตราเงินเฟ้อรายปีใน World Bank WDI เพื่อปรับดัชนีปี 2553 = 100 ไม่ใช่ CPI ของโรงพยาบาล</p></div>
-        <div class="wage-box" aria-live="polite"><div class="data-kicker">LOCAL WAGE / จังหวัดชัยนาท</div><h3 style="margin:6px 0">10 บาท คิดเป็นเวลาทำงานกี่นาที?</h3><p class="desc" id="wageExplanation">—</p>
-          <div class="wage-pills"><div class="wage-pill" id="wagePast">ค่าแรงปีที่เลือก: —</div><div class="wage-pill" id="wageNow">ค่าแรงปี 2568: 348 บาท/วัน</div></div>
-          <div class="data-stats"><div class="data-stat"><b id="wageMinutesPast">—</b><span id="wageLabelPast">เวลาแรงงานปีที่เลือก</span></div><div class="data-stat"><b id="wageMinutesNow">—</b><span>เวลาแรงงานในปี 2568</span></div><div class="data-stat"><b id="wageBurden">—</b><span>อัตราส่วนเวลาทำงาน (ปี 2568 / ปีเดิม)</span></div></div>
-          <p class="source-info">เวลาทำงานคิดสมมติ 8 ชม./วัน; ค่าแรงขั้นต่ำเป็นอัตราตามกฎหมายสำหรับแรงงานบางประเภท ไม่ใช่ค่าจ้างเฉลี่ยหรือรายได้ของผู้เสียชีวิต</p></div>
+      <section id="result" hidden aria-live="polite" aria-label="คำแนะนำเงินซื้อที่">
+        <div class="result-heading"><span class="stage-num">THE ORACLE HAS SPOKEN</span><span class="seal">ใบแนะนำหมายเลข 03</span></div>
+        <p class="sumlabel">สำหรับสถานการณ์ที่เลือก ลองตั้งเงินซื้อที่ประมาณ</p>
+        <div class="moneybig" id="recommendation">—<small>บาท</small></div>
+        <div class="reason"><strong>เพราะอะไรถึงได้ตัวเลขนี้?</strong><p id="rationale"></p></div>
+        <div class="gsi">
+          <div class="gsi-title"><h3>ดัชนีความพึงพอใจของผี</h3><span class="pill">GSI · จำลอง</span></div>
+          <div class="gsi-stat"><span class="gsi-value" id="gsiValue">—<small>/100</small></span><span class="gsi-grade" id="gsiGrade"></span></div>
+          <div class="barbg" role="progressbar" aria-label="ดัชนีความพึงพอใจจำลอง" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gsiBar"><div class="barfill" id="gsiFill"></div></div>
+          <div class="slider-top"><b>ลองปรับเงินซื้อที่</b><span class="chosen" id="selectedAmount">— บาท</span></div>
+          <input id="amount" class="range" type="range" min="0" max="500" step="10" value="100" aria-label="ปรับจำนวนเงินซื้อที่จำลอง">
+          <div class="range-labels"><span>0 บาท</span><span id="rangeMax">500 บาท</span></div>
+          <div class="chips" id="chips" aria-label="จำนวนเงินยอดนิยม"></div>
+          <p class="gsi-msg" id="gsiMessage"></p>
+        </div>
+        <p class="micro" style="margin:16px 2px 5px"><b>ปัจจัยที่นำมาคิด:</b> อายุเตียงสมมติ · ลักษณะการใช้งาน · ค่าแรงเทียบเคียง · ระดับความสบายใจ</p>
+        <div class="disclaimer">นี่คือเรื่องแต่งและคะแนนความพอใจจำลอง ไม่มีหลักฐานว่าผีรับเงินหรือโกรธเพราะได้เงินน้อย <b>ไม่จำเป็นต้องจ่ายเงิน และไม่ควรวางเงินทิ้งไว้บนเตียงโรงพยาบาลจริง</b> เว็บนี้ไม่ใช่บริการทางการของ รพ.มโนรมย์</div>
+        <div class="result-actions"><button type="button" class="btn share" id="reset">↺ ตอบใหม่</button><button type="button" class="btn primary" id="share">คัดลอกผลลัพธ์</button></div>
       </section>
     </div>
-    <div class="data-sources">
-      <section class="panel"><div class="hlabel">DATA SOURCE 01</div><h3>ดัชนีราคาผู้บริโภค — ประเทศไทย</h3><p class="desc">World Bank, World Development Indicators (IMF IFS), อัตราเงินเฟ้อเฉลี่ยรายปี 1991–2025 นำมาทบเป็นดัชนีฐาน 2010 = 100</p><p class="source-info"><a target="_blank" rel="noopener noreferrer" href="https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?locations=TH">ดูข้อมูล World Bank</a> · <a target="_blank" rel="noopener noreferrer" href="https://fred.stlouisfed.org/data/FPCPITOTLZGTHA">ตารางรายปี</a></p></section>
-      <section class="panel"><div class="hlabel">DATA SOURCE 02</div><h3>ค่าแรงขั้นต่ำ — จังหวัดชัยนาท</h3><p class="desc">สำนักงานจังหวัดชัยนาท / กระทรวงแรงงาน / สำนักงานสถิติแห่งชาติ: ข้อมูลหลังปี 2556 ใช้เรตที่มีผล ณ สิ้นปี; ปี 2568 อัตราทั่วไป 348 บาทต่อวัน ยกเว้นกิจการที่กำหนดอัตราพิเศษ</p><p class="source-info"><a target="_blank" rel="noopener noreferrer" href="https://data.go.th/th/dataset/minimum-wage-rate1?is_fullscreen=1">Open Government Data</a> · <a target="_blank" rel="noopener noreferrer" href="https://www.mol.go.th/%E0%B8%AD%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B9%88%E0%B8%B2%E0%B8%88%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B8%82%E0%B8%B1%E0%B9%89%E0%B8%99%E0%B8%95%E0%B9%88%E0%B8%B3">ประกาศกระทรวงแรงงาน</a></p></section>
-    </div>
-    <div class="alert red"><b>อ่านก่อนแชร์:</b> ค่า CPI เป็นค่าเฉลี่ยทั้งประเทศ ไม่ใช่ราคาสินค้าเฉพาะรายการ; ค่าแรงเป็นอัตราขั้นต่ำตามประกาศ ไม่ใช่ค่าแรงเฉลี่ยของคนไทย และข้อมูลอ้างอิงล่าสุดในโหมดนี้คือปี 2568 เท่านั้น</div>
-  </section>
-  <div class="section-grid" id="ghostMode" role="tabpanel" aria-labelledby="tabGhost" style="display:none">
-    <aside>
-      <section class="panel">
-        <div class="panelhead"><div><div class="hlabel">01 / เลือกโครงเตียง</div><h2>เตียงไหนที่เราจะซื้อที่?</h2><p class="desc">เลือกหมายเลขสมมติเพื่ออ้างอิงในแบบจำลอง หรือคำนวณภาพรวม 30 เตียง</p></div><div class="ornament">✦</div></div>
-        <div class="bed-scene" aria-hidden="true">
-          <svg viewBox="0 0 360 150" xmlns="http://www.w3.org/2000/svg" fill="none">
-            <ellipse cx="178" cy="123" rx="148" ry="9" fill="#0b0c11" opacity=".55"/>
-            <path d="M36 46v77m288-94v94" stroke="#ceaa72" stroke-width="8" stroke-linecap="round"/>
-            <path d="M42 79h278v30H42z" fill="#65514c" stroke="#dfb57c" stroke-width="3"/>
-            <path d="M45 69h273v26H45z" fill="#b6bbb2" stroke="#dbd0bb" stroke-width="2"/>
-            <path d="M48 70c55-17 103-14 153-12 46 3 82-2 115 12v27H48z" fill="#d7c3a4"/>
-            <path d="M47 70c28-21 64-19 87-7v12H47z" fill="#f2e6d2"/>
-            <path d="M151 69c14 13 33 27 54 28m31-29c22 20 32 22 53 26" stroke="#a68d77" opacity=".4" stroke-width="2"/>
-            <path d="M33 40v50m292-63v66" stroke="#f2d6a5" stroke-width="3"/>
-            <path d="M28 40h11M319 27h11" stroke="#f7d5a5" stroke-width="5" stroke-linecap="round"/>
-            <circle cx="180" cy="27" r="16" fill="#dfb675" opacity=".12"/><path d="M180 7v40m-20-20h40" stroke="#edcb97" opacity=".32" stroke-width="1"/>
-          </svg>
-          <div class="scene-label">SIMULATED FRAME</div>
-        </div>
-        <div class="switches" role="group" aria-label="ขอบเขตการคำนวณ">
-          <button id="scopeOne" type="button" aria-pressed="true">1 โครงเตียง</button>
-          <button id="scopeAll" type="button" aria-pressed="false">รวม 30 เตียง</button>
-        </div>
-        <div class="bed-map" id="bedMap" aria-label="ผังหมายเลขเตียงจำลอง"></div>
-        <p class="subnote" id="bedDescription">กำลังเลือกโครงเตียงสมมติหมายเลข 01</p>
-        <div class="alert">หมายเลข 01–30 เป็น <b>ดัชนีสมมติ ไม่ใช่ผังเตียง หมายเลขเตียง หรือการจัดหอผู้ป่วยจริง</b> ของโรงพยาบาล</div>
-      </section>
-      <section class="panel">
-        <div class="hlabel">02 / ข้อเท็จจริงและข้อจำกัด</div><h2>ข้อมูลที่ใช้ได้จริง</h2>
-        <div class="source"><strong>กระทรวงสาธารณสุข — ฐานรหัสหน่วยบริการ</strong><br>ยืนยัน รพ.มโนรมย์ รหัส 10802 ระดับ F2 และ 30 เตียง<br><a href="https://hcode.moph.go.th/code/18801/" target="_blank" rel="noopener noreferrer">เปิดข้อมูลหน่วยบริการ</a></div>
-        <div class="source"><strong>ประวัติโรงพยาบาล</strong><br>เริ่มเปิดเดือนตุลาคม 2534 และขยายเป็นโรงพยาบาล 30 เตียงในเดือนสิงหาคม 2539<br><a href="https://healthserv.net/hospd60106" target="_blank" rel="noopener noreferrer">อ่านข้อมูลประวัติ</a></div>
-        <p class="desc">ยังไม่มีข้อมูลอายุโครงเตียงแต่ละชุด, อัตราครองเตียง, วันนอนเฉลี่ย และอัตราเสียชีวิตเฉพาะเตียงที่ตรวจสอบได้สำหรับแบบจำลองนี้ ตัวเลขในช่องคำนวณจึงเป็น <b>สมมติฐานที่แก้ไขได้ทั้งหมด</b></p>
-      </section>
-    </aside>
-    <main>
-      <section class="panel">
-        <div class="panelhead"><div><div class="hlabel">03 / ตั้งสมมติฐาน</div><h2>ปรับอัตราและอายุโครงเตียง</h2><p class="desc">ค่าตั้งต้นยกมาจากต้นแบบทดลองเดิมของเรา <b>ไม่ใช่อัตราจริงของโรงพยาบาลมโนรมย์</b></p></div><div class="ornament">✳</div></div>
-        <div class="section-heading">ค่าใช้จ่ายและอัตราผู้ป่วย (จำลอง)</div>
-        <div class="grid2">
-          <div class="field"><label for="money">เงินซื้อที่ทั้งหมด (บาท)</label><input id="money" type="number" min="0.01" max="1000000000" step="0.01" value="10"><div class="hint">เงินก้อนเดียวสำหรับ 1 เตียง หรือสำหรับกลุ่ม 30 เตียงตามที่เลือก</div></div>
-          <div class="field"><label for="occupancy">อัตราครองเตียง (%)</label><input id="occupancy" type="number" min="0" max="100" step="0.1" value="85"><div class="hint">สัดส่วนวันในปีที่มีผู้ป่วยครองเตียง</div></div>
-          <div class="field"><label for="los">วันนอนเฉลี่ยต่อครั้ง (วัน)</label><input id="los" type="number" min="0.1" max="365" step="0.1" value="9"><div class="hint">Average length of stay / LOS</div></div>
-          <div class="field"><label for="mortality">อัตราเสียชีวิตต่อการรับไว้รักษา (%)</label><input id="mortality" type="number" min="0" max="100" step="0.01" value="4"><div class="hint">ใช้เพื่อสร้างแบบจำลองเท่านั้น ไม่ใช่อัตราของ รพ.มโนรมย์</div></div>
-        </div>
-        <hr>
-        <div class="section-heading">อายุของโครงหลักเตียง (ไม่ใช่อายุอาคาร)</div>
-        <div class="field"><label for="frameMode">วิธีระบุอายุโครง</label><select id="frameMode"><option value="unknown" selected>ไม่ทราบวันเริ่มใช้ — จำลองช่วงอายุ</option><option value="exact">ทราบวันเริ่มใช้โครงจริง</option></select></div>
-        <div class="grid2" id="unknownFrame" style="margin-top:12px">
-          <div class="field"><label for="lifeMin">อายุใช้งานเต็มรอบต่ำสุด (ปี)</label><input id="lifeMin" type="number" min="1" max="100" step="0.5" value="10"></div>
-          <div class="field"><label for="lifeMax">อายุใช้งานเต็มรอบสูงสุด (ปี)</label><input id="lifeMax" type="number" min="1" max="100" step="0.5" value="15"></div>
-        </div>
-        <p class="desc" id="unknownNote">ระบบสุ่มอายุโครงปัจจุบันระหว่าง 0 ถึงอายุใช้งานเต็มรอบที่สุ่มได้ ไม่ได้สมมติว่าโครงนี้ใช้งานครบ 10–15 ปีแล้ว</p>
-        <div class="field" id="exactFrame" style="display:none;margin-top:12px"><label for="frameDate">วันที่เริ่มใช้โครงเตียงปัจจุบัน</label><input id="frameDate" type="date" value="2018-01-01"><div class="hint">หากเลือก 30 เตียง จะสมมติว่าเริ่มใช้โครงทั้งหมดในวันเดียวกัน</div></div>
-        <hr>
-        <div class="grid2">
-          <div class="field"><label for="iterations">จำนวนรอบ Monte Carlo</label><select id="iterations"><option value="3000">3,000 รอบ (เร็ว)</option><option value="10000" selected>10,000 รอบ</option><option value="30000">30,000 รอบ (ละเอียด)</option></select></div>
-          <div class="field"><label for="uncertainty">ความไม่แน่นอนที่รวม</label><select id="uncertainty"><option value="age" selected>อายุโครงอย่างเดียว (ตาม MVP เดิม)</option><option value="rates">อายุโครง + อัตราผู้ป่วยจำลอง</option></select><div class="hint">แบบขยายใช้ความคลาดเคลื่อนสมมติ ±15% occupancy, ±20% LOS, ±30% mortality</div></div>
-        </div>
-        <hr>
-        <div class="section-heading">06 / เกณฑ์ GSI อ้างอิงค่าแรงก่อนเสียชีวิต (สมมติ)</div>
-        <p class="desc" style="margin:0 0 13px">การเปรียบเทียบเชิงเล่นสนุก: แต่ละ “ดวง” มีค่าแรงไม่เท่ากัน จึงอิงค่าแรงในปีที่สมมติว่าเสียชีวิต แล้วปรับมูลค่าเป็นบาทปัจจุบัน ไม่ใช่การรู้รายได้ของผู้ป่วยจริง</p>
-        <div class="grid2">
-          <div class="field"><label for="dailyWage">ค่าแรงก่อนเสียชีวิต (บาท/วัน) · ค่าฐาน</label><input type="number" id="dailyWage" value="300" min="1" max="1000000" step="1"><div class="hint">ค่าฐานสมมติ แก้ไขได้ ไม่ใช่ค่าแรงเฉลี่ยจริงในปีนั้น</div></div>
-          <div class="field"><label for="deathYear">ปีที่เสียชีวิตโดยอ้างอิง (พ.ศ.)</label><input type="number" id="deathYear" value="2560" min="2534" max="2569" step="1"><div class="hint">ใช้ปีเดียวเป็นปีตัวแทนของกลุ่ม ไม่ใช่ปีเสียชีวิตจริงของแต่ละคน</div></div>
-          <div class="field"><label for="inflationRate">อัตราเงินเฟ้อต่อปีที่สมมติ (%)</label><input type="number" id="inflationRate" value="2.5" min="-5" max="20" step="0.1"><div class="hint">ใช้สมมติฐานทบต้น ไม่ใช่ CPI ทางการ</div></div>
-          <div class="field"><label for="payHours">ตั้งเป้าจ่ายเทียบเท่าค่าแรง (ชั่วโมง/ดวง)</label><input type="number" id="payHours" value="1" min="0.1" max="24" step="0.5"><div class="hint">เทียบวันทำงานสมมติ 8 ชั่วโมง; 1 ชั่วโมงเป็นเกณฑ์ที่ผู้ใช้เลือก ไม่ใช่เกณฑ์ของผี</div></div>
-          <div class="field" style="grid-column:1/-1"><label for="incomeMode">สมมติความต่างของรายได้</label><select id="incomeMode"><option value="mixed" selected>คนละค่าแรง (25% ได้ 0.6×, 50% ได้ 1×, 25% ได้ 1.8× ของค่าฐาน)</option><option value="equal">ทุกดวงมีค่าแรงเท่ากัน (1×)</option></select><div class="hint">ค่า 25/50/25 เป็นสัดส่วนตัวอย่าง ไม่ใช่ข้อมูลคนไข้หรืออาชีพจริง</div></div>
-        </div>
-        <div class="actions"><button id="calc" class="btn primary" type="button">✦ คำนวณเงินซื้อที่</button><button id="reset" class="btn secondary" type="button">คืนค่าเริ่มต้น</button><button id="export" class="btn ghost" type="button">บันทึกผล JSON</button><button id="copy" class="btn ghost" type="button">คัดลอกสรุป</button></div>
-        <div id="error" class="error" role="alert"></div>
-      </section>
-      <section class="result-panel" id="results" aria-live="polite">
-        <div class="results-top"><div><div class="kicker">04 / ผลคำนวณโดยประมาณ</div><div class="result-number"><span id="bahtPerSoul">—</span> <span>บาท / “ดวง”</span></div><div class="range" id="interval">—</div></div><span class="tag">สมมติฐานเชิงคติความเชื่อ</span></div>
-        <div class="result-mini">
-          <div class="rstat"><b id="souls">—</b><span>จำนวน “ดวง” คาดหมาย (ไม่ใช่จำนวนจริง)</span></div>
-          <div class="rstat"><b id="admissions">—</b><span>ครั้งรับไว้รักษา / ปี / เตียง</span></div>
-          <div class="rstat"><b id="age">—</b><span>อายุโครงเตียงค่ากลาง (ปี)</span></div>
-        </div>
-        <div class="chart-wrap"><div class="chart-title">การกระจายราคาซื้อที่ต่อ “ดวง” จากการจำลอง</div><svg id="histogram" viewBox="0 0 670 156" role="img" aria-label="แผนภูมิการกระจายผลคำนวณ"><text x="20" y="78" fill="#b9bdc3">กำลังประมวลผล…</text></svg><div class="axis"><span id="chartLo">—</span><span>ช่วง P10–P90 แสดงเป็นแถบสีทอง</span><span id="chartHi">—</span></div></div>
-        <p class="result-note" id="resultNote">แบบจำลองไม่สามารถพิสูจน์การมีอยู่ของวิญญาณได้</p>
-        <section class="gsi-panel" aria-label="Ghost Satisfaction Index เชิงสมมติ">
-          <div class="kicker">BONUS / GHOST SALARY INDEX · GSI</div>
-          <h3 style="margin-top:4px">จ่าย “ซื้อที่” เทียบค่าแรงในอดีตพอหรือยัง?</h3>
-          <div class="gsi-top">
-            <div><div class="gsi-big"><span id="gsiValue">—</span> <span>% ของเงินเป้าหมาย</span></div><div id="gsiStatus" style="font-size:13px;color:#ffdebe">—</div></div>
-            <div class="tag">เนื้อหาแฟนตาซี · ไม่ใช่คะแนนความพอใจจริง</div>
-          </div>
-          <div class="gsi-track" role="progressbar" aria-label="สัดส่วนเงินที่จ่ายเทียบเกณฑ์ตั้งเอง" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gsiProgress"><div class="gsi-fill" id="gsiFill"></div></div>
-          <div class="gsi-two">
-            <div class="gsi-cell"><b id="gsiPerSoul">—</b><span>เป้าหมายบาท/“ดวง” เทียบค่าแรงปัจจุบัน</span></div>
-            <div class="gsi-cell"><b id="gsiNeeded">—</b><span>งบเป้าหมายสำหรับโครงเตียงที่เลือก</span></div>
-            <div class="gsi-cell"><b id="gsiShortfall">—</b><span>ส่วนที่ยังขาดจากงบเป้าหมาย</span></div>
-            <div class="gsi-cell"><b id="gsiWageNow">—</b><span>ค่าแรงฐานเดิมที่ปรับเป็นบาทปัจจุบัน / วัน</span></div>
-          </div>
-          <p class="gsi-description" id="gsiAssumptions">คำนวณจากค่าแรงและปีอ้างอิงที่กำหนดเอง</p>
-          <div class="gsi-alert">⚠ GSI ย่อมาจาก Ghost Salary Index ในฉบับนี้: เป็นสัดส่วนของเงินสมมติที่จ่ายได้เทียบกับเกณฑ์ค่าแรงสมมติ ไม่สามารถบอกความรู้สึกจริงของผู้เสียชีวิต ความเฮี้ยน หรือว่าการให้เงินทำให้ปลอดภัยได้</div>
-        </section>
-      </section>
-      <section class="panel" style="margin-top:16px">
-        <div class="hlabel">05 / วิธีคำนวณ</div><h2>แกะสูตรให้ตรวจสอบได้</h2>
-        <div class="calc-steps" id="steps"></div>
-        <div class="alert red"><strong>คำเตือนการตีความ:</strong> การคำนวณเป็นจำนวนเหตุการณ์เสียชีวิตที่คาดหมายในอดีตตามสมมติฐาน ไม่ใช่จำนวนผู้ป่วยเสียชีวิตจริงของโรงพยาบาล ไม่ได้หมายความว่าแต่ละเหตุการณ์เกิดบนเตียงที่เลือก และไม่เป็นหลักฐานว่ามีวิญญาณหรือความเฮี้ยน</div>
-      </section>
-    </main>
   </div>
-  <footer class="footer">ซื้อที่ Calculator — Manorom Edition v2.0 · สร้างต่อจากต้นแบบ <i>Siriraj MVP v0.1</i> · ทำงานในเบราว์เซอร์ ไม่ส่งตัวเลขที่กรอกไปเซิร์ฟเวอร์ · ข้อมูลโรงพยาบาลที่ตรวจสอบได้: 30 เตียง / ระดับ F2 / รหัส 10802; ข้อมูลอายุโครงและอัตราทางคลินิกทั้งหมดเป็นค่าจำลองที่ผู้ใช้ควบคุมเอง</footer>
-</div>
+  <footer class="foot"><span><b>ซื้อที่ ADVISOR 3.0</b> · เวอร์ชันโปสเตอร์หนังผีไทย</span><span>ไม่มีข้อมูลส่วนบุคคลหรือข้อมูลการเสียชีวิตของผู้ป่วย</span></footer>
+</main>
 <script>
-'use strict';
-const $ = id => document.getElementById(id);
-const HOSPITAL_OPEN_DATE = new Date('1991-10-01T00:00:00'); // เดือนเริ่มให้บริการตามประวัติที่เผยแพร่; วัน 1 เป็นจุดอ้างอิงสมมติ
-let selectedBed=1, scope='one', lastResult=null;
-const BASE={money:10,occupancy:85,los:9,mortality:4,frameMode:'unknown',lifeMin:10,lifeMax:15,frameDate:'2018-01-01',iterations:'10000',uncertainty:'age',dailyWage:300,deathYear:2560,inflationRate:2.5,payHours:1,incomeMode:'mixed'};
-const nf = (v, digits=2) => Number.isFinite(v)?v.toLocaleString('th-TH',{maximumFractionDigits:digits,minimumFractionDigits:digits}):'—';
-const yBetween=(a,b)=>Math.max(0,(b-a)/(365.2425*24*60*60*1000));
-const quantile=(values,p)=>{if(!values.length)return NaN;const x=(values.length-1)*p, a=Math.floor(x), b=Math.ceil(x);return values[a]*(1-(x-a))+values[b]*(x-a)};
-const seeded = seed => () => {seed|=0;seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^(seed>>>15),1|seed);t=(t+Math.imul(t^(t>>>7),61|t))^t;return ((t^(t>>>14))>>>0)/4294967296};
-const triangular=(rnd,mid,relative)=>{const u=rnd();return mid*(1+relative*(u<.5?Math.sqrt(2*u)-1:1-Math.sqrt(2*(1-u))))};
-function setScope(next){scope=next;$('scopeOne').setAttribute('aria-pressed',scope==='one');$('scopeAll').setAttribute('aria-pressed',scope==='all');renderMap();calculate()}
-function renderMap(){
-  const map=$('bedMap');map.replaceChildren();
-  for(let i=1;i<=30;i++){
-    const btn=document.createElement('button');btn.type='button';btn.className='bed'+(scope==='all'?' all-selected':'');
-    btn.textContent=String(i).padStart(2,'0');btn.setAttribute('aria-label','หมายเลขเตียงจำลอง '+i);
-    btn.setAttribute('aria-pressed',scope==='one'&&selectedBed===i?'true':'false');
-    btn.onclick=()=>{selectedBed=i;scope='one';$('scopeOne').setAttribute('aria-pressed','true');$('scopeAll').setAttribute('aria-pressed','false');renderMap();calculate()};map.appendChild(btn);
-  }
-  $('bedDescription').textContent=scope==='one'?'กำลังเลือกโครงเตียงสมมติหมายเลข '+String(selectedBed).padStart(2,'0')+' (คำนวณ 1 เตียง)':'กำลังคำนวณรวม 30 โครงเตียง โดยสมมติว่าทุกเตียงมีอัตราผู้ป่วยเหมือนกัน';
-}
-function toggleFrame(){const exact=$('frameMode').value==='exact';$('exactFrame').style.display=exact?'grid':'none';$('unknownFrame').style.display=exact?'none':'grid';$('unknownNote').style.display=exact?'none':'block'}
-function readAndValidate(){
-  const number=id=>Number($(id).value);
-  const p={money:number('money'),occupancy:number('occupancy'),los:number('los'),mortality:number('mortality'),lifeMin:number('lifeMin'),lifeMax:number('lifeMax'),frameMode:$('frameMode').value,frameDate:$('frameDate').value,iterations:number('iterations'),uncertainty:$('uncertainty').value,dailyWage:number('dailyWage'),deathYear:number('deathYear'),inflationRate:number('inflationRate'),payHours:number('payHours'),incomeMode:$('incomeMode').value,frames:scope==='all'?30:1};
-  let err='';
-  if(!Number.isFinite(p.money)||p.money<=0||p.money>1e9)err='จำนวนเงินต้องมากกว่า 0 และไม่เกินหนึ่งพันล้านบาท';
-  else if(!(p.occupancy>=0&&p.occupancy<=100)||!Number.isFinite(p.occupancy))err='อัตราครองเตียงต้องอยู่ระหว่าง 0–100%';
-  else if(!(p.los>0&&p.los<=365))err='จำนวนวันนอนเฉลี่ยต้องมากกว่า 0 และไม่เกิน 365 วัน';
-  else if(!(p.mortality>=0&&p.mortality<=100))err='อัตราเสียชีวิตต้องอยู่ระหว่าง 0–100%';
-  else if(p.frameMode==='unknown'&&!(p.lifeMin>0&&p.lifeMax>=p.lifeMin&&p.lifeMax<=100))err='อายุโครงต่ำสุด/สูงสุดต้องเป็นบวก และค่าสูงสุดต้องไม่ต่ำกว่าค่าต่ำสุด (ไม่เกิน 100 ปี)';
-  else if(p.frameMode==='exact'){
-    const d=new Date(p.frameDate+'T00:00:00'),now=new Date();
-    if(!p.frameDate||!Number.isFinite(d.getTime())||d>now)err='กรุณากรอกวันที่เริ่มใช้โครงเตียงที่ไม่ใช่วันในอนาคต';
-    else if(d<HOSPITAL_OPEN_DATE)err='วันที่เริ่มใช้โครงเตียงก่อนเดือนที่โรงพยาบาลเริ่มให้บริการ โปรดตรวจสอบอีกครั้ง';
-  }
-  else if(![3000,10000,30000].includes(p.iterations))err='จำนวนรอบจำลองไม่ถูกต้อง';
-  if(!err&&!(p.dailyWage>0&&p.dailyWage<=1000000))err='กรุณาใส่ค่าแรงฐานเป็นบวกและไม่เกินหนึ่งล้านบาทต่อวัน';
-  if(!err&&(!Number.isInteger(p.deathYear)||p.deathYear<2534||p.deathYear>new Date().getFullYear()+543))err='ปีเสียชีวิตที่อ้างอิงต้องอยู่ระหว่าง พ.ศ.2534 ถึงปีปัจจุบัน';
-  if(!err&&!(p.inflationRate>=-5&&p.inflationRate<=20))err='อัตราเงินเฟ้อสมมติต้องอยู่ระหว่าง -5% ถึง 20%';
-  if(!err&&!(p.payHours>=0.1&&p.payHours<=24))err='จำนวนชั่วโมงค่าแรงเป้าหมายต้องอยู่ระหว่าง 0.1 ถึง 24';
-  if(!err&&!['mixed','equal'].includes(p.incomeMode))err='โหมดรายได้ไม่ถูกต้อง';
-  $('error').style.display=err?'block':'none';$('error').textContent=err;
-  return err?null:p;
-}
-function calculate(){
-  const p=readAndValidate();if(!p)return;
-  const occ=p.occupancy/100,mort=p.mortality/100;
-  const baseAdmissions=365.25*occ/p.los,baseDeaths=baseAdmissions*mort;
-  const knownAge=yBetween(new Date(p.frameDate+'T00:00:00'),new Date());
-  const hospitalAge=yBetween(HOSPITAL_OPEN_DATE,new Date());
-  const rnd=seeded(0xA2026116 + Math.floor(p.money*100)+Math.floor(p.occupancy*100)+Math.floor(p.los*100)+Math.floor(p.mortality*100)+p.frames*19+Math.floor(p.lifeMin*100)+Math.floor(p.lifeMax*100)+(p.frameMode==='exact'?139:0)+(p.uncertainty==='rates'?997:0));
-  const vals=[], soulVals=[], ageVals=[];
-  const N=(p.frameMode==='exact'&&p.uncertainty==='age')?1:p.iterations;
-  for(let j=0;j<N;j++){
-    const sampledOcc=p.uncertainty==='rates'?Math.min(1,Math.max(0,triangular(rnd,occ,.15))):occ;
-    const sampledLos=p.uncertainty==='rates'?Math.max(.1,triangular(rnd,p.los,.20)):p.los;
-    const sampledMort=p.uncertainty==='rates'?Math.max(0,triangular(rnd,mort,.30)):mort;
-    const rate=365.25*sampledOcc/sampledLos*sampledMort;
-    let ageSum=0;
-    if(p.frameMode==='exact')ageSum=knownAge*p.frames;
-    else for(let k=0;k<p.frames;k++){
-      const life=p.lifeMin+rnd()*(p.lifeMax-p.lifeMin);
-      ageSum+=Math.min(rnd()*life,hospitalAge);
-    }
-    const soul=rate*ageSum;
-    vals.push(soul>1e-12?p.money/soul:NaN);soulVals.push(soul);ageVals.push(ageSum/p.frames);
-  }
-  const finite=vals.filter(Number.isFinite).sort((a,b)=>a-b), souls=soulVals.sort((a,b)=>a-b), ages=ageVals.sort((a,b)=>a-b);
-  const mSoul=quantile(souls,.5),mAge=quantile(ages,.5),mBaht=quantile(finite,.5),p10=quantile(finite,.1),p90=quantile(finite,.9);
-  $('bahtPerSoul').textContent=finite.length?nf(mBaht,2):'คำนวณไม่ได้';
-  $('interval').textContent=finite.length?(N===1?'ผลคำนวณจากค่าที่ระบุ (ไม่มีช่วงการสุ่ม)':'ช่วง 80% ของราคาจำลอง: '+nf(p10,2)+' – '+nf(p90,2)+' บาท/ดวง (P10–P90)'):'เมื่อไม่มีจำนวนผู้เสียชีวิตคาดหมาย จะไม่สามารถหารเป็นบาทต่อดวงได้';
-  $('souls').textContent=nf(mSoul,2);$('admissions').textContent=nf(baseAdmissions,1);$('age').textContent=nf(mAge,1);
-  // Fictional affordability metric, NOT a measurement of spirit satisfaction.
-  // Compound an explicitly assumed price-change rate; do not claim official CPI.
-  const nowBE=new Date().getFullYear()+543;
-  const years=nowBE-p.deathYear;
-  const wageNow=p.dailyWage*Math.pow(1+p.inflationRate/100,years);
-  const wageMix=p.incomeMode==='mixed'?(0.25*0.6+0.5*1+0.25*1.8):1;
-  const thresholdPerSoul=wageNow/8*p.payHours*wageMix;
-  const targetTotal=mSoul*thresholdPerSoul;
-  const coverage=targetTotal>1e-9?p.money/targetTotal*100:NaN;
-  const shortfall=Number.isFinite(targetTotal)?Math.max(0,targetTotal-p.money):NaN;
-  const gsiStatus=!Number.isFinite(coverage)?'แบบจำลองไม่มีจำนวนเหตุการณ์ให้เทียบ':coverage<10?'ผีฝ่ายแรงงาน (ในจินตนาการ) ขอเปิดโต๊ะเจรจา':coverage<50?'ยังต่ำกว่าเกณฑ์ค่าแรงที่เราตั้งเอง':coverage<100?'ใกล้ครบเกณฑ์ค่าแรงแล้ว':'ถึงเกณฑ์ค่าแรงที่กำหนดเองแล้ว (ไม่ได้ยืนยันว่าผีพอใจ)';
-  $('gsiValue').textContent=Number.isFinite(coverage)?nf(coverage,1):'—';
-  $('gsiStatus').textContent=gsiStatus;
-  $('gsiProgress').setAttribute('aria-valuenow',Number.isFinite(coverage)?Math.max(0,Math.min(100,coverage)).toFixed(1):'0');
-  $('gsiFill').style.width=Number.isFinite(coverage)?Math.max(0,Math.min(100,coverage))+'%':'0%';
-  $('gsiPerSoul').textContent=nf(thresholdPerSoul,2)+' บาท';
-  $('gsiNeeded').textContent=nf(targetTotal,2)+' บาท';
-  $('gsiShortfall').textContent=nf(shortfall,2)+' บาท';
-  $('gsiWageNow').textContent=nf(wageNow,2)+' บาท';
-  $('gsiAssumptions').textContent=`อิงค่าแรงสมมติ ${nf(p.dailyWage,0)} บาท/วัน ใน พ.ศ.${p.deathYear} → เงินเฟ้อสมมติ ${nf(p.inflationRate,1)}% ต่อปี นาน ${years} ปี → เป้าหมาย ${nf(p.payHours,1)} ชั่วโมง/“ดวง” · ${p.incomeMode==='mixed'?'คละค่าแรง 0.6× / 1× / 1.8× (25/50/25%)':'ค่าแรงเท่ากันทุกดวง'}`;
-  $('resultNote').textContent=(p.frames===30?'ขณะนี้คิดรวม 30 โครงเตียง (เงินซื้อที่ก้อนเดียวสำหรับทุกเตียง) · ':'ขณะนี้คิดหนึ่งโครงเตียง · ')+(p.frameMode==='exact'?'รู้อายุโครงตามวันที่กรอก':'ไม่ทราบอายุโครงจริง จึงจำลองการกระจายอายุ')+' · ข้อมูลผู้ป่วยทั้งหมดเป็นค่าทดลอง ไม่ใช่ข้อมูลของโรงพยาบาล';
-  $('steps').replaceChildren();
-  const items=[
-    ['1. จำนวนครั้งรับไว้รักษา / เตียง / ปี',`365.25 × ${nf(p.occupancy,1)}% ÷ ${nf(p.los,1)} วัน = ${nf(baseAdmissions,2)} ครั้ง`],
-    ['2. จำนวนเหตุการณ์เสียชีวิตคาดหมาย / เตียง / ปี',`${nf(baseAdmissions,2)} × ${nf(p.mortality,2)}% = ${nf(baseDeaths,3)} เหตุการณ์`],
-    ['3. ประมาณอายุโครงและขอบเขต',`${p.frameMode==='exact'?'อายุจากวันเริ่มใช้ที่กรอก':'อายุโครงจากการสุ่ม 0 ถึงรอบใช้งาน'} · ค่ากลาง ${nf(mAge,2)} ปี · ${p.frames} โครง`],
-    ['4. คำนวณเงินซื้อที่ต่อ “ดวง”',`${nf(p.money,2)} บาท ÷ จำนวนเหตุการณ์คาดหมาย ${nf(mSoul,3)} = ${Number.isFinite(mBaht)?nf(mBaht,2):'ไม่สามารถคำนวณ'} บาท/“ดวง” (ใช้ค่ามัธยฐานของผลสุ่ม)`],
-    ['5. GSI — เงินซื้อที่เทียบค่าแรงก่อนเสียชีวิต',`${nf(p.dailyWage,0)} บาท/วัน × (1 + ${nf(p.inflationRate,1)}%)^${years} × ${nf(p.payHours,1)}/8 ชม. × ตัวคูณรายได้ ${nf(wageMix,2)} × ${nf(mSoul,2)} “ดวง” = งบเป้าหมาย ${nf(targetTotal,2)} บาท; จ่าย ${nf(p.money,2)} บาท คิดเป็น ${nf(coverage,1)}% ของงบเป้าหมาย (สมมติทั้งหมด)`]
-  ];
-  for(const [a,b] of items){const div=document.createElement('div');div.className='calc-step';const head=document.createElement('strong');head.textContent=a;const body=document.createElement('div');body.textContent=b;div.append(head,body);$('steps').append(div)}
-  renderHistogram(finite,p10,p90);
-  lastResult={application:'ซื้อที่ Calculator — Manorom',version:'2.0',generated_at:new Date().toISOString(),hospital:{name:'โรงพยาบาลมโนรมย์',province:'ชัยนาท',healthcare_code:'10802',official_inpatient_beds:30,level:'F2',official_source:'https://hcode.moph.go.th/code/18801/'},selected:{scope,simulated_bed_number:scope==='one'?selectedBed:null,frame_count:p.frames,bed_numbers_are_real:false},inputs:{...p},outputs:{admissions_per_bed_per_year:baseAdmissions,expected_deaths_per_bed_per_year:baseDeaths,median_frame_age_years:mAge,median_expected_events:mSoul,median_baht_per_soul:mBaht,p10_baht_per_soul:p10,p90_baht_per_soul:p90,iterations:N,ghost_salary_index_percent:coverage,fictional_target_baht_per_soul:thresholdPerSoul,fictional_target_total_baht:targetTotal,fictional_shortfall_baht:shortfall,assumed_daily_wage_in_current_baht:wageNow,income_weighted_multiplier:wageMix},disclaimer:'All patient parameters and bed-frame age are user-set assumptions, not Manorom Hospital patient data. Expected events are not evidence of deaths on a specific bed or of spirits.'};
-}
-function renderHistogram(finite,p10,p90){
-  const svg=$('histogram'),NS='http://www.w3.org/2000/svg';svg.replaceChildren();
-  const add=(tag,attrs,content)=>{const e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,String(v));if(content!=null)e.textContent=content;svg.appendChild(e);return e};
-  if(!finite.length){add('text',{x:15,y:76,fill:'#adb4bd','font-size':15},'ไม่มีผลลัพธ์ที่หารได้');$('chartLo').textContent='—';$('chartHi').textContent='—';return}
-  const small=finite[Math.floor(finite.length*.02)],large=finite[Math.floor((finite.length-1)*.98)];
-  const lo=Math.log10(Math.max(1e-9,small)),hi=Math.log10(Math.max(small*1.001,large));
-  const bins=25,hist=new Array(bins).fill(0),left=35,right=650,bottom=131,top=12;
-  for(const v of finite){let idx=Math.floor((Math.log10(Math.max(1e-9,v))-lo)/(hi-lo)*bins);idx=Math.max(0,Math.min(bins-1,idx));hist[idx]++}
-  const max=Math.max(1,...hist),width=(right-left)/bins;
-  add('rect',{x:left,y:top,width:right-left,height:bottom-top,fill:'#171a22',rx:4});
-  for(let i=0;i<=4;i++){const y=top+(bottom-top)*i/4;add('line',{x1:left,y1:y,x2:right,y2:y,stroke:'#45434a','stroke-width':.5})}
-  const px=v=>left+(Math.log10(Math.max(1e-9,v))-lo)/(hi-lo)*(right-left);
-  const in90=(a,b)=>b>=p10&&a<=p90;
-  hist.forEach((n,i)=>{const x=left+i*width+.7,h=(n/max)*(bottom-top-4);const a=10**(lo+(hi-lo)*i/bins),b=10**(lo+(hi-lo)*(i+1)/bins);add('rect',{x,y:bottom-h,width:width-1.5,height:Math.max(.1,h),fill:in90(a,b)?'#e8b972':'#7e7775',rx:2})});
-  const med=quantile(finite,.5);const mx=px(med);if(Number.isFinite(mx)){add('line',{x1:mx,y1:5,x2:mx,y2:bottom,stroke:'#fff1d6','stroke-width':2,'stroke-dasharray':'5 4'});add('text',{x:Math.min(right-80,Math.max(left+8,mx+6)),y:20,fill:'#fff0d3','font-size':13},'Median')}
-  $('chartLo').textContent=nf(small,2)+' บาท';$('chartHi').textContent=nf(large,2)+' บาท';
-}
-$('scopeOne').onclick=()=>setScope('one');$('scopeAll').onclick=()=>setScope('all');
-$('frameMode').addEventListener('change',()=>{toggleFrame();calculate()});
-$('calc').onclick=calculate;
-for(const id of ['money','occupancy','los','mortality','lifeMin','lifeMax','frameDate','iterations','uncertainty','dailyWage','deathYear','inflationRate','payHours','incomeMode']){$(id).addEventListener('change',calculate)}
-$('reset').onclick=()=>{for(const [k,v] of Object.entries(BASE))$(k).value=v;selectedBed=1;scope='one';$('scopeOne').setAttribute('aria-pressed','true');$('scopeAll').setAttribute('aria-pressed','false');toggleFrame();renderMap();calculate()};
-$('export').onclick=()=>{if(!lastResult)calculate();if(!lastResult)return;const blob=new Blob([JSON.stringify(lastResult,null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='manorom-sue-thi-result.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
-$('copy').onclick=async()=>{if(!lastResult)calculate();if(!lastResult)return;const o=lastResult.outputs,bed=lastResult.selected;const summary=`ซื้อที่ Calculator — โรงพยาบาลมโนรมย์\nขอบเขต: ${bed.frame_count} โครงเตียง (หมายเลขสมมติ ${bed.simulated_bed_number??'ทั้งหมด'})\nเงินซื้อที่: ${nf(lastResult.inputs.money,2)} บาท\nจำนวนเหตุการณ์เสียชีวิตคาดหมาย: ${nf(o.median_expected_events,2)}\nค่าเฉลี่ยต่อ “ดวง” (มัธยฐานผลจำลอง): ${nf(o.median_baht_per_soul,2)} บาท\nช่วง P10–P90: ${nf(o.p10_baht_per_soul,2)}–${nf(o.p90_baht_per_soul,2)} บาท\nGSI (สมมติ): ${nf(o.ghost_salary_index_percent,1)}% ของเป้าหมายค่าแรง; งบเป้าหมาย ${nf(o.fictional_target_total_baht,2)} บาท\nหมายเหตุ: ตัวเลขผู้ป่วยและอายุโครงเป็นค่าจำลอง ไม่ใช่สถิติของโรงพยาบาล`;try{await navigator.clipboard.writeText(summary);$('copy').textContent='คัดลอกแล้ว ✓';setTimeout(()=>$('copy').textContent='คัดลอกสรุป',2000)}catch(e){window.prompt('คัดลอกข้อความนี้',summary)}};
-
-// --------- Verified historical data (offline, embedded) ---------
-// World Bank WDI FP.CPI.TOTL.ZG Thailand annual % observations (not future forecasts).
-// CPI level is reconstructed from rates, normalized 2010=100.
-const CPI_INFLATION = {"1991":5.70985259891396,"1992":4.13914575077053,"1993":3.31219168428468,"1994":5.04774897680754,"1995":5.81818181818192,"1996":5.80510554737349,"1997":5.62579747129105,"1998":7.99472875027456,"1999":0.284726459223047,"2000":1.59196917460971,"2001":1.62690887314091,"2002":0.697308976625448,"2003":1.80434994635718,"2004":2.75914926231082,"2005":4.54036919634536,"2006":4.63747436011763,"2007":2.24154095286801,"2008":5.46848949649846,"2009":-0.84571609231672,"2010":3.24758842443725,"2011":3.81191694558332,"2012":3.00948610403357,"2013":2.18617704418966,"2014":1.89455652481545,"2015":-0.898143410569433,"2016":0.186235191075453,"2017":0.664415139830892,"2018":1.06683487370757,"2019":0.705524801910316,"2020":-0.846087518861798,"2021":1.23104516549814,"2022":6.07589952842432,"2023":1.22908986612448,"2024":0.398333333333422,"2025":-0.133634356480206};
-const WAGE_CHAI_NAT = {"2013":300,"2014":300,"2015":300,"2016":300,"2017":305,"2018":315,"2019":315,"2020":320,"2021":320,"2022":335,"2023":335,"2024":341,"2025":348}; // Legal minimum baht/day, year-end general rate. No wages for 1990-2012.
-const CPI_INDEX = {2010:100};
-for(let year=2009;year>=1990;year--) CPI_INDEX[year]=CPI_INDEX[year+1]/(1+CPI_INFLATION[year+1]/100);
-for(let year=2011;year<=2025;year++) CPI_INDEX[year]=CPI_INDEX[year-1]*(1+CPI_INFLATION[year]/100);
-let activeMode='real';
-const moneyFmt=(n,digits=2)=>Number.isFinite(n)?n.toLocaleString('th-TH',{minimumFractionDigits:digits,maximumFractionDigits:digits}):'—';
-function setMode(mode){
- activeMode=mode;
- $('realMode').style.display=mode==='real'?'block':'none';
- $('ghostMode').style.display=mode==='ghost'?'grid':'none';
- $('tabReal').setAttribute('aria-selected',String(mode==='real'));
- $('tabGhost').setAttribute('aria-selected',String(mode==='ghost'));
- if(mode==='ghost')calculate();else computeReal();
-}
-function makeRealYears(){
- const select=$('realYear');select.replaceChildren();
- for(let y=2025;y>=1990;y--){
-   const o=document.createElement('option');o.value=y;o.textContent=`พ.ศ. ${y+543} (${y})`;select.appendChild(o);
+(function(){'use strict';
+const $=id=>document.getElementById(id);
+const questions=[
+ {key:'zone',tag:'QUESTION ONE',title:'คุณกำลังคิดถึงเตียงแบบไหน?',hint:'เลือกสถานการณ์สมมติที่ใกล้เคียงที่สุด (ไม่ใช่ผังแผนกจริง)',options:[
+  {id:'general',icon:'▣',title:'เตียงผู้ป่วยทั่วไป',sub:'เตียงที่ใช้พักรักษาตัวตามปกติ'},
+  {id:'critical',icon:'✚',title:'เตียงดูแลใกล้ชิด',sub:'สมมติว่าเป็นผู้ป่วยที่ต้องเฝ้าระวังมาก'},
+  {id:'short',icon:'◷',title:'เตียงพักฟื้นระยะสั้น',sub:'สำหรับผู้พักเพียงช่วงสั้น ๆ'},
+  {id:'unknown',icon:'?',title:'ไม่แน่ใจว่าแบบไหน',sub:'ให้เว็บสมมติเป็นเตียงทั่วไป'}
+ ]},
+ {key:'age',tag:'QUESTION TWO',title:'ถ้ามองจากภายนอก เตียงดูเก่าแค่ไหน?',hint:'ไม่จำเป็นต้องรู้ปีที่ผลิตจริง ๆ เลือกตามจินตนาการได้เลย',options:[
+  {id:'new',icon:'✦',title:'ค่อนข้างใหม่',sub:'ประมาณไม่เกิน 5 ปี'},
+  {id:'medium',icon:'▤',title:'ผ่านร้อนผ่านหนาวมาแล้ว',sub:'ประมาณ 5–15 ปี'},
+  {id:'old',icon:'☾',title:'รุ่นเก๋า / ดูเก่ามาก',sub:'มากกว่า 15 ปี'},
+  {id:'unknown',icon:'?',title:'ไม่รู้เลย',sub:'ใช้ค่ากลางจำลองแทน'}
+ ]},
+ {key:'mood',tag:'QUESTION THREE',title:'อยากซื้อที่ในสไตล์ไหน?',hint:'เลือกความรู้สึกของตัวเอง ไม่มีถูกหรือผิด',options:[
+  {id:'light',icon:'◌',title:'พอเป็นพิธี',sub:'ขอแบบเบา ๆ สบายกระเป๋า'},
+  {id:'balanced',icon:'⚖',title:'กำลังพอดี',sub:'ขอเลขแนะนำที่ไม่มากไม่น้อย'},
+  {id:'generous',icon:'★',title:'ใจกว้างหน่อย',sub:'เผื่อไว้ในเรื่องเล่าสนุก ๆ'},
+  {id:'zero',icon:'♡',title:'ส่งความปรารถนาดีแทนเงิน',sub:'ไม่อยากใช้เงิน แต่อยากทดลองคะแนน'}
+ ]}
+];
+const choices={};let step=0;let suggested=100;let currentAmount=100;
+const nfmt=n=>Math.round(n).toLocaleString('th-TH');
+const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
+function renderQuestion(){
+ const q=questions[step];$('stepTitle').textContent=`คำถาม ${step+1} จาก ${questions.length}`;
+ $('stageNum').textContent=q.tag;$('progress').style.width=`${(step+1)/questions.length*100}%`;
+ $('question').textContent=q.title;$('hint').textContent=q.hint;
+ const area=$('options');area.replaceChildren();
+ for(const opt of q.options){
+  const btn=document.createElement('button');btn.type='button';btn.className='option';btn.setAttribute('aria-pressed',String(choices[q.key]===opt.id));
+  const ico=document.createElement('span');ico.className='opt-ico';ico.textContent=opt.icon;
+  const content=document.createElement('span');content.className='opt-text';
+  const strong=document.createElement('b');strong.textContent=opt.title;
+  const small=document.createElement('small');small.textContent=opt.sub;
+  content.append(strong,small);
+  const mark=document.createElement('span');mark.className='mark';mark.textContent=choices[q.key]===opt.id?'✓':'○';
+  btn.append(ico,content,mark);
+  btn.addEventListener('click',()=>{choices[q.key]=opt.id;renderQuestion();});area.append(btn);
  }
- select.value='1997';
+ $('prev').disabled=step===0;$('next').disabled=!choices[q.key];$('next').textContent=step===questions.length-1?'ดูคำแนะนำ ↗':'ถัดไป →';
 }
-function computeReal(){
- const v=$('realAmount').value.trim(),amount=Number(v),y=Number($('realYear').value),direction=$('realDirection').value;
- const bad=v===''||!Number.isFinite(amount)||amount<0||amount>1e9||!Number.isInteger(y)||y<1990||y>2025||!['pastNow','nowPast'].includes(direction);
- $('realError').style.display=bad?'block':'none'; $('realError').textContent=bad?'กรุณาใส่จำนวนเงินตั้งแต่ 0 ถึง 1,000,000,000 บาท และเลือกปีที่ถูกต้อง':'';
- if(bad)return;
- const pastCPI=CPI_INDEX[y],latestCPI=CPI_INDEX[2025];
- const sourceCPI=direction==='pastNow'?pastCPI:latestCPI;
- const destCPI=direction==='pastNow'?latestCPI:pastCPI;
- const ratio=destCPI/sourceCPI;
- const output=amount*ratio;
- $('realEquivalent').textContent=moneyFmt(output);
- $('realRatio').textContent='×'+moneyFmt(ratio,3);
- $('realChange').textContent=(ratio>1?'+':'')+moneyFmt((ratio-1)*100,1)+'%';
- $('realCpi').textContent=moneyFmt(pastCPI,2);
- $('realHeadline').textContent=direction==='pastNow'?`เงิน พ.ศ. ${y+543} เทียบเท่าปี 2568`:`เงินปี 2568 เทียบเท่าค่าเงิน พ.ศ. ${y+543}`;
- $('realFormula').textContent=`${moneyFmt(amount)} บาท × (${moneyFmt(destCPI,3)} ÷ ${moneyFmt(sourceCPI,3)}) = ${moneyFmt(output)} บาท · ดัชนี 2553 = 100`;
- $('realInsight').textContent=direction==='pastNow'?`เงิน ${moneyFmt(amount)} บาท ในปี พ.ศ. ${y+543} ต้องใช้ประมาณ ${moneyFmt(output)} บาท ใน พ.ศ. 2568 เพื่อซื้อสินค้าและบริการในตะกร้า CPI โดยเฉลี่ยให้ได้ใกล้เคียงเดิม`:`เงิน ${moneyFmt(amount)} บาท ณ พ.ศ. 2568 มีอำนาจซื้อเฉลี่ยเทียบเท่าประมาณ ${moneyFmt(output)} บาท ใน พ.ศ. ${y+543}`;
- renderCpiChart(y);
- // Value both years in their own nominal baht; do NOT mistake CPI-adjusted nominal for wage burden.
- const wageOld=WAGE_CHAI_NAT[y], wage2025=WAGE_CHAI_NAT[2025];
- const oldNominal=direction==='pastNow'?amount:output;
- const newNominal=direction==='pastNow'?output:amount;
- $('wageNow').textContent=`ค่าจ้างขั้นต่ำ 2568: ${wage2025} บาท/วัน`;
- $('wagePast').textContent=wageOld?`ค่าจ้างขั้นต่ำ ${y+543}: ${wageOld} บาท/วัน`:'ก่อนปี 2556: ไม่รวมข้อมูลค่าแรงในชุดนี้';
- $('wageLabelPast').textContent=`เวลาทำงานใน พ.ศ. ${y+543}`;
- if(!wageOld){
-   $('wageMinutesPast').textContent='ไม่มีข้อมูล';
-   $('wageMinutesNow').textContent=moneyFmt(newNominal*480/wage2025,1)+' นาที';
-   $('wageBurden').textContent='—';
-   $('wageExplanation').textContent=`ไม่มีค่าแรงขั้นต่ำชัยนาทก่อน พ.ศ. 2556 ในชุดข้อมูลที่ฝังไว้ จึงไม่คำนวณเวลาทำงานย้อนหลังสำหรับปี ${y+543} เพื่อหลีกเลี่ยงการเดาข้อมูล`;
- }else{
-   const oldMinutes=oldNominal*480/wageOld,nowMinutes=newNominal*480/wage2025;
-   $('wageMinutesPast').textContent=moneyFmt(oldMinutes,1)+' นาที';
-   $('wageMinutesNow').textContent=moneyFmt(nowMinutes,1)+' นาที';
-   $('wageBurden').textContent=oldMinutes>0?moneyFmt(nowMinutes/oldMinutes,2)+' เท่า':'—';
-   $('wageExplanation').textContent=`เทียบจำนวนเงินที่มีอำนาจซื้อเฉลี่ยเท่ากันใน 2 ปี แล้วหารด้วยค่าจ้างขั้นต่ำทั่วไปของชัยนาทแต่ละปี เพื่อดูว่าคนทำงานค่าแรงขั้นต่ำต้องใช้เวลาทำงานเท่าไร`;
- }
+function computeSuggestion(){
+ // The calculations are intentionally backstage: hypothetical age, use intensity,
+ // illustrative past-wage adjustment and a ten-minute wage-equivalent per event.
+ // None of these are real Manorom patient/death counts or a ghost satisfaction test.
+ const years={new:4,medium:10,old:22,unknown:12}[choices.age];
+ const zone={general:1,critical:1.65,short:0.40,unknown:1}[choices.zone];
+ const tone={light:.63,balanced:1,generous:1.38,zero:1}[choices.mood];
+ const estimatedEvents=(365.25*.85/9)*.04*years*zone;
+ const hourlyWage=(300*Math.pow(1.025,9))/8;
+ const playfulTipPerEvent=hourlyWage/6; // ten minutes' pay, illustrative, not a rule
+ const amount=estimatedEvents*playfulTipPerEvent*tone;
+ return clamp(Math.round(amount/10)*10,10,450);
 }
-function renderCpiChart(selected){
- const svg=$('cpiChart'),NS='http://www.w3.org/2000/svg';svg.replaceChildren();
- const add=(tag,attrs={},content)=>{const e=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,''+v));if(content!==undefined)e.textContent=content;svg.append(e);return e};
- const xFor=y=>52+(y-1990)/35*710,yFor=val=>203-(val-42)/88*174;
- for(let value=50;value<=130;value+=20){const ty=yFor(value);add('line',{x1:50,x2:768,y1:ty,y2:ty,stroke:'#52616b','stroke-width':.65});add('text',{x:6,y:ty+5,fill:'#b8c4c8','font-size':12},value)}
- const points=Array.from({length:36},(_,i)=>{const year=1990+i;return `${xFor(year)},${yFor(CPI_INDEX[year])}`}).join(' ');
- add('polyline',{points,fill:'none',stroke:'#e3b36b','stroke-width':3.7,'stroke-linecap':'round','stroke-linejoin':'round'});
- const x=xFor(selected),y=yFor(CPI_INDEX[selected]);
- add('line',{x1:x,y1:21,x2:x,y2:205,stroke:'#f4dcb2','stroke-dasharray':'4 4','stroke-width':1.5});
- add('circle',{cx:x,cy:y,r:7,stroke:'#38282b','stroke-width':3,fill:'#fff2d1'});
- const label=`${selected+543} · ${moneyFmt(CPI_INDEX[selected],1)}`;
- add('rect',{x:Math.max(7,Math.min(656,x-40)),y:Math.max(7,y-42),width:131,height:25,rx:7,fill:'#f1d5a8'});
- add('text',{x:Math.max(7,Math.min(656,x-40))+7,y:Math.max(7,y-42)+17,fill:'#1d2026','font-size':12,'font-weight':800},label);
+function rationale(){
+ const zone={general:'เตียงผู้ป่วยทั่วไป',critical:'เตียงดูแลใกล้ชิด',short:'เตียงพักฟื้นระยะสั้น',unknown:'เตียงทั่วไปในแบบจำลอง'}[choices.zone];
+ const age={new:'อายุเตียงค่อนข้างใหม่',medium:'เตียงที่ผ่านการใช้งานมาหลายปี',old:'เตียงเก่าที่น่าจะผ่านเรื่องราวมาเยอะ',unknown:'อายุเตียงที่ยังไม่แน่ชัด'}[choices.age];
+ const mood={light:'เน้นความสบายกระเป๋า',balanced:'เน้นความพอดี',generous:'เผื่องบแบบใจกว้าง',zero:'ไม่มีข้อจำเป็นต้องใช้เงินจริง'}[choices.mood];
+ if(choices.mood==='zero')return `สำหรับ${zone}และ${age} ระบบคำนวณเลขอ้างอิงไว้เพื่อเล่นสนุกเท่านั้น แต่คุณเลือกแสดงความปรารถนาดีแทนเงิน จึงแนะนำให้จ่ายจริง 0 บาทได้เสมอ`;
+ return `จาก${zone} ${age} และความตั้งใจที่${mood} เลยได้เลขแนะนำนี้ไว้ทดลองกับสไลเดอร์ จะเพิ่มหรือลดก็ได้ตามสะดวก`;
 }
-$('tabReal').onclick=()=>setMode('real');
-$('tabGhost').onclick=()=>setMode('ghost');
-$('realAmount').addEventListener('input',computeReal);
-$('realYear').addEventListener('change',computeReal);
-$('realDirection').addEventListener('change',computeReal);
-for(const btn of document.querySelectorAll('.quick-year'))btn.onclick=()=>{$('realYear').value=btn.dataset.year;computeReal()};
-$('realReset').onclick=()=>{$('realAmount').value='10';$('realYear').value='1997';$('realDirection').value='pastNow';computeReal()};
-$('realCopy').onclick=async()=>{
- const t=`ซื้อที่ Calculator — เครื่องมืออำนาจซื้อ
-${$('realHeadline').textContent}
-ผลลัพธ์ ${$('realEquivalent').textContent} บาท
-${$('realFormula').textContent}
-${$('wagePast').textContent} · ${$('wageNow').textContent}
-แหล่งข้อมูล World Bank WDI / ค่าจ้างขั้นต่ำชัยนาท (ข้อมูล ณ ปี 2568)`;
- try{await navigator.clipboard.writeText(t);$('realCopy').textContent='คัดลอกแล้ว ✓';setTimeout(()=>$('realCopy').textContent='คัดลอกผลเปรียบเทียบ',1700)}catch(e){window.prompt('คัดลอกข้อความนี้',t)};
-};
-makeRealYears();computeReal();
-
-renderMap();toggleFrame();calculate();
+function changeGsi(){
+ currentAmount=Number($('amount').value);
+ $('selectedAmount').textContent=nfmt(currentAmount)+' บาท';
+ // Diminishing returns; 0 at no payment and below 100 even at high payments.
+ // It is an invented game score, not a claim about spirits.
+ const ratio=suggested>0?currentAmount/suggested:0;
+ const score=currentAmount===0?0:clamp(Math.round(99*(1-Math.exp(-1.82*ratio))),0,99);
+ $('gsiValue').innerHTML=String(score)+'<small>/100</small>';
+ $('gsiBar').setAttribute('aria-valuenow',String(score));$('gsiFill').style.width=score+'%';
+ let grade,msg;
+ if(currentAmount===0){grade='ไม่จ่ายก็ได้';msg='เก็บเงินไว้กับตัวได้เลยค่ะ ดัชนีนี้เป็นเกม ไม่ใช่การวัดอารมณ์ผีจริง ๆ';}
+ else if(score<40){grade='เริ่มต้นพิธี';msg='คะแนนสมมติยังไม่สูงนัก แต่ไม่ได้หมายความว่ามีใครโกรธหรือจะเกิดอะไรขึ้น';}
+ else if(score<75){grade='โหมดพอประมาณ';msg='อยู่ในช่วงสายมูประหยัด ๆ จะเลือกเท่านี้ก็ไม่ผิดอะไร';}
+ else if(score<94){grade='ระดับอบอุ่นใจ';msg='ใกล้เคียงเลขแนะนำของเกมแล้ว เพิ่มอีกก็ไม่ได้จำเป็นในชีวิตจริง';}
+ else {grade='สายเปย์ในตำนาน';msg='คะแนนเกมเข้าใกล้เพดานแล้ว ไม่จำเป็นต้องเพิ่มเงินอีกค่ะ';}
+ $('gsiGrade').textContent=grade;$('gsiMessage').textContent=msg;
+ for(const b of $('chips').querySelectorAll('button')){b.classList.toggle('active',Number(b.dataset.amount)===currentAmount);b.setAttribute('aria-pressed',String(Number(b.dataset.amount)===currentAmount));}
+}
+function showResult(){
+ suggested=computeSuggestion();currentAmount=choices.mood==='zero'?0:suggested;
+ $('recommendation').innerHTML=nfmt(choices.mood==='zero'?0:suggested)+'<small>บาท</small>';
+ $('rationale').textContent=rationale();
+ const max=clamp(Math.ceil(Math.max(350,suggested*2.5)/50)*50,350,1200);
+ $('amount').max=String(max);$('amount').value=String(currentAmount);$('rangeMax').textContent=nfmt(max)+' บาท';
+ const chips=[0,20,50,100,200,suggested].filter(v=>v<=max);
+ const unique=[...new Set(chips)].sort((a,b)=>a-b);$('chips').replaceChildren();
+ for(const v of unique){const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=v===suggested?'★ '+nfmt(v):nfmt(v);b.dataset.amount=String(v);b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>{$('amount').value=String(v);changeGsi();});$('chips').append(b);}
+ $('wizard').hidden=true;$('result').hidden=false;changeGsi();window.scrollTo({top:0,behavior:'smooth'});
+}
+function next(){if(!choices[questions[step].key])return;if(step<questions.length-1){step++;renderQuestion();}else showResult();}
+function prev(){if(step>0){step--;renderQuestion();}}
+$('next').addEventListener('click',next);$('prev').addEventListener('click',prev);$('amount').addEventListener('input',changeGsi);
+$('reset').addEventListener('click',()=>{step=0;for(const k of Object.keys(choices))delete choices[k];$('wizard').hidden=false;$('result').hidden=true;renderQuestion();window.scrollTo({top:0,behavior:'smooth'});});
+$('share').addEventListener('click',async()=>{
+ const txt=`ซื้อที่ Advisor 3.0 (เรื่องแต่งสนุก ๆ)\nเลขแนะนำ: ${choices.mood==='zero'?0:nfmt(suggested)} บาท\nเงินที่ลองเลื่อน: ${nfmt(currentAmount)} บาท\nดัชนีความพึงพอใจของผี (เกม): ${$('gsiBar').getAttribute('aria-valuenow')}/100\nไม่จำเป็นต้องจ่ายเงินจริง\n${location.href}`;
+ const btn=$('share');try{await navigator.clipboard.writeText(txt);btn.textContent='คัดลอกแล้ว ✓';setTimeout(()=>btn.textContent='คัดลอกผลลัพธ์',1800);}catch(e){const ta=document.createElement('textarea');ta.value=txt;document.body.append(ta);ta.select();let ok=false;try{ok=document.execCommand('copy');}catch(_){}ta.remove();if(ok){btn.textContent='คัดลอกแล้ว ✓';setTimeout(()=>btn.textContent='คัดลอกผลลัพธ์',1800);}else window.prompt('คัดลอกผลลัพธ์',txt);}
+});
+let startX=null,startY=null;
+$('wizard').addEventListener('touchstart',e=>{if(e.touches.length!==1)return;startX=e.touches[0].clientX;startY=e.touches[0].clientY;},{passive:true});
+$('wizard').addEventListener('touchend',e=>{if(startX===null)return;const dx=e.changedTouches[0].clientX-startX,dy=e.changedTouches[0].clientY-startY;startX=null;startY=null;if(Math.abs(dx)<85||Math.abs(dx)<Math.abs(dy)*1.5)return;if(dx<0)next();else prev();},{passive:true});
+renderQuestion();
+})();
 </script>
 </body>
 </html>
