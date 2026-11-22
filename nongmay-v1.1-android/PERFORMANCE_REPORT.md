@@ -1,6 +1,7 @@
 # PERFORMANCE REPORT — NongMay Camera v1.1
 
-**Real numbers:** Pol's Galaxy S25 Ultra (SM-S938B, Android 17), apps 1.1.0-debug (14:25) and 1.1.1-debug (19:58)
+**Real numbers:** Pol's Galaxy S25 Ultra (SM-S938B, Android 17), apps 1.1.0-debug (14:25), 1.1.1-debug (19:58) and
+1.1.2-debug (21:31)
 (`device-reports/2026-11-22_SM-S938B/PERFORMANCE_20261122_1425.md`). Sample sizes are tiny (n = 1–11) and most
 samples come from the self-test, which drives the camera from code — so these are first measurements, not a
 p95 verdict. Nothing here comes from an emulator.
@@ -35,6 +36,28 @@ p95 verdict. Nothing here comes from an emulator.
 
 Self-test per camera: open + session + first result 440–702 ms; request → saved JPEG 652–981 ms.
 Battery drain and heat over a 15–20 min session: NOT MEASURED (thermal status 1 = light when the report was made).
+
+## S25 Ultra results (1.1.2-debug, 21:31) — first clean report (older-version samples hidden)
+| Metric | n | p50 ms | p95 ms | Target | Verdict |
+|---|---|---|---|---|---|
+| `cold_start_process_to_first_preview_frame` | 1 | 822 | — | ≤ 2.5 s p95 | within target (1.1.1: 781 ms) |
+| `warm_start_to_first_preview_frame` | 4 | 689 | 726 | ≤ 800 ms p95 | **within target** (first valid samples) |
+| `camera_open_request_to_opened` | 7 | 7.7 | 27.6 | — | measured |
+| `camera_opened_to_session_configured` | 7 | 223 | 310 | — | measured |
+| `camera_open_request_to_first_preview_frame` | 6 | 665 | 753 | — | measured |
+| `voice_utterance_end_to_trigger` | 21 | 200.7 | 210.5 | — | **real use by Pol**; 200 ms is the designed end-of-speech pause |
+| `voice_utterance_end_to_capture_request` | 21 | 220.2 | 232.5 | ≤ 750 ms p95 | **within target** |
+| `story_photo_export_ms` | 2 | 177 | 198 | — | measured |
+| `story_video_export_ms_per_second_of_video` | 4 | 248 | 256 | — | ≈ 4× faster than real time (1080p and 4K HEVC sources) |
+| self-test request → sensor exposure | 34 | 136 | 188 | — | steady state in room light |
+| self-test request → JPEG ready / saved | 34 | 668 / 695 | 898 / 928 | — | measured |
+| finger shutter (`shutter_touch_*`), switches, manual settings via UI | 0 | — | — | ≤ 80 ms ack | NOT MEASURED (no finger taps yet) |
+
+Shutter lag with the three request types (1.1.2 self-test, camera 0, n=3 each): STILL + ZSL key 142 ms, ZSL template
+137 ms, STILL without ZSL 149 ms. **Neither ZSL path is honoured by Samsung's HAL for this app**; the lag is about four
+to five frame times (≈ 140 ms at 30 fps here, ≈ 310 ms in the dimmer 1.1.1 run where exposure ran longer).
+Voice accuracy (misses, false triggers) was not logged by 1.1.2 — 1.1.3 adds an outcome table (counts and
+score ÷ threshold only) and the voice → exposure / saved times.
 
 ## S25 Ultra results (1.1.1-debug, 19:58, evening indoors)
 The 1.1.1 report still contained the 1.1.0 samples (stats were not reset), so only the new samples are listed.

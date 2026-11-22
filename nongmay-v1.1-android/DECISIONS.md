@@ -99,8 +99,12 @@ needs the phone is marked UNVERIFIED in `FEATURE_MATRIX.md`.
 - Second run (1.1.1): the HAL chooses the lens itself — in an evening indoor scene it stayed on the main sensor at
   2.74× and used the 3× tele at 5.06×. The app keeps reporting the real active lens rather than claiming optical zoom;
   if Pol wants a guaranteed tele, the option is to stream the physical camera directly (`setPhysicalCameraId`).
-- `CONTROL_ENABLE_ZSL` made no difference (~0.31 s request → exposure on or off). 1.1.2 tries
-  `TEMPLATE_ZERO_SHUTTER_LAG`; app-side ZSL with PRIVATE reprocessing is the fallback if that is ignored too.
+- `CONTROL_ENABLE_ZSL` made no difference (~0.31 s request → exposure on or off), and the 1.1.2 run showed
+  `TEMPLATE_ZERO_SHUTTER_LAG` is ignored as well (137 vs. 149 ms). True zero lag therefore needs app-side ZSL:
+  keep the last few full-resolution PRIVATE frames and reprocess the one exposed at the tap (PRIVATE_REPROCESSING
+  is advertised). Not built yet: it changes the capture session and needs another on-device round.
+- Third run (1.1.2, room light): the HAL switches to the 3× tele only from 3.0× (stays on the main sensor at the
+  native 2.74×) and to the 5× tele at 5.06×. Lens buttons use 3.0× from 1.1.3 (`ExposureMath.lensChipRatio`, unit-tested).
 - AudioRecord delivers exact zeros at start; the VAD treats anything below −100 dBFS as the quietest real level.
 
 ## D8. Supported software

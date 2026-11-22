@@ -351,6 +351,20 @@ public final class CameraCaps {
         return out;
     }
 
+    /**
+     * Ratios for the lens buttons. On the S25 Ultra the camera only switches to the 3× tele (native 2.74×) from
+     * 3.0× (self-test zoom sweep, 2026-11-22), so a native ratio up to 12 % below a familiar step uses that step.
+     */
+    public List<Double> lensChipRatios() {
+        List<Double> out = new ArrayList<>();
+        for (double r : lensZoomPresets()) {
+            double v = com.nongmay.camera.camera.pro.ExposureMath.lensChipRatio(r);
+            if (zoomRange != null) v = Math.max(zoomRange.getLower(), Math.min(zoomRange.getUpper(), v));
+            out.add(v);
+        }
+        return out;
+    }
+
     public String physicalLabel(String physicalId) {
         for (int i = 0; i < physicalIds.length; i++) {
             if (physicalIds[i].equals(physicalId)) {

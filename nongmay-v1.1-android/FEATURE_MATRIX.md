@@ -1,7 +1,8 @@
-# FEATURE MATRIX — NongMay Camera v1.1 (1.1.2-debug, versionCode 13)
+# FEATURE MATRIX — NongMay Camera v1.1 (1.1.3-debug, versionCode 14)
 
 **Evidence so far:** on-device self-tests on Pol's Galaxy S25 Ultra (SM-S938B, Android 17, 2026-11-22):
-1.1.0 **28 PASS · 0 FAIL · 1 SKIP**, 1.1.1 **37 PASS · 0 FAIL · 2 SKIP** (`device-reports/2026-11-22_SM-S938B/`). The self-test drives the camera and
+1.1.0 **28 PASS · 0 FAIL · 1 SKIP**, 1.1.1 **37 PASS · 0 FAIL · 2 SKIP**, 1.1.2 **39 PASS · 0 FAIL · 1 SKIP**, plus
+Pol's first real Voice Shutter use (21 voice-triggered photos) (`device-reports/2026-11-22_SM-S938B/`). The self-test drives the camera and
 the exporters from code, so screens and finger/voice paths are still unverified.
 - **WORKING (device)** = passed on the S25 Ultra self-test. **WORKING** = verified on the build machine only
   (build, APK checks, JVM unit tests, synthetic voice evaluation).
@@ -35,7 +36,7 @@ Paths are relative to `app/src/main/java/com/nongmay/camera/`. Tests: `app/src/t
 | Video export 1080×1920 H.264, BT.709 SDR | WORKING (device) | self-test: 1080p30 clip → 1080×1920, 30.01 fps, BT.709/SDR tags, 10.4 Mbps (asked 10), exact duration, 706 ms for 2.87 s |
 | AAC audio passthrough in video export | WORKING (device) | 1.1.1: AAC 48 kHz copied without re-encoding from 1080p and 4K clips |
 | Export from a 4K HEVC source (what Samsung's camera records) | WORKING (device) | 1.1.1: 4K30 HEVC → 1080×1920 H.264, 29.6 fps, BT.709 SDR, same duration, 791 ms for 2.87 s |
-| Export bitrate on quiet scenes | NOTE | VBR undershoots on static/dark clips (2.3–2.6 Mbps for a 10 Mbps target in 1.1.1); quality effect is an A/B question |
+| Export bitrate | WORKING (device) | normal scenes hit the target (9.8 / 10.3 Mbps for 10 Mbps in 1.1.2); static dark clips undershoot (2.3–2.6 Mbps in 1.1.1, VBR) |
 | HDR source → SDR (decoder transfer request → GL shader → warning) | CODE COMPLETE · UNVERIFIED | `VideoTranscoder`, `gl/QuadRenderer` |
 | Non-AAC source audio (re-encode) | NOT IMPLEMENTED | export continues without that track and says so |
 | Export profiles: P1080_SDR, V1080_SDR (stable) | CODE COMPLETE · UNVERIFIED | `storymax/StoryProfiles` |
@@ -58,7 +59,7 @@ Paths are relative to `app/src/main/java/com/nongmay/camera/`. Tests: `app/src/t
 | AF-S / AF-C, tap-to-focus/meter, focus-before-capture | CODE COMPLETE · UNVERIFIED | 1 AE + 1 AF region on this phone, no AWB region |
 | White balance Kelvin (2300–10000 K) via colour gains | WORKING (device) | all 4 cameras: R/B gain ratio asked 0.631 → got 0.631 |
 | RAW (DNG) + JPEG | WORKING (device) | all 4 cameras: DNG 16.5–23.8 MB |
-| Logical back camera: lens presets 0.6× / 1× / 2.74× / 5.06× backed by real lenses | DEVICE-GATED | 1.1.1: 0.6× → ultra-wide, 1× → main ✓; 2.74× → still main, 5.06× → 3× tele (evening indoors; HAL falls back in low light / close focus). 1.1.2 sweeps 2–10× with scene info |
+| Real lenses behind the lens buttons (0.6× / 1× / 3× / 5.1×) | WORKING (device) | 1.1.2 sweep: 2× → main, **3× → 3× tele, 5.1× → 5× tele**; at the native 2.74× the HAL stays on the main sensor, so 1.1.3's button uses 3.0×. In dim light the HAL may still fall back to a wider lens (1.1.1) |
 | Lens chips, real active-lens label in the viewfinder | CODE COMPLETE · UNVERIFIED | `CameraCaps`, `CameraActivity` |
 | OIS on/off toggle | DEVICE-GATED (hidden here) | S25 Ultra exposes no OIS control to third-party apps (mode list = OFF) |
 | Fixed aperture shown as fixed | CODE COMPLETE · UNVERIFIED | `CameraCaps` |
@@ -84,10 +85,11 @@ Paths are relative to `app/src/main/java/com/nongmay/camera/`. Tests: `app/src/t
 | Default `น้องเม`, restore default, custom phrases (`โฮ่ง ๆ`, `ชาลี`, `ถ่ายเลย`, `cheese`, any phrase) | CODE COMPLETE · UNVERIFIED | `voice/VoiceActivity`, `VoiceProfileStore` |
 | Enrollment (3 takes, consistency + "too short" warnings), live test screen with score vs. threshold | CODE COMPLETE · UNVERIFIED | `VoiceActivity` |
 | Sensitivity STRICT / NORMAL / SENSITIVE | WORKING (synthetic) | thresholds tuned in `VOICE_EVAL.md` |
-| Microphone loop (AudioRecord 16 kHz, foreground) | WORKING (device) | 1.1.1 self-test; first buffers were exact zeros (floor read −180 dB) → ignored since 1.1.2 (unit-tested) |
+| Microphone loop (AudioRecord 16 kHz, foreground) | WORKING (device) | 1.1.2: background −63.9 dBFS, 40 ms of start-up zeros ignored (the −180 dB bug of 1.1.1 is fixed) |
+| Enrolled phrase triggers photos in the camera screen | WORKING (device) | 1.1.2: 21 voice-triggered photos by Pol; end of speech → capture request p50 220 ms, p95 233 ms |
 | Offline only, foreground only, stops during video recording, own shutter sound ignored, 1.5 s cooldown | CODE COMPLETE · UNVERIFIED | `voice/AudioKwsEngine`, `CameraActivity.stopVoice()` |
 | Mic-active indicator on the viewfinder | CODE COMPLETE · UNVERIFIED | `CameraActivity` |
-| Accuracy on Pol's real voice / S25 Ultra mic, battery, heat | NOT MEASURED | needs Pol to enroll น้องเม and try it (README checklist step 2) |
+| Accuracy on Pol's real voice (misses, false triggers), battery, heat | NOT MEASURED | 1.1.2 logged only successes; 1.1.3 logs every decision (outcome + score÷threshold, no audio) |
 | Voice start/stop video recording | NOT IMPLEMENTED | mic is reserved for the soundtrack while recording |
 | Android `SpeechRecognizer` engine | NOT IMPLEMENTED (rejected) | see DECISIONS D4 |
 | Migration of v1.0 voice templates | NOT IMPLEMENTED | v1.0 data is in another app; re-enroll |
@@ -100,8 +102,9 @@ Paths are relative to `app/src/main/java/com/nongmay/camera/`. Tests: `app/src/t
 | Shutter feedback vs. real save state kept separate | CODE COMPLETE · UNVERIFIED | ack on next frame; "saved" only after `IS_PENDING=0` |
 | Local timing markers p50/p95 (cold/warm start, first frame, tap→ack/request/sensor/JPEG/saved, voice, switches, video, export) | WORKING (device) | report produced on the phone; 1.1.1 fixes two artefacts found there (see `PERFORMANCE_REPORT.md`) and keeps self-test samples separate |
 | Capability inspector → `Download/NongMay/DEVICE_CAPABILITIES_*.json/md` | WORKING (device) | `DEVICE_CAPABILITIES.md/json`; 1.1.1 adds max fps per video size |
-| On-device self-test (per-camera capture/manual/RAW, lenses, shutter lag, video, Story exports, mic loop) | WORKING (device) | 1.1.1: 37 PASS · 0 FAIL · 2 SKIP (the two lens presets above) |
-| Zero shutter lag | NOT YET (device) | 1.1.1: request → exposure ~0.31 s with the ZSL key on or off (HAL ignores it); 1.1.2 tests `TEMPLATE_ZERO_SHUTTER_LAG`; app-side ZSL via PRIVATE reprocessing is the fallback plan |
+| On-device self-test (per-camera capture/manual/RAW, lenses, shutter lag, video, Story exports, mic loop) | WORKING (device) | 1.1.2: 39 PASS · 0 FAIL · 1 SKIP (lens at native 2.74×) |
+| Opens fast | WORKING (device) | cold start 0.78–0.82 s; warm start p95 0.73 s (target 0.8 s); open → first frame p95 0.75 s |
+| Zero shutter lag | BLOCKED (HAL) · app-side ZSL NOT IMPLEMENTED | ZSL key and ZSL template both ignored (1.1.2: 142 / 137 ms vs. 149 ms without); next step is PRIVATE-reprocessing ZSL |
 | Thermal status warning | CODE COMPLETE · UNVERIFIED | thermal status readable on the phone (1 = light); warning UI not triggered yet |
 | Thai + English UI, content descriptions | CODE COMPLETE · UNVERIFIED | `res/values*/strings.xml`, `setContentDescription` |
 | Jetpack Macrobenchmark / Baseline Profiles | BLOCKED | needs AGP/Maven |

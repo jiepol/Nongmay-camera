@@ -297,7 +297,7 @@ public final class SelfTest implements CameraController.Listener {
 
     /** Which physical lens really streams at each lens preset (0.6× / 1× / 3× / 5× on the S25 Ultra). */
     private void testLenses(CameraCaps c, CaptureSettings cs) {
-        for (double z : c.lensZoomPresets()) {
+        for (double z : c.lensChipRatios()) {
             if (cancelled) break;
             float zr = (float) z;
             if (c.zoomRange != null) zr = Math.max(c.zoomRange.getLower(), Math.min(c.zoomRange.getUpper(), zr));
@@ -317,7 +317,7 @@ public final class SelfTest implements CameraController.Listener {
                     + (match ? "" : " · expected " + want + ": the camera chose another lens" + scene(r)));
         }
         // The HAL decides when to change lens (light, focus distance, its own thresholds): record where it does.
-        double[] sweep = {2.0, 2.74, 3.0, 3.5, 4.0, 5.06, 5.5, 6.0, 7.0, 8.0, 10.0};
+        double[] sweep = {2.0, 2.74, 2.8, 2.9, 3.0, 3.5, 4.0, 4.5, 5.0, 5.06, 5.5, 6.0, 8.0, 10.0};
         StringBuilder sw = new StringBuilder();
         String last = null;
         CameraController.Readout ctx = null;

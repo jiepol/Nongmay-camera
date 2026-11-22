@@ -99,6 +99,7 @@ public final class CameraController {
         public String source;
         public int index, count;
         public long tapElapsedNs, requestElapsedNs, startedElapsedNs, sensorTs, jpegElapsedNs, savedElapsedNs;
+        public long voiceEndElapsedNs;
         public Uri jpegUri, rawUri;
         public String fileName;
         public String error;
@@ -1038,6 +1039,7 @@ public final class CameraController {
             info.index = i;
             info.count = n;
             info.tapElapsedNs = req.tapElapsedNs;
+            info.voiceEndElapsedNs = req.voiceEndElapsedNs;
             info.jpegOrientation = orientation;
             info.cropAspect = req.cropAspect;
             info.mirror = req.mirror && c.isFront();
@@ -1102,11 +1104,10 @@ public final class CameraController {
                 raw = orphanRaw.remove(timestamp);
             }
             if (info.index == 0) {
-                if (info.tapElapsedNs > 0) {
-                    boolean realtime = caps.timestampSource == CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
-                    long at = realtime ? timestamp : info.startedElapsedNs;
-                    PerfLog.add(metric(PerfLog.TAP_TO_SENSOR), (at - info.tapElapsedNs) / 1e6);
-                }
+                boolean realtime = caps.timestampSource == CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
+                long at = realtime ? timestamp : info.startedElapsedNs;
+                if (info.tapElapsedNs > 0) PerfLog.add(metric(PerfLog.TAP_TO_SENSOR), (at - info.tapElapsedNs) / 1e6);
+                if (info.voiceEndElapsedNs > 0) PerfLog.add(metric(PerfLog.VOICE_END_TO_SENSOR), (at - info.voiceEndElapsedNs) / 1e6);
                 main.post(new Runnable() {
                     @Override
                     public void run() {
@@ -1213,6 +1214,9 @@ public final class CameraController {
                     info.savedElapsedNs = SystemClock.elapsedRealtimeNanos();
                     if (info.index == 0 && info.tapElapsedNs > 0) {
                         PerfLog.add(metric(PerfLog.TAP_TO_SAVED), (info.savedElapsedNs - info.tapElapsedNs) / 1e6);
+                    }
+                    if (info.index == 0 && info.voiceEndElapsedNs > 0) {
+                        PerfLog.add(metric(PerfLog.VOICE_END_TO_SAVED), (info.savedElapsedNs - info.voiceEndElapsedNs) / 1e6);
                     }
                     main.post(new Runnable() {
                         @Override

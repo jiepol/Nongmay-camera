@@ -4,10 +4,18 @@ A fast Camera2 camera for the Galaxy S25 Ultra with four pillars: **StoryMax** (
 **True Pro** (capability-gated manual controls, RAW, overlays, Pro Video), **Voice Shutter** (say `น้องเม`, or
 any phrase you teach it, offline) and **Speed** (opens straight to the viewfinder, instrumented latency).
 
-> **Status (2026-11-22, 1.1.2-debug):** built, unit-tested, and on-device self-tests passed on Pol's Galaxy S25
-> Ultra (1.1.1: 37 PASS · 0 FAIL · 2 SKIP — all 4 cameras, manual ISO/shutter/focus/Kelvin, RAW, 4K30 HEVC / 1080p60
-> / 1080p30 video with sound, StoryMax photo + video export incl. from 4K HEVC, microphone loop). Screens,
-> finger/voice paths and Voice Shutter accuracy are still unverified — see `FEATURE_MATRIX.md`.
+> **Status (2026-11-22, 1.1.3-debug):** built, unit-tested, and on-device self-tests passed on Pol's Galaxy S25
+> Ultra (1.1.2: 39 PASS · 0 FAIL · 1 SKIP — all 4 cameras, real 3×/5× tele lenses, manual ISO/shutter/focus/Kelvin,
+> RAW, 4K30 HEVC / 1080p60 / 1080p30 video with sound, StoryMax exports, microphone). Pol's first real Voice
+> Shutter use: 21 voice photos, end of speech → capture request p95 233 ms. Voice accuracy, finger-shutter timing and
+> most screens are still unverified — see `FEATURE_MATRIX.md`.
+
+### New in 1.1.3 (from the 1.1.2 run)
+- Lens buttons: the 3× button now asks for 3.0× — the S25 Ultra only switches to its 3× tele from 3.0×, not at the
+  lens's native 2.74× (self-test zoom sweep). The 5× button stays at 5.06× (switches correctly).
+- Voice Shutter accuracy evidence: every decision in the camera screen is logged as outcome + score ÷ threshold
+  (no audio), shown in the performance report with “near misses”; voice → exposure start and voice → saved times added.
+- Zoom sweep adds 2.8×, 2.9×, 4.5× and 5.0× to find the exact lens switch points.
 
 ### New in 1.1.2 (from the 1.1.1 run)
 - Voice: the first microphone buffers are exact zeros on the S25 Ultra; they no longer pull the VAD background
@@ -37,7 +45,7 @@ any phrase you teach it, offline) and **Speed** (opens straight to the viewfinde
 | `TEST_RESULTS.md` | what was run and the actual results |
 
 ## Install (debug build)
-- APK: `NongMayCamera-1.1.2-debug.apk` (delivered separately; never committed). Application id
+- APK: `NongMayCamera-1.1.3-debug.apk` (delivered separately; never committed). Application id
   `com.nongmay.camera.v11`, so it installs **next to** v1.0 (`app.nongmay.camera`); v1.0 is not replaced.
   1.1.x builds share one key, so each installs **over** the previous one and keeps phrases, presets and timings.
 - Allow "install unknown apps" for the file manager you open it from. Android 10+ (minSdk 29).
@@ -68,8 +76,8 @@ Verified (offline, no Gradle):
 cd nongmay-v1.1-android
 ./tools/setup_toolchain.sh                 # android.jar API 35 + aapt2 from the pinned Apktool jar (SHA-256 checked) + apt tools
 export NONGMAY_TOOLCHAIN=$HOME/nongmay-toolchain
-./tools/build_apk.sh                       # -> build/apk/NongMayCamera-1.1.2-debug.apk
-./tools/run_unit_tests.sh                  # 32 JUnit tests
+./tools/build_apk.sh                       # -> build/apk/NongMayCamera-1.1.3-debug.apk
+./tools/run_unit_tests.sh                  # 33 JUnit tests
 ```
 The signing key is created on first build at `~/.nongmay/nongmay-v11-debug.jks` (override with
 `NONGMAY_KEYSTORE` / `NONGMAY_KS_PASS`).
@@ -107,8 +115,8 @@ deletes them. No Instagram login/API; you post manually.
 - Blocked here: Macrobenchmark / Baseline Profiles, CameraX / Media3 / Kotlin (no Maven access), Gradle build check.
 
 ## Pol's 10-minute test (S25 Ultra)
-Before starting: ลง 1.1.2 ทับตัวเดิม → Settings → Diagnostics → “ล้างสถิติความเร็ว” → **Self-test อีกรอบ ตอนกลางวัน
-หันกล้องหลังไปที่สว่างและไกลกว่า 2 เมตร** (เช่น ถือออกนอกหน้าต่าง).
+Before starting: ลง 1.1.3 ทับตัวเดิม → Settings → Diagnostics → “ล้างสถิติความเร็ว” แล้วค่อยเริ่มทดสอบ
+(Self-test ให้หันกล้องหลังไปที่สว่างและไกลกว่า 2 เมตร).
 ทำตามนี้แล้วส่งไฟล์ใน `Download/NongMay/` กลับมา
 1. **เปิดแอปแบบ cold 10 ครั้ง** (ปัดแอปทิ้งก่อนทุกครั้ง) → กดถ่าย 1 รูปทุกครั้ง; จดว่าเห็นภาพสดเร็วไหม รูปเข้าแกลเลอรีไหม
 2. **Voice:** แตะไอคอนไมค์ → สอน `น้องเม` 3 ครั้ง → พูด `น้องเม` 20 ครั้งในห้องเงียบ + 20 ครั้งตอนเปิดทีวี/พัดลม;

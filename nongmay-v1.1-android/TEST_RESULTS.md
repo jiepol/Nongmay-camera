@@ -1,5 +1,20 @@
 # TEST RESULTS — NongMay Camera v1.1
 
+## Galaxy S25 Ultra on-device self-test (1.1.2-debug, 2026-11-22 21:30)
+Raw report: `device-reports/2026-11-22_SM-S938B/SELFTEST_20261122_2131.md`. **39 PASS · 0 FAIL · 1 SKIP.**
+
+| Area | Result |
+|---|---|
+| 4 cameras: open, JPEG, manual ISO/shutter/focus, Kelvin, RAW | PASS again |
+| Lens at 0.6× / 1× / 5.06× | PASS — ultra-wide (2) / main (5) / 5× tele (7) |
+| Lens at 2.74× | SKIP — main sensor (ISO 310, 1/33 s, focus 1.3 m) |
+| Lens switch points (zoom sweep, ISO 1156, 1/50 s, focus 3.5 m) | PASS — 2× main · **3× → 3× tele** · 5.1× → 5× tele |
+| Shutter lag (p50, n=3 each) | STILL + ZSL key 142 ms · ZSL template 137 ms · STILL no ZSL 149 ms |
+| Video 1080p30 / 4K30 HEVC / 1080p60, all with sound | PASS — 7.2 / 17.4 / 14.0 Mbps; 1080p60 measured 60 fps |
+| StoryMax exports from 1080p and 4K HEVC | PASS — 9.8 / 10.3 Mbps (asked 10), AAC copied, same duration, 680 / 748 ms |
+| StoryMax photo export | PASS — 289 KB, sRGB ICC, 200 ms |
+| Microphone loop | PASS — background −63.9 dBFS, 40 ms start-up zeros ignored |
+
 ## Galaxy S25 Ultra on-device self-test (1.1.1-debug, 2026-11-22 19:57)
 Raw report: `device-reports/2026-11-22_SM-S938B/SELFTEST_20261122_1958.md`. **37 PASS · 0 FAIL · 2 SKIP.**
 
@@ -35,21 +50,21 @@ Added for the next run (1.1.1): asks for the microphone first; which physical le
 5.06×; shutter lag with ZSL on vs. off after the preview has settled; 4K30 HEVC and 1080p60 recording; video with
 sound; StoryMax export from the 4K HEVC clip (checks AAC passthrough); self-test timings stored separately.
 
-## Build machine (1.1.2-debug, 2026-11-22; Linux x86-64, OpenJDK 21)
+## Build machine (1.1.3-debug, 2026-11-22; Linux x86-64, OpenJDK 21)
 
 | Check | Command | Result |
 |---|---|---|
-| JVM unit tests (all Android-free classes) | `./tools/run_unit_tests.sh` | **OK (32 tests)**, ~0.3 s |
-| Offline debug APK build | `NONGMAY_TOOLCHAIN=… ./tools/build_apk.sh` | **built** `NongMayCamera-1.1.2-debug.apk`, 60 source files, 205,527 bytes |
+| JVM unit tests (all Android-free classes) | `./tools/run_unit_tests.sh` | **OK (33 tests)**, ~0.3 s |
+| Offline debug APK build | `NONGMAY_TOOLCHAIN=… ./tools/build_apk.sh` | **built** `NongMayCamera-1.1.3-debug.apk`, 60 source files, 205,527 bytes |
 | Signature | `apksigner verify --verbose --print-certs` | **v3 verified** (v1/v2 not present; fine for minSdk 29) |
-| Package / SDK / permissions | `aapt2 dump badging` | `com.nongmay.camera.v11`, versionCode 13, min 29, target 35, CAMERA + RECORD_AUDIO only |
-| Same signer as 1.1.0 / 1.1.1 (in-place update) | `apksigner verify --print-certs` | certificate SHA-256 b51f1b7b…1fef7d (unchanged) |
+| Package / SDK / permissions | `aapt2 dump badging` | `com.nongmay.camera.v11`, versionCode 14, min 29, target 35, CAMERA + RECORD_AUDIO only |
+| Same signer as 1.1.0–1.1.2 (in-place update) | `apksigner verify --print-certs` | certificate SHA-256 b51f1b7b…1fef7d (unchanged) |
 | No Java-8 lambdas in dex (dx/min-sdk 26 safety) | `dexdump -d … \| grep -c invoke-custom` | **0** |
 | Voice Shutter synthetic evaluation | `tools/voice_eval` (see `VOICE_EVAL.md`) | ran: 142 streams, 20/20 templates |
 | On-device self-test, capability inspector | Diagnostics in the app | see the S25 Ultra section above |
 | Gradle build (`./gradlew assembleDebug testDebugUnitTest`) | — | **NOT RUN** (AGP unreachable) |
 
-## Unit tests (32)
+## Unit tests (33)
 - **VoiceCoreTest (10):** exactZerosFromMicWarmUpAreIgnored · fftFindsTheToneBin · mfccShapesAndNormalisation · dtwPrefersSameWordEvenWhenStretched ·
   vadFindsSegmentAndRejectsLongTalk · spotterTriggersOnKeywordOnly · spotterIgnoresLongSentencesAndRespectsCooldown ·
   compensationKeepsTheKeywordInSteadyNoise (12 dB SNR: compensated matcher triggers, plain one does not) ·
@@ -58,7 +73,7 @@ sound; StoryMax export from the 4K HEVC clip (checks AAC passthrough); self-test
   orientationRoundTripsForAllExifValues · frameRatePolicyDropsWithoutJudder · toneMapReferencePoints ·
   profilesAreConsistent · worksheetHidesProfilesUntilKey · quadFullFrameMapsCornersToCorners ·
   quadLandscapeEncoderAndRotationStayInsideTheFrame · avcLevelCoversStoryAndUhdModes
-- **ProMathTest (6):** shutterLabelsAndAngles · stopsStayInsideHardwareRange · exposureEquivalenceAndLensUnits ·
+- **ProMathTest (7):** lensChipsUseTheRatioWhereTheS25UltraSwitchesLens · shutterLabelsAndAngles · stopsStayInsideHardwareRange · exposureEquivalenceAndLensUnits ·
   planckianLocus · kelvinGainsBehaveLikeACamera · illuminantInterpolationWeight
 - **UtilTest (5):** jsonEscapesAndNests · statsPercentiles · iccIsInsertedAfterJfifAndJpegStillDecodes ·
   iccRejectsNonJpeg · formatting

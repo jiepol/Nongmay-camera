@@ -798,6 +798,7 @@ public final class CameraActivity extends Activity implements CameraController.L
     private final AudioKwsEngine.Listener voiceListener = new AudioKwsEngine.Listener() {
         @Override
         public void onTrigger(KwsCore.Event e, long speechEndNs, long decisionNs) {
+            PerfLog.voiceOutcome("trigger", e.score / e.threshold);
             if (!voiceAllowedNow() || countdownTask != null || intervalTask != null) return;
             PerfLog.add(PerfLog.VOICE_END_TO_TRIGGER, (decisionNs - speechEndNs) / 1e6);
             setStatus("ได้ยิน “" + phraseLabel() + "” แล้ว!", 1500);
@@ -811,6 +812,8 @@ public final class CameraActivity extends Activity implements CameraController.L
 
         @Override
         public void onSegment(KwsCore.Event e) {
+            // real-use accuracy evidence: outcome + score÷threshold only (never audio)
+            if (e.type != KwsCore.Event.TRIGGER) PerfLog.voiceOutcome(e.reject == null ? "accepted" : e.reject, e.score / e.threshold);
             if (prefs.getBool("voice_debug", false) && !Double.isNaN(e.score)) {
                 setStatus(String.format(Locale.ROOT, "คะแนน %.2f / เกณฑ์ %.2f · %s", e.score, e.threshold, KwsCore.rejectLabel(e.reject)), 2000);
             }
@@ -1836,7 +1839,7 @@ public final class CameraActivity extends Activity implements CameraController.L
         zoomRow.removeAllViews();
         CameraCaps c = caps;
         if (c == null) return;
-        List<Double> presets = c.lensZoomPresets();
+        List<Double> presets = c.lensChipRatios();
         if (presets.size() <= 1 && c.zoomRange == null && c.maxDigitalZoom <= 1.01f) {
             lensText.setVisibility(View.GONE);
             return;

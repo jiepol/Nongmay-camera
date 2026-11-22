@@ -95,4 +95,13 @@ public class ProMathTest {
         assertTrue(mid > 0 && mid < 1);
         assertEquals(6504, WhiteBalanceMath.illuminantKelvin(21), 0);
     }
+
+    @Test
+    public void lensChipsUseTheRatioWhereTheS25UltraSwitchesLens() {
+        assertEquals(3.0, ExposureMath.lensChipRatio(61.0 / 22.3), 1e-9);      // 2.74x tele: HAL switches at 3.0x
+        assertEquals(112.7 / 22.3, ExposureMath.lensChipRatio(112.7 / 22.3), 1e-9); // 5.06x tele: native works
+        assertEquals(1.0, ExposureMath.lensChipRatio(1.0), 1e-9);
+        assertEquals(0.6, ExposureMath.lensChipRatio(0.6), 1e-9);
+        assertEquals(2.0, ExposureMath.lensChipRatio(1.85), 1e-9);
+    }
 }

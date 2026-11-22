@@ -117,6 +117,13 @@ public final class ExposureMath {
         return String.format(Locale.ROOT, "%.0f cm", m * 100);
     }
 
+    /** Lens button ratio: a native lens ratio up to 12 % below a familiar step (2×, 3×, 5×, 10×) uses the step. */
+    public static double lensChipRatio(double nativeRatio) {
+        double[] steps = {2.0, 3.0, 5.0, 10.0};
+        for (double st : steps) if (st >= nativeRatio && st / nativeRatio <= 1.12) return st;
+        return nativeRatio;
+    }
+
     public static String zoomLabel(double ratio) {
         if (Math.abs(ratio - Math.round(ratio)) < 0.05) return Math.round(ratio) + "×";
         return String.format(Locale.ROOT, "%.1f×", ratio);

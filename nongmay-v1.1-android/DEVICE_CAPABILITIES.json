@@ -1,8 +1,8 @@
 {
   "report": "NongMay Camera DEVICE_CAPABILITIES",
   "schema": 1,
-  "app_version": "1.1.1-debug",
-  "generated_at": "2026-11-22 19:56",
+  "app_version": "1.1.2-debug",
+  "generated_at": "2026-11-22 21:30",
   "device": {
     "manufacturer": "samsung",
     "model": "SM-S938B",
@@ -1086,8 +1086,8 @@
       ]
     }
   ],
-  "thermal_status_now": 0,
-  "free_storage_bytes": 53744521216,
+  "thermal_status_now": 1,
+  "free_storage_bytes": 53568200704,
   "privacy": "No photos, audio, location, accounts or hardware serials are included.",
   "speech_recognition_os": {
     "on_device_recognition_available": true,

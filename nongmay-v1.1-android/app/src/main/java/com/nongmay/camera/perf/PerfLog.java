@@ -39,6 +39,9 @@ public final class PerfLog {
     public static final String TAP_TO_SAVED = "shutter_touch_to_mediastore_saved";
     public static final String VOICE_END_TO_TRIGGER = "voice_utterance_end_to_trigger";
     public static final String VOICE_END_TO_REQUEST = "voice_utterance_end_to_capture_request";
+    public static final String VOICE_END_TO_SENSOR = "voice_utterance_end_to_sensor_exposure_start";
+    public static final String VOICE_END_TO_SAVED = "voice_utterance_end_to_mediastore_saved";
+    static final String VOICE_SEG = "voice_seg_";
     public static final String CAMERA_SWITCH = "camera_switch_to_first_frame";
     public static final String MODE_SWITCH = "mode_switch_to_first_frame";
     public static final String SETTING_APPLY = "manual_setting_request_to_matching_result";
@@ -79,11 +82,24 @@ public final class PerfLog {
     }
 
     public static synchronized void add(String metric, double ms) {
-        if (Double.isNaN(ms) || ms < 0 || ms > 600_000) return;
+        if (Double.isNaN(ms) || ms < -2000 || ms > 600_000) return;   // sensor metrics may be negative with true ZSL
         List<Double> l = mem.get(metric);
         if (l == null) { l = new ArrayList<>(); mem.put(metric, l); }
         l.add(ms);
         append(metric, ms);
+    }
+
+    /**
+     * One Voice Shutter decision in the camera screen: outcome = "trigger" or the reject reason, ratio = best
+     * score ÷ threshold (below 1 = close enough), 0 when the segment was never scored. Numbers only, no audio.
+     */
+    public static synchronized void voiceOutcome(String outcome, double ratio) {
+        String metric = VOICE_SEG + outcome;
+        double v = Double.isNaN(ratio) || Double.isInfinite(ratio) ? 0 : Math.max(0, Math.min(99, ratio));
+        List<Double> l = mem.get(metric);
+        if (l == null) { l = new ArrayList<>(); mem.put(metric, l); }
+        l.add(v);
+        append(metric, v);
     }
 
     public static synchronized Stats stats(String metric) {
@@ -158,7 +174,8 @@ public final class PerfLog {
                 .append(" older samples are hidden (Diagnostics › ล้างสถิติความเร็ว deletes them).\n");
         sb.append("\n| Metric | n | p50 ms | p95 ms | min | max |\n|---|---|---|---|---|---|\n");
         String[] order = {COLD_START, WARM_START, CAMERA_OPEN, SESSION_READY, OPEN_TO_FRAME, TAP_TO_ACK, TAP_TO_REQUEST,
-                TAP_TO_SENSOR, TAP_TO_JPEG, TAP_TO_SAVED, VOICE_END_TO_TRIGGER, VOICE_END_TO_REQUEST, CAMERA_SWITCH,
+                TAP_TO_SENSOR, TAP_TO_JPEG, TAP_TO_SAVED, VOICE_END_TO_TRIGGER, VOICE_END_TO_REQUEST, VOICE_END_TO_SENSOR,
+                VOICE_END_TO_SAVED, CAMERA_SWITCH,
                 MODE_SWITCH, SETTING_APPLY, VIDEO_START, VIDEO_STOP, EXPORT_PHOTO, EXPORT_VIDEO_RT};
         for (String k : order) {
             Stats s = stats(k);
@@ -166,6 +183,26 @@ public final class PerfLog {
                 sb.append("| ").append(k).append(" | 0 | NOT MEASURED |  |  |  |\n");
             } else {
                 sb.append(String.format(Locale.ROOT, "| %s | %d | %.1f | %.1f | %.1f | %.1f |\n", k, s.n, s.p50, s.p95, s.min, s.max));
+            }
+        }
+        java.util.List<String> voiceSeg = new java.util.ArrayList<>();
+        for (String k : mem.keySet()) if (k.startsWith(VOICE_SEG)) voiceSeg.add(k);
+        if (!voiceSeg.isEmpty()) {
+            java.util.Collections.sort(voiceSeg);
+            if (voiceSeg.remove(VOICE_SEG + "trigger")) voiceSeg.add(0, VOICE_SEG + "trigger");
+            sb.append("\nVoice Shutter in real use (camera screen). Score ÷ threshold: below 1.00 is a match; ")
+                    .append("“near miss” = rejected but within 1.25 — usually the phrase said a bit differently. No audio is kept.\n\n");
+            sb.append("| Outcome | n | median score÷threshold | min | near misses |\n|---|---|---|---|---|\n");
+            for (String k : voiceSeg) {
+                List<Double> l = mem.get(k);
+                Stats s = stats(k);
+                int near = 0;
+                boolean trig = k.equals(VOICE_SEG + "trigger");
+                if (!trig) for (double v : l) if (v > 0 && v <= 1.25) near++;
+                boolean scored = s.max > 0;
+                sb.append(String.format(Locale.ROOT, "| %s | %d | %s | %s | %s |\n", k.substring(VOICE_SEG.length()), s.n,
+                        scored ? String.format(Locale.ROOT, "%.2f", s.p50) : "—", scored ? String.format(Locale.ROOT, "%.2f", s.min) : "—",
+                        trig ? "—" : String.valueOf(near)));
             }
         }
         java.util.List<String> selfTest = new java.util.ArrayList<>();
