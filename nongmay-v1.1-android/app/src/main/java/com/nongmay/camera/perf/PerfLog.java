@@ -52,6 +52,8 @@ public final class PerfLog {
     private static File file;
     private static long processStartElapsed;
     private static boolean coldStartPending = true;
+    /** Samples written by an earlier app version: kept on disk until cleared, left out of the report. */
+    private static int olderSamples;
 
     private PerfLog() {}
 
@@ -94,6 +96,7 @@ public final class PerfLog {
 
     public static synchronized void clear() {
         mem.clear();
+        olderSamples = 0;
         if (file != null) //noinspection ResultOfMethodCallIgnored
             file.delete();
     }
@@ -101,13 +104,15 @@ public final class PerfLog {
     private static void append(String metric, double ms) {
         if (file == null) return;
         try (OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8)) {
-            w.write(System.currentTimeMillis() + "\t" + metric + "\t" + String.format(Locale.ROOT, "%.3f", ms) + "\n");
+            w.write(System.currentTimeMillis() + "\t" + metric + "\t" + String.format(Locale.ROOT, "%.3f", ms)
+                    + "\t" + com.nongmay.camera.BuildInfo.VERSION_CODE + "\n");
         } catch (IOException ignored) {
         }
     }
 
     private static void load() {
         mem.clear();
+        olderSamples = 0;
         if (file == null || !file.exists()) return;
         List<String> lines = new ArrayList<>();
         try (BufferedReader r = new BufferedReader(new FileReader(file))) {
@@ -118,8 +123,13 @@ public final class PerfLog {
         int from = Math.max(0, lines.size() - MAX_LINES);
         for (int i = from; i < lines.size(); i++) {
             String[] p = lines.get(i).split("\t");
-            if (p.length != 3) continue;
+            if (p.length != 3 && p.length != 4) continue;
             try {
+                // 1.1.0 wrote no version column; its first-frame samples contained a stale-frame artefact
+                if (p.length == 3 || Integer.parseInt(p[3]) != com.nongmay.camera.BuildInfo.VERSION_CODE) {
+                    olderSamples++;
+                    continue;
+                }
                 double v = Double.parseDouble(p[2]);
                 List<Double> l = mem.get(p[1]);
                 if (l == null) { l = new ArrayList<>(); mem.put(p[1], l); }
@@ -143,8 +153,10 @@ public final class PerfLog {
         sb.append("- App ").append(BuildInfo.VERSION).append(" · ").append(Build.MANUFACTURER).append(' ').append(Build.MODEL)
                 .append(" · Android ").append(Build.VERSION.RELEASE).append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
         sb.append("- Exported ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ROOT).format(new Date())).append("\n");
-        sb.append("- Clocks: touch→ack uses the input/vsync clock; touch→sensor uses SENSOR_TIMESTAMP when the camera reports REALTIME timestamps, otherwise the onCaptureStarted callback time.\n\n");
-        sb.append("| Metric | n | p50 ms | p95 ms | min | max |\n|---|---|---|---|---|---|\n");
+        sb.append("- Clocks: touch→ack uses the input/vsync clock; touch→sensor uses SENSOR_TIMESTAMP when the camera reports REALTIME timestamps, otherwise the onCaptureStarted callback time.\n");
+        if (olderSamples > 0) sb.append("- Only this app version's samples are shown; ").append(olderSamples)
+                .append(" older samples are hidden (Diagnostics › ล้างสถิติความเร็ว deletes them).\n");
+        sb.append("\n| Metric | n | p50 ms | p95 ms | min | max |\n|---|---|---|---|---|---|\n");
         String[] order = {COLD_START, WARM_START, CAMERA_OPEN, SESSION_READY, OPEN_TO_FRAME, TAP_TO_ACK, TAP_TO_REQUEST,
                 TAP_TO_SENSOR, TAP_TO_JPEG, TAP_TO_SAVED, VOICE_END_TO_TRIGGER, VOICE_END_TO_REQUEST, CAMERA_SWITCH,
                 MODE_SWITCH, SETTING_APPLY, VIDEO_START, VIDEO_STOP, EXPORT_PHOTO, EXPORT_VIDEO_RT};

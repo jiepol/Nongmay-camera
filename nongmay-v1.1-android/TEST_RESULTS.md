@@ -1,5 +1,19 @@
 # TEST RESULTS — NongMay Camera v1.1
 
+## Galaxy S25 Ultra on-device self-test (1.1.1-debug, 2026-11-22 19:57)
+Raw report: `device-reports/2026-11-22_SM-S938B/SELFTEST_20261122_1958.md`. **37 PASS · 0 FAIL · 2 SKIP.**
+
+| Area | Result |
+|---|---|
+| Everything from the 1.1.0 run (4 cameras: open, JPEG, manual ISO/shutter/focus, Kelvin, RAW) | PASS again |
+| Lens at 0.6× / 1× | PASS — ultra-wide (2) / main (5) |
+| Lens at 2.74× / 5.06× | SKIP — HAL used main (5) / 3× tele (6) instead of 6 / 7 (evening indoors) |
+| Shutter lag, camera 0 | PASS (measured) — ZSL key on 309 ms, off 317 ms (p50, n=3 each) |
+| Video 1080p30 H.264 + mic, 4K30 HEVC + mic, 1080p60 H.264 + mic | PASS — AAC audio in all; 1080p60 measured 58 fps |
+| StoryMax export from 1080p30 and from 4K30 HEVC | PASS — 1080×1920 H.264, BT.709 SDR, AAC copied as-is, same duration, 639 / 791 ms |
+| StoryMax photo export | PASS — 1080×1920, sRGB ICC, 161 ms |
+| Microphone loop | PASS — but the VAD floor read −180 dB (first buffers exact zeros) → fixed in 1.1.2 |
+
 ## Galaxy S25 Ultra on-device self-test (1.1.0-debug, 2026-11-22 14:25)
 SM-S938B, Android 17 (API 37). Run by Pol from Settings → Diagnostics → Self-test. Raw report:
 `device-reports/2026-11-22_SM-S938B/SELFTEST_20261122_1425.md`. **28 PASS · 0 FAIL · 1 SKIP.**
@@ -21,22 +35,22 @@ Added for the next run (1.1.1): asks for the microphone first; which physical le
 5.06×; shutter lag with ZSL on vs. off after the preview has settled; 4K30 HEVC and 1080p60 recording; video with
 sound; StoryMax export from the 4K HEVC clip (checks AAC passthrough); self-test timings stored separately.
 
-## Build machine (1.1.1-debug, 2026-11-22; Linux x86-64, OpenJDK 21)
+## Build machine (1.1.2-debug, 2026-11-22; Linux x86-64, OpenJDK 21)
 
 | Check | Command | Result |
 |---|---|---|
-| JVM unit tests (all Android-free classes) | `./tools/run_unit_tests.sh` | **OK (31 tests)**, ~0.3 s |
-| Offline debug APK build | `NONGMAY_TOOLCHAIN=… ./tools/build_apk.sh` | **built** `NongMayCamera-1.1.1-debug.apk`, 60 source files, 205,527 bytes |
+| JVM unit tests (all Android-free classes) | `./tools/run_unit_tests.sh` | **OK (32 tests)**, ~0.3 s |
+| Offline debug APK build | `NONGMAY_TOOLCHAIN=… ./tools/build_apk.sh` | **built** `NongMayCamera-1.1.2-debug.apk`, 60 source files, 205,527 bytes |
 | Signature | `apksigner verify --verbose --print-certs` | **v3 verified** (v1/v2 not present; fine for minSdk 29) |
-| Package / SDK / permissions | `aapt2 dump badging` | `com.nongmay.camera.v11`, versionCode 12, min 29, target 35, CAMERA + RECORD_AUDIO only |
-| Same signer as 1.1.0 (in-place update) | `apksigner verify --print-certs` | certificate SHA-256 b51f1b7b…1fef7d (unchanged) |
+| Package / SDK / permissions | `aapt2 dump badging` | `com.nongmay.camera.v11`, versionCode 13, min 29, target 35, CAMERA + RECORD_AUDIO only |
+| Same signer as 1.1.0 / 1.1.1 (in-place update) | `apksigner verify --print-certs` | certificate SHA-256 b51f1b7b…1fef7d (unchanged) |
 | No Java-8 lambdas in dex (dx/min-sdk 26 safety) | `dexdump -d … \| grep -c invoke-custom` | **0** |
 | Voice Shutter synthetic evaluation | `tools/voice_eval` (see `VOICE_EVAL.md`) | ran: 142 streams, 20/20 templates |
 | On-device self-test, capability inspector | Diagnostics in the app | see the S25 Ultra section above |
 | Gradle build (`./gradlew assembleDebug testDebugUnitTest`) | — | **NOT RUN** (AGP unreachable) |
 
-## Unit tests (31)
-- **VoiceCoreTest (9):** fftFindsTheToneBin · mfccShapesAndNormalisation · dtwPrefersSameWordEvenWhenStretched ·
+## Unit tests (32)
+- **VoiceCoreTest (10):** exactZerosFromMicWarmUpAreIgnored · fftFindsTheToneBin · mfccShapesAndNormalisation · dtwPrefersSameWordEvenWhenStretched ·
   vadFindsSegmentAndRejectsLongTalk · spotterTriggersOnKeywordOnly · spotterIgnoresLongSentencesAndRespectsCooldown ·
   compensationKeepsTheKeywordInSteadyNoise (12 dB SNR: compensated matcher triggers, plain one does not) ·
   templateRoundTripAndSensitivityOrder · thaiPhraseNormalisation

@@ -4,12 +4,21 @@ A fast Camera2 camera for the Galaxy S25 Ultra with four pillars: **StoryMax** (
 **True Pro** (capability-gated manual controls, RAW, overlays, Pro Video), **Voice Shutter** (say `น้องเม`, or
 any phrase you teach it, offline) and **Speed** (opens straight to the viewfinder, instrumented latency).
 
-> **Status (2026-11-22, 1.1.1-debug):** built, unit-tested, and the 1.1.0 on-device self-test passed on Pol's
-> Galaxy S25 Ultra (28 PASS · 0 FAIL · 1 SKIP — camera capture on all 4 cameras, manual ISO/shutter/focus/Kelvin,
-> RAW, 1080p video, StoryMax photo + video export). Screens, finger/voice paths and Voice Shutter accuracy are still
-> unverified — see `FEATURE_MATRIX.md`. Voice numbers so far are synthetic (`VOICE_EVAL.md`).
+> **Status (2026-11-22, 1.1.2-debug):** built, unit-tested, and on-device self-tests passed on Pol's Galaxy S25
+> Ultra (1.1.1: 37 PASS · 0 FAIL · 2 SKIP — all 4 cameras, manual ISO/shutter/focus/Kelvin, RAW, 4K30 HEVC / 1080p60
+> / 1080p30 video with sound, StoryMax photo + video export incl. from 4K HEVC, microphone loop). Screens,
+> finger/voice paths and Voice Shutter accuracy are still unverified — see `FEATURE_MATRIX.md`.
 
-### New in 1.1.1 (from the S25 Ultra evidence)
+### New in 1.1.2 (from the 1.1.1 run)
+- Voice: the first microphone buffers are exact zeros on the S25 Ultra; they no longer pull the VAD background
+  level to −180 dB (floor clamped at −100 dBFS, zeros skipped by the noise tracker; unit test added).
+- Shutter lag: the HAL ignored `CONTROL_ENABLE_ZSL` (0.31 s either way). Single shots can now use
+  `TEMPLATE_ZERO_SHUTTER_LAG`; the self-test measures STILL + ZSL key vs. ZSL template vs. no ZSL.
+- Lens test: sweeps 2–10× and records where the HAL changes lens, with ISO / shutter / focus distance for context;
+  the self-test screen asks to point the phone at a bright scene more than 2 m away.
+- Performance report shows only the current version's samples (older ones hidden until cleared).
+
+### New in 1.1.1 (from the 1.1.0 run)
 - Fixed: first-frame timing could count a stale viewfinder frame after returning to the app (30 ms “warm start”,
   36.8 s open→frame sample in 1.1.0).
 - Self-test timings are now stored separately (`selftest_*`) from real finger/voice timings.
@@ -28,9 +37,9 @@ any phrase you teach it, offline) and **Speed** (opens straight to the viewfinde
 | `TEST_RESULTS.md` | what was run and the actual results |
 
 ## Install (debug build)
-- APK: `NongMayCamera-1.1.1-debug.apk` (delivered separately; never committed). Application id
+- APK: `NongMayCamera-1.1.2-debug.apk` (delivered separately; never committed). Application id
   `com.nongmay.camera.v11`, so it installs **next to** v1.0 (`app.nongmay.camera`); v1.0 is not replaced.
-  1.1.1 is signed with the same key as 1.1.0, so it installs **over** 1.1.0 and keeps phrases, presets and timings.
+  1.1.x builds share one key, so each installs **over** the previous one and keeps phrases, presets and timings.
 - Allow "install unknown apps" for the file manager you open it from. Android 10+ (minSdk 29).
 - Signed with a personal **debug** key. Future v1.1.x builds must be signed with the same key to update in
   place; a different key means uninstall first (voice phrases and presets would be lost). Keep the `.jks` private.
@@ -59,8 +68,8 @@ Verified (offline, no Gradle):
 cd nongmay-v1.1-android
 ./tools/setup_toolchain.sh                 # android.jar API 35 + aapt2 from the pinned Apktool jar (SHA-256 checked) + apt tools
 export NONGMAY_TOOLCHAIN=$HOME/nongmay-toolchain
-./tools/build_apk.sh                       # -> build/apk/NongMayCamera-1.1.1-debug.apk
-./tools/run_unit_tests.sh                  # 31 JUnit tests
+./tools/build_apk.sh                       # -> build/apk/NongMayCamera-1.1.2-debug.apk
+./tools/run_unit_tests.sh                  # 32 JUnit tests
 ```
 The signing key is created on first build at `~/.nongmay/nongmay-v11-debug.jks` (override with
 `NONGMAY_KEYSTORE` / `NONGMAY_KS_PASS`).
@@ -98,7 +107,8 @@ deletes them. No Instagram login/API; you post manually.
 - Blocked here: Macrobenchmark / Baseline Profiles, CameraX / Media3 / Kotlin (no Maven access), Gradle build check.
 
 ## Pol's 10-minute test (S25 Ultra)
-Before starting: ลง 1.1.1 ทับตัวเดิม → Settings → Diagnostics → “ล้างสถิติความเร็ว” → **Self-test อีกรอบ (อนุญาตไมค์ด้วย)**.
+Before starting: ลง 1.1.2 ทับตัวเดิม → Settings → Diagnostics → “ล้างสถิติความเร็ว” → **Self-test อีกรอบ ตอนกลางวัน
+หันกล้องหลังไปที่สว่างและไกลกว่า 2 เมตร** (เช่น ถือออกนอกหน้าต่าง).
 ทำตามนี้แล้วส่งไฟล์ใน `Download/NongMay/` กลับมา
 1. **เปิดแอปแบบ cold 10 ครั้ง** (ปัดแอปทิ้งก่อนทุกครั้ง) → กดถ่าย 1 รูปทุกครั้ง; จดว่าเห็นภาพสดเร็วไหม รูปเข้าแกลเลอรีไหม
 2. **Voice:** แตะไอคอนไมค์ → สอน `น้องเม` 3 ครั้ง → พูด `น้องเม` 20 ครั้งในห้องเงียบ + 20 ครั้งตอนเปิดทีวี/พัดลม;

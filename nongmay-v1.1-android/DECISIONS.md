@@ -96,6 +96,12 @@ needs the phone is marked UNVERIFIED in `FEATURE_MATRIX.md`.
 - **Available but not built yet:** 120/240 fps high-speed sessions (1080p/720p) and 10-bit HLG recording with the
   hardware HEVC HDR encoder — the best candidates for the next Pro Video step.
 - Measurement fixes from the first on-device run (stale first frame, self-test samples mixed with real taps) are in 1.1.1.
+- Second run (1.1.1): the HAL chooses the lens itself — in an evening indoor scene it stayed on the main sensor at
+  2.74× and used the 3× tele at 5.06×. The app keeps reporting the real active lens rather than claiming optical zoom;
+  if Pol wants a guaranteed tele, the option is to stream the physical camera directly (`setPhysicalCameraId`).
+- `CONTROL_ENABLE_ZSL` made no difference (~0.31 s request → exposure on or off). 1.1.2 tries
+  `TEMPLATE_ZERO_SHUTTER_LAG`; app-side ZSL with PRIVATE reprocessing is the fallback if that is ignored too.
+- AudioRecord delivers exact zeros at start; the VAD treats anything below −100 dBFS as the quietest real level.
 
 ## D8. Supported software
 - Target: Galaxy S25 Ultra (Android 15/16, One UI 7/8). Runs on any Android 10+ phone with Camera2; Pro features

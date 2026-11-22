@@ -87,6 +87,12 @@ public final class KwsCore {
     private final double[] melTmp = new double[Mfcc.NMEL];
     private final short[] frameBuf = new short[Mfcc.FRAME + 1];
     private int noiseFrames;
+    private long silentHops;
+
+    /** Milliseconds of exact-zero input seen so far (reported by the self-test). */
+    public synchronized long digitalSilenceMs() {
+        return silentHops * 10;
+    }
 
     public KwsCore(Config cfg) {
         this.cfg = cfg;
@@ -123,6 +129,7 @@ public final class KwsCore {
         cooldownUntil = Long.MIN_VALUE;
         suppressUntil = Long.MIN_VALUE;
         noiseFrames = 0;
+        silentHops = 0;
         java.util.Arrays.fill(noiseMel, 0);
     }
 
@@ -169,6 +176,8 @@ public final class KwsCore {
             if (++hopFill == HOP) {
                 double rms = Math.sqrt(hopSumSq / HOP);
                 double db = 20.0 * Math.log10(rms / 32768.0 + 1e-9);
+                boolean digitalSilence = rms < 0.5;   // exact zeros: mic warm-up, not the room
+                if (digitalSilence) silentHops++;
                 hopFill = 0;
                 hopSumSq = 0;
                 if (vad.process(db) == EnergyVad.END) {
@@ -179,7 +188,7 @@ public final class KwsCore {
                     }
                 }
                 // background spectrum: only frames the VAD treats as quiet, after the segment was scored
-                if (!vad.inSpeech() && written > Mfcc.FRAME + 1 && db < vad.floorDb() + cfg.noiseGateDb) updateNoise();
+                if (!digitalSilence && !vad.inSpeech() && written > Mfcc.FRAME + 1 && db < vad.floorDb() + cfg.noiseGateDb) updateNoise();
             }
         }
         return events == null ? java.util.Collections.<Event>emptyList() : events;

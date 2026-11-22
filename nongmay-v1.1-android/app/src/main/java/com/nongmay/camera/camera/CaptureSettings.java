@@ -38,6 +38,8 @@ public final class CaptureSettings {
     public int videoStab = 1;
     public float aperture;
     public int flash = FLASH_OFF;
+    /** Use TEMPLATE_ZERO_SHUTTER_LAG for single shots (the S25 Ultra ignored CONTROL_ENABLE_ZSL on STILL_CAPTURE). */
+    public boolean zslTemplate;
     public float zoom = 1f;
     public boolean zsl = true;
     public int jpegQuality = 95;
@@ -48,7 +50,7 @@ public final class CaptureSettings {
         c.focusMode = focusMode; c.focusDiopters = focusDiopters; c.afLocked = afLocked;
         c.wbMode = wbMode; c.awbPreset = awbPreset; c.kelvin = kelvin; c.tint = tint; c.awbLock = awbLock;
         c.metering = metering; c.pointX = pointX; c.pointY = pointY; c.hasPoint = hasPoint;
-        c.look = look; c.ois = ois; c.videoStab = videoStab; c.aperture = aperture; c.flash = flash; c.zoom = zoom;
+        c.look = look; c.ois = ois; c.videoStab = videoStab; c.aperture = aperture; c.flash = flash; c.zoom = zoom; c.zslTemplate = zslTemplate;
         c.zsl = zsl; c.jpegQuality = jpegQuality;
         return c;
     }

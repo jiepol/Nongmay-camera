@@ -1,6 +1,6 @@
 # PERFORMANCE REPORT — NongMay Camera v1.1
 
-**First real numbers:** Pol's Galaxy S25 Ultra (SM-S938B, Android 17), app 1.1.0-debug, 2026-11-22 14:25
+**Real numbers:** Pol's Galaxy S25 Ultra (SM-S938B, Android 17), apps 1.1.0-debug (14:25) and 1.1.1-debug (19:58)
 (`device-reports/2026-11-22_SM-S938B/PERFORMANCE_20261122_1425.md`). Sample sizes are tiny (n = 1–11) and most
 samples come from the self-test, which drives the camera from code — so these are first measurements, not a
 p95 verdict. Nothing here comes from an emulator.
@@ -35,6 +35,30 @@ p95 verdict. Nothing here comes from an emulator.
 
 Self-test per camera: open + session + first result 440–702 ms; request → saved JPEG 652–981 ms.
 Battery drain and heat over a 15–20 min session: NOT MEASURED (thermal status 1 = light when the report was made).
+
+## S25 Ultra results (1.1.1-debug, 19:58, evening indoors)
+The 1.1.1 report still contained the 1.1.0 samples (stats were not reset), so only the new samples are listed.
+1.1.2 hides older-version samples automatically.
+
+| Measurement | n | Result |
+|---|---|---|
+| Cold start → first fresh preview frame | 1 | **781 ms** (target ≤ 2.5 s) |
+| Camera open request → first fresh preview frame | 1 | **714 ms** |
+| Self-test: camera open → session configured | 11 | p50 318 ms, p95 673 ms |
+| Self-test: request → sensor exposure start (steady state) | 14 | p50 **311 ms**, p95 334 ms |
+| Shutter lag, CONTROL_ENABLE_ZSL on vs. off | 3 + 3 | p50 309 ms vs. 317 ms → **the HAL ignores the ZSL key** |
+| Self-test: request → JPEG ready / saved | 14 | p50 1337 / 1368 ms (0.48 / 0.60 s in the 14:25 daylight run: the HAL processes longer in low light) |
+| Self-test: manual setting → matching result | 4 | p50 362 ms |
+| Self-test: record tap → recorder started / stop → saved | 3 | p50 70 ms / 198 ms |
+| StoryMax video export, 1080p30 H.264 + AAC | 1 | 639 ms for 2.94 s (≈ 4.6× real time) |
+| StoryMax video export, 4K30 HEVC + AAC → 1080×1920 | 1 | 791 ms for 2.87 s (≈ 3.6× real time) |
+| StoryMax photo export | 1 | 161 ms |
+
+**Shutter lag is the clearest speed gap:** ~0.31 s from request to exposure in steady state, because the still
+request queues behind the in-flight preview frames and Samsung's HAL does not honour `CONTROL_ENABLE_ZSL` for this
+app. 1.1.2 measures the `TEMPLATE_ZERO_SHUTTER_LAG` request as an alternative; if that does not help, the next step
+is app-side ZSL (keep recent full-resolution PRIVATE frames and reprocess the one at the tap — the phone supports
+PRIVATE_REPROCESSING). The on-screen shutter acknowledgement (next frame) is separate and still NOT MEASURED.
 
 ## Two measurement bugs the phone exposed (fixed in 1.1.1)
 1. **Stale frame on return.** Coming back to the camera, the viewfinder can redraw the last buffer of the previous

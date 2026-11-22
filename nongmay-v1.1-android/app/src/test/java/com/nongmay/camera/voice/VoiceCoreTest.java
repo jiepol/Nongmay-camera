@@ -231,6 +231,26 @@ public class VoiceCoreTest {
     }
 
     @Test
+    public void exactZerosFromMicWarmUpAreIgnored() {
+        // S25 Ultra self-test 1.1.1: the first AudioRecord buffers were exact zeros and the VAD floor read -180 dB
+        Random rnd = new Random(5);
+        VoiceTemplate t = enroll(rnd);
+        KwsCore core = new KwsCore(new KwsCore.Config());
+        core.setTemplate(t);
+        short[] zeros = new short[Mfcc.SAMPLE_RATE / 2];
+        short[] key = word(KEY_F0, KEY_FM, 1.0, 1.0, 1.0, rnd, 30);
+        short[] audio = concat(zeros, silence(400, 30, rnd), key, silence(600, 30, rnd));
+        int trig = 0;
+        for (KwsCore.Event e : run(core, audio)) if (e.type == KwsCore.Event.TRIGGER) trig++;
+        assertEquals(1, trig);
+        assertEquals(500, core.digitalSilenceMs());
+        assertTrue("floor must never sit at digital silence", core.noiseFloorDb() >= -100.0);
+        EnergyVad vad = new EnergyVad();
+        for (int i = 0; i < 40; i++) vad.process(-180.0);
+        assertTrue(vad.floorDb() >= -100.0);
+    }
+
+    @Test
     public void templateRoundTripAndSensitivityOrder() throws Exception {
         VoiceTemplate t = enroll(new Random(5));
         t.sensitivity = VoiceTemplate.SENSITIVE;

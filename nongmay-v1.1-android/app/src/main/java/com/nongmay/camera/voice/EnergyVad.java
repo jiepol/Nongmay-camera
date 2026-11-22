@@ -20,6 +20,11 @@ public final class EnergyVad {
     public int warmupFrames = 30;
     /** Inside a segment, frames more than this many dB below the segment's peak count as pauses. */
     public double endRelDb = 99.0;
+    /**
+     * Quietest level a real microphone produces. Exact zeros (the first AudioRecord buffers on the
+     * S25 Ultra) would otherwise pin the adaptive floor at -180 dB and break segmentation for seconds.
+     */
+    public double minDb = -100.0;
 
     private double floorDb = -75.0;
     private boolean initialised;
@@ -57,6 +62,7 @@ public final class EnergyVad {
     }
 
     public int process(double eDb) {
+        if (eDb < minDb) eDb = minDb;
         long idx = frame++;
         if (!initialised) {
             floorDb = eDb;

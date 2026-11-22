@@ -158,7 +158,7 @@ public final class DiagnosticsActivity extends Activity {
             out.setText("ต้องอนุญาตกล้องก่อน (เปิดหน้ากล้องหลักหนึ่งครั้ง)");
             return;
         }
-        out.setText("Self-test: ไฟล์ทดสอบจะถูกลบเมื่อจบ เหลือแค่รายงาน\n");
+        out.setText("Self-test: หันกล้องหลังไปที่ที่สว่างและไกลกว่า 2 เมตร (เช่น นอกหน้าต่าง) ตลอดการทดสอบ — ที่มืดหรือใกล้ กล้องจะไม่ยอมใช้เลนส์ซูม 3×/5× จริง\nไฟล์ทดสอบจะถูกลบเมื่อจบ เหลือแค่รายงาน\n");
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         tv.setVisibility(View.VISIBLE);
         if (tv.isAvailable()) launch(tv.getSurfaceTexture());

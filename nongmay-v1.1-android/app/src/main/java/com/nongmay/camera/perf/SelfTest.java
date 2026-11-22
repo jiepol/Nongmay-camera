@@ -314,11 +314,38 @@ public final class SelfTest implements CameraController.Listener {
             String want = expectedPhysical(c, z);
             boolean match = want == null || want.equals(got);
             result(name, match ? Boolean.TRUE : null, "active physical " + got + " (" + c.physicalLabel(got) + ")"
-                    + (match ? "" : " · expected " + want + ": the camera chose another lens (low light or close focus?)"));
+                    + (match ? "" : " · expected " + want + ": the camera chose another lens" + scene(r)));
         }
+        // The HAL decides when to change lens (light, focus distance, its own thresholds): record where it does.
+        double[] sweep = {2.0, 2.74, 3.0, 3.5, 4.0, 5.06, 5.5, 6.0, 7.0, 8.0, 10.0};
+        StringBuilder sw = new StringBuilder();
+        String last = null;
+        CameraController.Readout ctx = null;
+        for (double z : sweep) {
+            if (cancelled) break;
+            if (c.zoomRange != null && (z < c.zoomRange.getLower() || z > c.zoomRange.getUpper())) continue;
+            cs.zoom = (float) z;
+            ctl.updateSettings(cs);
+            SystemClock.sleep(900);
+            CameraController.Readout r = readout;
+            if (r == null || r.physicalId == null) continue;
+            ctx = r;
+            if (!r.physicalId.equals(last)) {
+                sw.append(sw.length() == 0 ? "" : " · ").append(ExposureMath.zoomLabel(z)).append(" → ").append(c.physicalLabel(r.physicalId));
+                last = r.physicalId;
+            }
+        }
+        if (sw.length() > 0) result("camera " + c.id + " lens switch points (zoom sweep)", Boolean.TRUE, sw + scene(ctx));
         cs.zoom = 1f;
         ctl.updateSettings(cs);
         SystemClock.sleep(700);
+    }
+
+    /** Scene context that explains the HAL's lens choice: brightness and focus distance. */
+    static String scene(CameraController.Readout r) {
+        if (r == null) return "";
+        String f = Float.isNaN(r.focusDiopters) ? "?" : ExposureMath.focusDistance(r.focusDiopters);
+        return String.format(Locale.ROOT, " · scene: ISO %d, %s, focus %s", r.iso, ExposureMath.shutter(r.exposureNs), f);
     }
 
     static String expectedPhysical(CameraCaps c, double zoom) {
@@ -341,8 +368,10 @@ public final class SelfTest implements CameraController.Listener {
         boolean realtime = c.timestampSource == android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
         StringBuilder d = new StringBuilder();
         boolean ok = true;
-        for (int pass = 0; pass < 2 && !cancelled; pass++) {
-            cs.zsl = pass == 0;
+        String[] label = {"STILL + ZSL key: ", " · ZSL template: ", " · STILL, ZSL off: "};
+        for (int pass = 0; pass < label.length && !cancelled; pass++) {
+            cs.zsl = pass != 2;
+            cs.zslTemplate = pass == 1;
             ctl.updateSettings(cs);
             SystemClock.sleep(1500);
             double[] v = new double[3];
@@ -358,10 +387,11 @@ public final class SelfTest implements CameraController.Listener {
             }
             ok &= n > 0;
             Stats st = Stats.of(java.util.Arrays.copyOf(v, n));
-            d.append(pass == 0 ? "ZSL on: " : " · ZSL off: ").append(n == 0 ? "no shots"
+            d.append(label[pass]).append(n == 0 ? "no shots"
                     : String.format(Locale.ROOT, "p50 %.0f ms (min %.0f, max %.0f, n=%d)", st.p50, st.min, st.max, n));
         }
         cs.zsl = true;
+        cs.zslTemplate = false;
         ctl.updateSettings(cs);
         result("camera " + c.id + " shutter lag (request → sensor exposure)", ok, d + (realtime ? " · sensor clock" : " · callback clock")
                 + " · negative = the frame was exposed just before the request (true zero lag)");
@@ -510,11 +540,13 @@ public final class SelfTest implements CameraController.Listener {
             }
         });
         boolean ok = await(got, 3000);
-        SystemClock.sleep(1500);
+        SystemClock.sleep(3000);
         double floor = e.core().noiseFloorDb();
+        long zeroMs = e.core().digitalSilenceMs();
         e.stop();
         result("Voice Shutter microphone loop (16 kHz, foreground)", ok, ok ? String.format(Locale.ROOT,
-                "level callbacks OK · peak %.1f dBFS · noise floor %.1f dBFS · no audio stored", lvl[0], floor) : "no audio callbacks");
+                "level callbacks OK · peak %.1f dBFS · VAD background %.1f dBFS · exact-zero input %d ms (ignored) · no audio stored",
+                lvl[0], floor, zeroMs) : "no audio callbacks");
     }
 
     // ---- CameraController.Listener (main thread) --------------------------------------------

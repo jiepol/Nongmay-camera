@@ -1011,19 +1011,25 @@ public final class CameraController {
         Readout ro = lastReadout;
         List<CaptureRequest> list = new ArrayList<>(n);
         List<ShotInfo> infos = new ArrayList<>(n);
+        boolean zslOk = c.zslKey && s.zsl && req.bracketEv == null && n == 1 && !s.manualExposure
+                && s.flash != CaptureSettings.FLASH_ON && s.flash != CaptureSettings.FLASH_AUTO;
         for (int i = 0; i < n; i++) {
-            CaptureRequest.Builder b = device.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            boolean zslTemplate = zslOk && s.zslTemplate;
+            CaptureRequest.Builder b;
+            try {
+                b = device.createCaptureRequest(zslTemplate ? CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG : CameraDevice.TEMPLATE_STILL_CAPTURE);
+            } catch (IllegalArgumentException e) {
+                zslTemplate = false;   // template not supported by this camera
+                b = device.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            }
             b.addTarget(jpegReader.getSurface());
             if (wantRaw) b.addTarget(rawReader.getSurface());
             apply(b, true);
-            b.set(CaptureRequest.CONTROL_CAPTURE_INTENT, CameraMetadata.CONTROL_CAPTURE_INTENT_STILL_CAPTURE);
+            b.set(CaptureRequest.CONTROL_CAPTURE_INTENT, zslTemplate ? CameraMetadata.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG
+                    : CameraMetadata.CONTROL_CAPTURE_INTENT_STILL_CAPTURE);
             b.set(CaptureRequest.JPEG_ORIENTATION, orientation);
             b.set(CaptureRequest.JPEG_QUALITY, (byte) Math.max(50, Math.min(100, s.jpegQuality)));
-            if (c.zslKey) {
-                boolean zsl = s.zsl && req.bracketEv == null && n == 1 && !s.manualExposure
-                        && s.flash != CaptureSettings.FLASH_ON && s.flash != CaptureSettings.FLASH_AUTO;
-                b.set(CaptureRequest.CONTROL_ENABLE_ZSL, zsl);
-            }
+            if (c.zslKey) b.set(CaptureRequest.CONTROL_ENABLE_ZSL, zslOk);
             ShotInfo info;
             synchronized (shotLock) {
                 info = new ShotInfo(nextShotId++);

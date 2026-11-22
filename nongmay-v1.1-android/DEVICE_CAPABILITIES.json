@@ -1,8 +1,8 @@
 {
   "report": "NongMay Camera DEVICE_CAPABILITIES",
   "schema": 1,
-  "app_version": "1.1.0-debug",
-  "generated_at": "2026-11-22 14:24",
+  "app_version": "1.1.1-debug",
+  "generated_at": "2026-11-22 19:56",
   "device": {
     "manufacturer": "samsung",
     "model": "SM-S938B",
@@ -155,6 +155,12 @@
           "1920x824 [[30, 120], [120, 120]]"
         ]
       },
+      "video_max_fps_by_size": {
+        "3840x2160": 30,
+        "1920x1080": 60,
+        "1280x720": 60
+      },
+      "ultra_high_resolution_sensor": false,
       "dynamic_range_profiles": [
         "HLG10",
         "STANDARD"
@@ -329,6 +335,12 @@
           "1920x824 [[30, 120], [120, 120]]"
         ]
       },
+      "video_max_fps_by_size": {
+        "3840x2160": 30,
+        "1920x1080": 60,
+        "1280x720": 60
+      },
+      "ultra_high_resolution_sensor": false,
       "dynamic_range_profiles": [
         "HLG10",
         "STANDARD"
@@ -489,6 +501,12 @@
           "1920x824 [[30, 120], [120, 120]]"
         ]
       },
+      "video_max_fps_by_size": {
+        "3840x2160": 30,
+        "1920x1080": 60,
+        "1280x720": 60
+      },
+      "ultra_high_resolution_sensor": false,
       "dynamic_range_profiles": [
         "HLG10",
         "STANDARD"
@@ -643,6 +661,11 @@
           "1920x824 [[30, 120], [120, 120]]"
         ]
       },
+      "video_max_fps_by_size": {
+        "1920x1080": 60,
+        "1280x720": 60
+      },
+      "ultra_high_resolution_sensor": false,
       "dynamic_range_profiles": [
         "HLG10",
         "STANDARD"
@@ -1063,8 +1086,8 @@
       ]
     }
   ],
-  "thermal_status_now": 1,
-  "free_storage_bytes": 53780652032,
+  "thermal_status_now": 0,
+  "free_storage_bytes": 53744521216,
   "privacy": "No photos, audio, location, accounts or hardware serials are included.",
   "speech_recognition_os": {
     "on_device_recognition_available": true,
