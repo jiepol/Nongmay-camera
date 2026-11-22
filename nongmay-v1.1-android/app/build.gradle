@@ -1,0 +1,39 @@
+// UNVERIFIED Gradle build for NongMay Camera v1.1 (the verified build is tools/build_apk.sh).
+// No third-party libraries: platform Camera2 / MediaCodec / AudioRecord only.
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.nongmay.camera'
+    compileSdk 35
+
+    defaultConfig {
+        // Separate id: installs next to v1.0 instead of pretending to upgrade it.
+        applicationId 'com.nongmay.camera.v11'
+        minSdk 29
+        targetSdk 35
+        versionCode 11
+        versionName '1.1.0-debug'
+    }
+
+    buildTypes {
+        release {
+            // Intentionally no release signing config: production keys are not part of this repo.
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lint {
+        abortOnError false
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}

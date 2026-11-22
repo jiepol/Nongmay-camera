@@ -1,0 +1,18 @@
+# build outputs (APKs are delivered separately, never committed)
+build/
+app/build/
+*.apk
+*.aab
+*.dex
+# signing material must never enter this public repository
+*.jks
+*.keystore
+*.p12
+keystore.properties
+# local tooling
+.gradle/
+local.properties
+.idea/
+*.iml
+captures/
+.cxx/

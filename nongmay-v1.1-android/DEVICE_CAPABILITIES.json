@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "status": "NOT_RUN",
+  "device": null,
+  "generated_at": null,
+  "note": "No Android device was available to the build machine on 2026-11-22. Generate the real file on the phone: Settings -> Diagnostics -> DEVICE_CAPABILITIES (saved to Download/NongMay/). Nothing in this placeholder is a measured capability.",
+  "cameras": [],
+  "encoders": []
+}

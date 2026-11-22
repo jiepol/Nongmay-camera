@@ -1,0 +1,18 @@
+// Android Studio / Gradle description of the same app that tools/build_apk.sh builds offline.
+// UNVERIFIED: the v1.1 build machine could not reach Google Maven, so this file was never run.
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "NongMayCamera-v1.1"
+include ':app'
