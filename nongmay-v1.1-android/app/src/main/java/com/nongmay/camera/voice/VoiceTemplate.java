@@ -17,7 +17,11 @@ import java.util.List;
 public final class VoiceTemplate {
     public static final int STRICT = 0, NORMAL = 1, SENSITIVE = 2;
     /** Multipliers on the calibrated base distance; tuned with tools/voice_eval (see VOICE_EVAL.md). */
-    public static final double[] SENSITIVITY_MULT = {1.10, 1.20, 1.35};   // 1.1.4: tighter after a real false trigger
+    // 1.1.3: 1.20/1.30/1.45 let a loud "เฮ้ย" through; 1.1.4: 1.10/1.20/1.35 (+ duration gate 0.65) rejected Pol's own "น้องเม"
+    public static final double[] SENSITIVITY_MULT = {1.15, 1.25, 1.40};
+    /** 3 enrolled takes + up to 3 added from real attempts (“อันนี้ใช่”). */
+    public static final int MAX_TAKES = 6;
+    static final int ENROLLED = 3;
     static final double DEFAULT_BASE = 6.5;
     static final double MIN_BASE = 1.0;
     private static final int MAGIC = 0x4E4D5654; // "NMVT"
@@ -56,10 +60,29 @@ public final class VoiceTemplate {
         add(e.mel, e.noise, e.durMs);
     }
 
-    public void add(float[][] m, float[] n, int dur) {
+    public synchronized void add(float[][] m, float[] n, int dur) {
         mel.add(m);
         noise.add(n == null ? new float[Mfcc.NMEL] : n);
         durMs.add(dur);
+    }
+
+    /**
+     * A real attempt the matcher rejected but the owner confirms was the phrase: becomes an extra take. When full,
+     * the oldest added take is replaced; the 3 enrolled takes are kept. Caller recalibrates.
+     */
+    public synchronized void addExtraTake(float[][] m, float[] n, int dur) {
+        if (m == null || m.length == 0) return;
+        if (mel.size() >= MAX_TAKES && mel.size() > ENROLLED) {
+            mel.remove(ENROLLED);
+            noise.remove(ENROLLED);
+            durMs.remove(ENROLLED);
+        }
+        add(m, n, dur);
+    }
+
+    /** Snapshot for the audio thread: [0] = mel list, [1] = noise list. */
+    public synchronized List<?>[] takesSnapshot() {
+        return new List<?>[]{new ArrayList<>(mel), new ArrayList<>(noise)};
     }
 
     /** Remembers a sound that wrongly triggered (mel envelope + background only, never audio). */
@@ -95,7 +118,7 @@ public final class VoiceTemplate {
         durMs.remove(durMs.size() - 1);
     }
 
-    public double avgDurMs() {
+    public synchronized double avgDurMs() {
         if (durMs.isEmpty()) return 0;
         double s = 0;
         for (int d : durMs) s += d;
@@ -110,7 +133,8 @@ public final class VoiceTemplate {
     /** Sets {@link #base} from pairwise distances between the owner's own takes (same matcher as live). */
     public void calibrate(KwsCore.Config cfg) {
         Mfcc mfcc = new Mfcc();
-        int n = mel.size();
+        // threshold from the enrolled takes only: confirmed extra takes add references, they never loosen the threshold
+        int n = Math.min(mel.size(), ENROLLED);
         if (n < 2) {
             base = DEFAULT_BASE;
             pairMean = pairMax = Double.NaN;

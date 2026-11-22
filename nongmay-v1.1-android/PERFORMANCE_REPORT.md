@@ -58,7 +58,10 @@ Shutter lag with the three request types (1.1.2 self-test, camera 0, n=3 each): 
 to five frame times (≈ 140 ms at 30 fps here, ≈ 310 ms in the dimmer 1.1.1 run where exposure ran longer).
 Voice accuracy was not logged by 1.1.2. **Pol then reported false triggers: a loud “เฮ้ย” fires the shutter.** So
 the 21 triggers include an unknown number of false ones. 1.1.3 logs every decision (outcome + score ÷ threshold);
-1.1.4 tightens the gates and lets Pol mark a false trigger (“ไม่ใช่คำนี้”), which is logged as `marked_false`.
+1.1.4 tightened the gates and added “ไม่ใช่คำนี้” — **and then Pol's real “น้องเม” stopped triggering** (most likely
+the new duration gate: real use is faster than careful enrollment). 1.1.5 returns close to 1.1.3's gates and adds
+“อันนี้ใช่คำสั่ง” so misses can be taught too. The right thresholds for Pol's voice must come from his phone's
+decision log (outcome + score ÷ threshold per attempt).
 
 ## S25 Ultra results (1.1.1-debug, 19:58, evening indoors)
 The 1.1.1 report still contained the 1.1.0 samples (stats were not reset), so only the new samples are listed.
@@ -94,11 +97,12 @@ PRIVATE_REPROCESSING). The on-screen shutter acknowledgement (next frame) is sep
    them as `selftest_*` in a separate table, so finger/voice timings stay clean. 1.1.1's self-test also measures
    steady-state shutter lag with ZSL on vs. off (after the preview has run), which is what a real tap sees.
 
-## Voice Shutter — synthetic results (build machine, espeak-ng TTS, 1.1.4 gates)
+## Voice Shutter — synthetic results (build machine, espeak-ng TTS, 1.1.5 gates)
 Full tables: `VOICE_EVAL.md`. NORMAL sensitivity, 4 synthetic voices × 5 phrases × 6 tries per condition:
-quiet 99% · white noise 20 dB 83% · street-like pink noise 10 dB 37% · other people talking 15 dB 8% · room reverb
-53% (`น้องเม` alone: 24/24 · 24/24 · 22/24 · 4/24 · 20/24). Other words accepted 0/3600 (incl. `น้องเมย์`, `น้องแม่`);
-false triggers in 12 min of conversation 0/h (quiet room and cafe); another voice saying the phrase 11%.
+quiet 99% · white noise 20 dB 91% · street-like pink noise 10 dB 41% · other people talking 15 dB 9% · room reverb
+62% (`น้องเม` alone: 24/24 · 24/24 · 22/24 · 5/24 · 23/24). Other words accepted 0/3600 (incl. `น้องเมย์`, `น้องแม่`);
+false triggers in 12 min of conversation 0/h (quiet room and cafe); another voice saying the phrase 13%. At
+SENSITIVE, `น้องเมย์` passed the `น้องเม` template 5/40 times.
 The corpus's background beds were fixed in 1.1.4 (the “quiet room” was digitally silent before). The synthetic
 corpus never contained a shout like “เฮ้ย”, which is why it missed the false trigger Pol found: synthetic voices are
 far more consistent than a person, so thresholds tuned on them were too loose for real speech.

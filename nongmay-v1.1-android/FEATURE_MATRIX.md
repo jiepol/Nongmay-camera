@@ -1,4 +1,4 @@
-# FEATURE MATRIX — NongMay Camera v1.1 (1.1.4-debug, versionCode 15)
+# FEATURE MATRIX — NongMay Camera v1.1 (1.1.5-debug, versionCode 16)
 
 **Evidence so far:** on-device self-tests on Pol's Galaxy S25 Ultra (SM-S938B, Android 17, 2026-11-22):
 1.1.0 **28 PASS · 0 FAIL · 1 SKIP**, 1.1.1 **37 PASS · 0 FAIL · 2 SKIP**, 1.1.2 **39 PASS · 0 FAIL · 1 SKIP**, plus
@@ -84,10 +84,10 @@ Paths are relative to `app/src/main/java/com/nongmay/camera/`. Tests: `app/src/t
 | Matcher: VAD + background tracking + noise-compensated mel/MFCC + DTW + virtual-room hypothesis | WORKING (synthetic) | `voice/*`, `VoiceCoreTest` (incl. 12 dB noise test), `VOICE_EVAL.md` |
 | Default `น้องเม`, restore default, custom phrases (`โฮ่ง ๆ`, `ชาลี`, `ถ่ายเลย`, `cheese`, any phrase) | CODE COMPLETE · UNVERIFIED | `voice/VoiceActivity`, `VoiceProfileStore` |
 | Enrollment (3 takes, consistency + "too short" warnings), live test screen with score vs. threshold | CODE COMPLETE · UNVERIFIED | `VoiceActivity` |
-| Sensitivity STRICT / NORMAL / SENSITIVE | WORKING (synthetic) | 1.10 / 1.20 / 1.35 × base since 1.1.4 (was 1.20 / 1.30 / 1.45), duration ≥ 0.65 × takes, 2 of 3 takes must agree — `VOICE_EVAL.md` |
-| False-trigger fix “ไม่ใช่คำนี้” (camera screen after a voice photo, or Voice screen test area) | CODE COMPLETE · UNVERIFIED | marked sound kept as a “not this” sample (mel envelope only, max 12), never fires again; the photo it took is deleted. Unit test `notThisSampleBlocksAMarkedSound` |
+| Sensitivity STRICT / NORMAL / SENSITIVE | WORKING (synthetic) · tuning on Pol's voice in progress | 1.1.5: 1.15 / 1.25 / 1.40 × base, duration ≥ 0.55 × takes, two best takes agree within 1.25. (1.1.3 = 1.30: loud “เฮ้ย” fired; 1.1.4 = 1.20 + 0.65 + 1.10: real “น้องเม” stopped firing) |
+| Owner corrections: “ไม่ใช่คำนี้” (camera screen after a voice photo, Voice test area) and “อันนี้ใช่คำสั่ง” (Voice test area, rejected attempts) | CODE COMPLETE · UNVERIFIED | “not this” sounds (max 12) are rejected and the false photo deleted; confirmed attempts become extra takes (max 6 takes; two confirmations needed, threshold never loosens); “ล้างเสียงที่ห้ามถ่าย” undoes mistakes. Unit tests `notThisSampleBlocksAMarkedSound`, `confirmedAttemptBecomesAnExtraTake` |
 | Microphone loop (AudioRecord 16 kHz, foreground) | WORKING (device) | 1.1.2: background −63.9 dBFS, 40 ms of start-up zeros ignored (the −180 dB bug of 1.1.1 is fixed) |
-| Enrolled phrase triggers photos in the camera screen | WORKING (device) · **false triggers seen** | 1.1.2: 21 voice triggers; end of speech → capture request p50 220 ms, p95 233 ms. Pol: a loud “เฮ้ย” also fires → 1.1.4 tightens the gates and adds “ไม่ใช่คำนี้” |
+| Enrolled phrase triggers photos in the camera screen | WORKING (device) in 1.1.2/1.1.3 · **broken by 1.1.4, fixed in 1.1.5 (unverified)** | 1.1.2: 21 voice triggers, end of speech → capture request p95 233 ms, but a loud “เฮ้ย” also fired; 1.1.4's stricter gates then rejected Pol's real “น้องเม”; 1.1.5 goes back near 1.1.3 and relies on owner corrections |
 | Offline only, foreground only, stops during video recording, own shutter sound ignored, 1.5 s cooldown | CODE COMPLETE · UNVERIFIED | `voice/AudioKwsEngine`, `CameraActivity.stopVoice()` |
 | Mic-active indicator on the viewfinder | CODE COMPLETE · UNVERIFIED | `CameraActivity` |
 | Accuracy on Pol's real voice (misses, false triggers), battery, heat | NOT MEASURED | 1.1.2 logged only successes; 1.1.3 logs every decision (outcome + score÷threshold, no audio) |

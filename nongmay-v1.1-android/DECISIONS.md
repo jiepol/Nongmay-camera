@@ -51,9 +51,9 @@ needs the phone is marked UNVERIFIED in `FEATURE_MATRIX.md`.
   tracking → isolated segment → **noise-compensated** mel matching (both sides rebuilt as "clean estimate + the
   same background", clamp 1.25×) and a second **virtual-room** hypothesis (late reverb RT60 0.3 s / DRR +6 dB)
   → MFCC + CMVN + deltas → DTW against each take → threshold calibrated from the owner's own repetitions ×
-  sensitivity (STRICT 1.10 / NORMAL 1.20 / SENSITIVE 1.35 since 1.1.4), 2 of 3 takes must agree, duration ≥ 0.65×
-  the takes, 1.5 s cooldown, and “not this” samples the owner marked (a segment closer to one of those than to the
-  phrase is rejected).
+  sensitivity (STRICT 1.15 / NORMAL 1.25 / SENSITIVE 1.40 in 1.1.5), the two best takes must agree, duration ≥ 0.55×
+  the takes, 1.5 s cooldown, plus owner corrections: “not this” sounds (a segment closer to one of those than to the
+  phrase is rejected) and confirmed misses added as extra takes (threshold calibrated from the enrolled takes only).
 - Works for any phrase or language (it matches sound, not text): default `น้องเม`, custom `โฮ่ง ๆ`, `ชาลี`,
   `ถ่ายเลย`, `cheese`, … It is **not** a lock: a similar voice can pass (synthetic test: ~15% at NORMAL).
 - The first prototype (plain MFCC/DTW) failed completely in noise and reverb in the synthetic test (0% in
@@ -114,6 +114,9 @@ needs the phone is marked UNVERIFIED in `FEATURE_MATRIX.md`.
   1.25 → 1.10), and gives the owner a one-tap “ไม่ใช่คำนี้” that stores the false sound as a negative example and
   deletes the photo it caused. Real accuracy numbers now come from the phone: every decision is logged as outcome +
   score ÷ threshold, and marked false triggers as `marked_false`.
+- 1.1.4 overcorrected: Pol's real “น้องเม” stopped triggering (most likely the 0.65 duration gate — people say the
+  phrase faster in use than when enrolling). 1.1.5 goes back close to 1.1.3 and makes both errors correctable by the
+  owner (“ไม่ใช่คำนี้” / “อันนี้ใช่คำสั่ง”) instead of guessing one global threshold without his data.
 
 ## D8. Supported software
 - Target: Galaxy S25 Ultra (Android 15/16, One UI 7/8). Runs on any Android 10+ phone with Camera2; Pro features

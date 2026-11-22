@@ -26,11 +26,11 @@ public final class KwsCore {
         public int preRollMs = 120;
         public int postRollMs = 60;
         public int maxSegmentMs = 2500;
-        public double minDurRatio = 0.65;   // 1.1.4: a short loud “เฮ้ย” passed at 0.55
+        public double minDurRatio = 0.55;   // 0.65 (1.1.4) rejected Pol's real, faster "น้องเม"; false sounds → “ไม่ใช่คำนี้”
         public double maxDurRatio = 1.8;
         public int cooldownMs = 1500;
         public double band = 0.25;
-        public double medianSlack = 1.10;
+        public double medianSlack = 1.25;
         public double minSnrDb = 6.0;
         /** Noise-compensated matching (see {@link Matcher}); false = plain MFCC/DTW (v1.1 prototype). */
         public boolean compensate = true;
@@ -232,20 +232,21 @@ public final class KwsCore {
             return ev;
         }
         double ratio = ev.durMs / Math.max(1.0, template.avgDurMs());
-        int k = template.size();
+        List<?>[] takes = template.takesSnapshot();
+        int k = takes[0].size();
         double[] d = new double[k];
-        for (int i = 0; i < k; i++) d[i] = Matcher.distance(mfcc, ev.mel, ev.noise, template.mel.get(i), template.noise.get(i), cfg);
+        for (int i = 0; i < k; i++) d[i] = Matcher.distance(mfcc, ev.mel, ev.noise, (float[][]) takes[0].get(i), (float[]) takes[1].get(i), cfg);
         Arrays.sort(d);
         ev.score = d[0];
-        ev.median = d[k / 2];
+        ev.median = d[Math.min(1, k - 1)];   // 2nd best: at least two takes must agree, however many takes
         if (cfg.room == 1) {
             // second hypothesis: the owner's takes heard through a virtual furnished room
             double[] r = new double[k];
-            for (int i = 0; i < k; i++) r[i] = Matcher.distance(mfcc, ev.mel, ev.noise, template.mel.get(i), template.noise.get(i), cfg, true);
+            for (int i = 0; i < k; i++) r[i] = Matcher.distance(mfcc, ev.mel, ev.noise, (float[][]) takes[0].get(i), (float[]) takes[1].get(i), cfg, true);
             Arrays.sort(r);
             if (r[0] < ev.score) {
                 ev.score = r[0];
-                ev.median = r[k / 2];
+                ev.median = r[Math.min(1, k - 1)];
             }
         }
         ev.threshold = template.threshold();

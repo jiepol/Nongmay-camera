@@ -41,6 +41,8 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
     private VoiceTemplate testing;
     private KwsCore.Event lastTestEvent;
     private TextView notThisBtn;
+    private TextView isThisBtn;
+    private TextView clearAntiBtn;
     private int stage; // 0 idle, 1 recording samples, 2 live test
     private String pendingText, pendingId;
 
@@ -183,6 +185,35 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
             }
         });
         enrollCard.addView(notThisBtn, UiKit.lpm(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0, UiKit.dp(this, 6), 0, UiKit.dp(this, 6)));
+        isThisBtn = UiKit.button(this, "อันนี้ใช่คำสั่ง — เพิ่มเป็นตัวอย่าง", true);
+        isThisBtn.setVisibility(View.GONE);
+        isThisBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                markIsThis();
+            }
+        });
+        enrollCard.addView(isThisBtn, UiKit.lpm(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0, UiKit.dp(this, 6), 0, UiKit.dp(this, 6)));
+        clearAntiBtn = UiKit.button(this, "ล้างเสียงที่ห้ามถ่าย", false);
+        clearAntiBtn.setVisibility(View.GONE);
+        clearAntiBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                VoiceTemplate t = draft != null ? draft : testing;
+                if (t == null) return;
+                t.clearAnti();
+                if (t == testing) {
+                    try {
+                        store.save(t);
+                    } catch (IOException ignored) {
+                    }
+                }
+                refreshClearAnti();
+                testResult.setTextColor(UiKit.OK);
+                testResult.setText("ล้างเสียงที่ห้ามถ่ายแล้ว");
+            }
+        });
+        enrollCard.addView(clearAntiBtn, UiKit.lpm(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0, UiKit.dp(this, 6), 0, UiKit.dp(this, 6)));
         enrollCard.addView(warn);
         enrollCard.addView(UiKit.text(this, "ความไวในการฟัง", 14, UiKit.TEXT, true));
         sensRow = UiKit.row(this);
@@ -348,6 +379,8 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
         testResult.setText("");
         lastTestEvent = null;
         if (notThisBtn != null) notThisBtn.setVisibility(View.GONE);
+        if (isThisBtn != null) isThisBtn.setVisibility(View.GONE);
+        if (clearAntiBtn != null) refreshClearAnti();
         warn.setText("");
         refreshEnroll("พร้อมฟังแล้ว พูดได้เลย", UiKit.OK);
         startEngine();
@@ -367,6 +400,8 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
         testResult.setText("");
         lastTestEvent = null;
         if (notThisBtn != null) notThisBtn.setVisibility(View.GONE);
+        if (isThisBtn != null) isThisBtn.setVisibility(View.GONE);
+        if (clearAntiBtn != null) refreshClearAnti();
         warn.setText("");
         refreshEnroll("กำลังฟัง…", UiKit.OK);
         startEngine();
@@ -481,7 +516,11 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
         if (stage == 2) {
             if (e.mel != null) {
                 lastTestEvent = e;
-                notThisBtn.setVisibility(View.VISIBLE);
+                boolean fired = e.type == KwsCore.Event.TRIGGER;
+                boolean plausible = !fired && e.durMs >= 220 && !"too_long".equals(e.reject)
+                        && !"too_quiet".equals(e.reject) && !"too_short".equals(e.reject);
+                notThisBtn.setVisibility(fired ? View.VISIBLE : View.GONE);
+                isThisBtn.setVisibility(plausible ? View.VISIBLE : View.GONE);
             }
             if (e.type == KwsCore.Event.TRIGGER) {
                 testResult.setTextColor(UiKit.OK);
@@ -497,6 +536,34 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
     @Override
     public void onTrigger(KwsCore.Event e, long speechEndElapsedNs, long decisionElapsedNs) {
         // onSegment already shows the result for triggers in this screen.
+    }
+
+    /** Shown when the phrase has “not this” sounds, e.g. to undo a real “น้องเม” marked by mistake. */
+    private void refreshClearAnti() {
+        VoiceTemplate t = draft != null ? draft : testing;
+        int n = t == null ? 0 : t.antiCount();
+        clearAntiBtn.setVisibility(n > 0 ? View.VISIBLE : View.GONE);
+        clearAntiBtn.setText("ล้างเสียงที่ห้ามถ่าย (" + n + ")");
+    }
+
+    /** Test area: the matcher missed the owner's real phrase (said faster, farther, louder…) — learn it as a take. */
+    private void markIsThis() {
+        VoiceTemplate t = draft != null ? draft : testing;
+        KwsCore.Event e = lastTestEvent;
+        if (t == null || e == null) return;
+        t.addExtraTake(e.mel, e.noise, e.durMs);
+        t.calibrate(engine.core().config());
+        lastTestEvent = null;
+        isThisBtn.setVisibility(View.GONE);
+        notThisBtn.setVisibility(View.GONE);
+        if (t == testing) {
+            try {
+                store.save(t);
+            } catch (IOException ignored) {
+            }
+        }
+        testResult.setTextColor(UiKit.OK);
+        testResult.setText("เพิ่มเป็นตัวอย่างแล้ว (" + t.size() + "/" + VoiceTemplate.MAX_TAKES + " ตัวอย่าง) — ลองพูดอีกครั้ง");
     }
 
     /** Test area: the last sound heard was not the phrase (e.g. a loud “เฮ้ย”) — never trigger on it. */
@@ -515,6 +582,7 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
         }
         testResult.setTextColor(UiKit.OK);
         testResult.setText("จำเสียงนี้แล้ว จะไม่ถ่ายเพราะเสียงนี้อีก (เสียงที่ห้ามถ่าย " + t.antiCount() + "/" + VoiceTemplate.MAX_ANTI + ")");
+        refreshClearAnti();
     }
 
     @Override

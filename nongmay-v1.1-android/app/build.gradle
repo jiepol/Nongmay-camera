@@ -13,8 +13,8 @@ android {
         applicationId 'com.nongmay.camera.v11'
         minSdk 29
         targetSdk 35
-        versionCode 15
-        versionName '1.1.4-debug'
+        versionCode 16
+        versionName '1.1.5-debug'
     }
 
     buildTypes {

@@ -280,6 +280,47 @@ public class VoiceCoreTest {
     }
 
     @Test
+    public void confirmedAttemptBecomesAnExtraTake() throws Exception {
+        // the owner taps “อันนี้ใช่” on rejected attempts: two confirmations make that way of saying it trigger,
+        // the enrolled phrase keeps working, and the threshold itself never loosens
+        Random rnd = new Random(33);
+        VoiceTemplate t = enroll(rnd);
+        double thr = t.threshold();
+        KwsCore.Config cfg = new KwsCore.Config();
+        VoiceTemplate back = null;
+        for (int round = 0; round < 2; round++) {
+            short[] other = concat(silence(800, 30, rnd), word(OTHER_F0, OTHER_FM, 1.0, 1.0, 1.0, rnd, 30), silence(600, 30, rnd));
+            KwsCore core = new KwsCore(cfg);
+            core.setTemplate(t);
+            KwsCore.Event missed = null;
+            for (KwsCore.Event e : run(core, other)) {
+                assertTrue("rejected before it is confirmed twice", e.type != KwsCore.Event.TRIGGER);
+                if (e.mel != null) missed = e;
+            }
+            assertTrue(missed != null);
+            t.addExtraTake(missed.mel, missed.noise, missed.durMs);
+            t.calibrate(cfg);
+            assertEquals(thr, t.threshold(), 1e-9);
+            back = VoiceTemplate.fromBytes(t.toBytes());
+        }
+        assertEquals(5, back.size());
+        short[] other = concat(silence(800, 30, rnd), word(OTHER_F0, OTHER_FM, 1.0, 1.0, 1.0, rnd, 30), silence(600, 30, rnd));
+        int trig = 0;
+        KwsCore again = new KwsCore(cfg);
+        again.setTemplate(back);
+        for (KwsCore.Event e : run(again, other)) if (e.type == KwsCore.Event.TRIGGER) trig++;
+        assertEquals(1, trig);
+        short[] key = concat(silence(800, 30, rnd), word(KEY_F0, KEY_FM, 1.0, 1.0, 1.0, rnd, 30), silence(600, 30, rnd));
+        int trigKey = 0;
+        KwsCore third = new KwsCore(cfg);
+        third.setTemplate(back);
+        for (KwsCore.Event e : run(third, key)) if (e.type == KwsCore.Event.TRIGGER) trigKey++;
+        assertEquals(1, trigKey);
+        for (int i = 0; i < 5; i++) back.addExtraTake(back.mel.get(3), back.noise.get(3), back.durMs.get(3));
+        assertEquals(VoiceTemplate.MAX_TAKES, back.size());
+    }
+
+    @Test
     public void templateRoundTripAndSensitivityOrder() throws Exception {
         VoiceTemplate t = enroll(new Random(5));
         t.sensitivity = VoiceTemplate.SENSITIVE;
