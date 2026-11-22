@@ -87,6 +87,16 @@ needs the phone is marked UNVERIFIED in `FEATURE_MATRIX.md`.
 - No telemetry. Diagnostics files contain device capabilities and timings only — no media, no audio, no GPS,
   no account data — and are written only when the user taps a Diagnostics button.
 
+## D9. What the S25 Ultra actually gives a third-party app (evidence, 2026-11-22)
+- From the phone's own capability report: back logical camera 0 with real lenses at 0.6× / 1× / 2.74× / 5.06×
+  (physical ids 2/5/6/7), ultra-wide also as id 2, two front ids; MANUAL_SENSOR, Kelvin WB, RAW and HLG10 on all.
+- **Not available to third-party apps:** 4K60 and 8K recording (HAL frame-duration limits / no 8K recording size),
+  200 MP (no ultra-high-resolution mode), LOG, OIS control. The app keeps showing only what the HAL offers instead
+  of faking these.
+- **Available but not built yet:** 120/240 fps high-speed sessions (1080p/720p) and 10-bit HLG recording with the
+  hardware HEVC HDR encoder — the best candidates for the next Pro Video step.
+- Measurement fixes from the first on-device run (stale first frame, self-test samples mixed with real taps) are in 1.1.1.
+
 ## D8. Supported software
 - Target: Galaxy S25 Ultra (Android 15/16, One UI 7/8). Runs on any Android 10+ phone with Camera2; Pro features
   are capability-gated per camera. Built against API 35.

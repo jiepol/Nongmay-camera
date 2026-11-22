@@ -156,6 +156,17 @@ public final class PerfLog {
                 sb.append(String.format(Locale.ROOT, "| %s | %d | %.1f | %.1f | %.1f | %.1f |\n", k, s.n, s.p50, s.p95, s.min, s.max));
             }
         }
+        java.util.List<String> selfTest = new java.util.ArrayList<>();
+        for (String k : mem.keySet()) if (k.startsWith("selftest_")) selfTest.add(k);
+        if (!selfTest.isEmpty()) {
+            java.util.Collections.sort(selfTest);
+            sb.append("\nSelf-test samples (programmatic requests from Diagnostics, not finger or voice):\n\n");
+            sb.append("| Metric | n | p50 ms | p95 ms | min | max |\n|---|---|---|---|---|---|\n");
+            for (String k : selfTest) {
+                Stats s = stats(k);
+                sb.append(String.format(Locale.ROOT, "| %s | %d | %.1f | %.1f | %.1f | %.1f |\n", k, s.n, s.p50, s.p95, s.min, s.max));
+            }
+        }
         return sb.toString();
     }
 

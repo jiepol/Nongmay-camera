@@ -258,6 +258,17 @@ public final class CameraController {
         return lastReadout;
     }
 
+    private volatile String metricPrefix = "";
+
+    /** Self-test uses "selftest_" so programmatic requests never mix with real finger/voice timings. */
+    public void setMetricPrefix(String p) {
+        metricPrefix = p == null ? "" : p;
+    }
+
+    private String metric(String name) {
+        return metricPrefix + name;
+    }
+
     public long openRequestNs() {
         return openRequestNs;
     }
@@ -325,7 +336,7 @@ public final class CameraController {
                         return;
                     }
                     device = d;
-                    PerfLog.add(PerfLog.CAMERA_OPEN, PerfLog.msSince(openRequestNs));
+                    PerfLog.add(metric(PerfLog.CAMERA_OPEN), PerfLog.msSince(openRequestNs));
                     final CameraCaps c = caps;
                     main.post(new Runnable() {
                         @Override
@@ -543,7 +554,7 @@ public final class CameraController {
                         }
                         configuring = false;
                         session = cs;
-                        PerfLog.add(PerfLog.SESSION_READY, PerfLog.msSince(cfgStart));
+                        PerfLog.add(metric(PerfLog.SESSION_READY), PerfLog.msSince(cfgStart));
                         startRepeating();
                         final SessionSpec ready = s.copy();
                         if (rawReader == null) ready.raw = false;
@@ -1052,8 +1063,8 @@ public final class CameraController {
         }
         long t = SystemClock.elapsedRealtimeNanos();
         for (ShotInfo info : infos) info.requestElapsedNs = t;
-        if (req.tapElapsedNs > 0) PerfLog.add(PerfLog.TAP_TO_REQUEST, (t - req.tapElapsedNs) / 1e6);
-        if (req.voiceEndElapsedNs > 0) PerfLog.add(PerfLog.VOICE_END_TO_REQUEST, (t - req.voiceEndElapsedNs) / 1e6);
+        if (req.tapElapsedNs > 0) PerfLog.add(metric(PerfLog.TAP_TO_REQUEST), (t - req.tapElapsedNs) / 1e6);
+        if (req.voiceEndElapsedNs > 0) PerfLog.add(metric(PerfLog.VOICE_END_TO_REQUEST), (t - req.voiceEndElapsedNs) / 1e6);
         try {
             if (list.size() == 1) session.capture(list.get(0), stillCallback, camH);
             else session.captureBurst(list, stillCallback, camH);
@@ -1088,7 +1099,7 @@ public final class CameraController {
                 if (info.tapElapsedNs > 0) {
                     boolean realtime = caps.timestampSource == CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
                     long at = realtime ? timestamp : info.startedElapsedNs;
-                    PerfLog.add(PerfLog.TAP_TO_SENSOR, (at - info.tapElapsedNs) / 1e6);
+                    PerfLog.add(metric(PerfLog.TAP_TO_SENSOR), (at - info.tapElapsedNs) / 1e6);
                 }
                 main.post(new Runnable() {
                     @Override
@@ -1183,7 +1194,7 @@ public final class CameraController {
 
     private void onJpeg(final ShotInfo info, final byte[] bytes) {
         info.jpegElapsedNs = SystemClock.elapsedRealtimeNanos();
-        if (info.index == 0 && info.tapElapsedNs > 0) PerfLog.add(PerfLog.TAP_TO_JPEG, (info.jpegElapsedNs - info.tapElapsedNs) / 1e6);
+        if (info.index == 0 && info.tapElapsedNs > 0) PerfLog.add(metric(PerfLog.TAP_TO_JPEG), (info.jpegElapsedNs - info.tapElapsedNs) / 1e6);
         io.execute(new Runnable() {
             @Override
             public void run() {
@@ -1195,7 +1206,7 @@ public final class CameraController {
                     info.jpegUri = PhotoSaver.saveJpeg(ctx, bytes, info.fileName, info.relPath, info.cropAspect, info.mirror);
                     info.savedElapsedNs = SystemClock.elapsedRealtimeNanos();
                     if (info.index == 0 && info.tapElapsedNs > 0) {
-                        PerfLog.add(PerfLog.TAP_TO_SAVED, (info.savedElapsedNs - info.tapElapsedNs) / 1e6);
+                        PerfLog.add(metric(PerfLog.TAP_TO_SAVED), (info.savedElapsedNs - info.tapElapsedNs) / 1e6);
                     }
                     main.post(new Runnable() {
                         @Override
@@ -1395,7 +1406,7 @@ public final class CameraController {
                 settingsExpect = null;
                 if (!timeout) {
                     final double ms = PerfLog.msSince(settingsChangeNs);
-                    PerfLog.add(PerfLog.SETTING_APPLY, ms);
+                    PerfLog.add(metric(PerfLog.SETTING_APPLY), ms);
                     main.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1493,7 +1504,7 @@ public final class CameraController {
                     session.setRepeatingRequest(newRepeatingBuilder().build(), previewCallback, camH);
                     recorder.start();
                     recStartMs = SystemClock.uptimeMillis();
-                    if (tapElapsedNs > 0) PerfLog.add(PerfLog.VIDEO_START, PerfLog.msSince(tapElapsedNs));
+                    if (tapElapsedNs > 0) PerfLog.add(metric(PerfLog.VIDEO_START), PerfLog.msSince(tapElapsedNs));
                     final Uri u = recUri;
                     main.post(new Runnable() {
                         @Override
@@ -1521,7 +1532,7 @@ public final class CameraController {
             public void run() {
                 if (!recording) return;
                 stopRecordingInternal();
-                if (tapElapsedNs > 0) PerfLog.add(PerfLog.VIDEO_STOP, PerfLog.msSince(tapElapsedNs));
+                if (tapElapsedNs > 0) PerfLog.add(metric(PerfLog.VIDEO_STOP), PerfLog.msSince(tapElapsedNs));
             }
         });
     }

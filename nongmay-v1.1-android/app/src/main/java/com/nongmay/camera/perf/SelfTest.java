@@ -63,6 +63,7 @@ public final class SelfTest implements CameraController.Listener {
     private CameraController ctl;
     private volatile boolean cancelled;
     private int pass, fail, skip;
+    private boolean zslTested;
 
     private volatile CountDownLatch ready, saved, recStarted, recStopped;
     private volatile CameraController.ShotInfo lastShot;
@@ -122,6 +123,7 @@ public final class SelfTest implements CameraController.Listener {
         log("| Result | Check | Detail |");
         log("|---|---|---|");
         ctl = new CameraController(act);
+        ctl.setMetricPrefix("selftest_");
         ctl.setListener(this);
         CameraCaps firstBack = null;
         try {
@@ -223,6 +225,11 @@ public final class SelfTest implements CameraController.Listener {
         } else {
             result("camera " + c.id + " JPEG capture + MediaStore save", false, String.valueOf(lastError));
         }
+        if (!cancelled && c.physicalIds.length > 0) testLenses(c, cs);
+        if (!cancelled && c.zslKey && !c.isFront() && !zslTested) {
+            zslTested = true;
+            testShutterLag(c, cs);
+        }
         if (c.manualSensor && c.isoRange != null && c.expRange != null) {
             cs.manualExposure = true;
             cs.iso = Math.max(c.isoRange.getLower(), Math.min(c.isoRange.getUpper(), 400));
@@ -288,25 +295,90 @@ public final class SelfTest implements CameraController.Listener {
         ctl.stop();
     }
 
-    private void testVideoAndStory(CameraCaps c) {
-        List<CameraCaps.VideoMode> modes = c.videoModes();
-        CameraCaps.VideoMode vm = null;
-        for (CameraCaps.VideoMode m : modes) if (m.resLabel().equals("1080p") && m.fps == 30) vm = m;
-        if (vm == null && !modes.isEmpty()) vm = modes.get(modes.size() - 1);
-        if (vm == null) {
-            result("video record", false, "no camera+encoder video mode available");
-            return;
+    /** Which physical lens really streams at each lens preset (0.6× / 1× / 3× / 5× on the S25 Ultra). */
+    private void testLenses(CameraCaps c, CaptureSettings cs) {
+        for (double z : c.lensZoomPresets()) {
+            if (cancelled) break;
+            float zr = (float) z;
+            if (c.zoomRange != null) zr = Math.max(c.zoomRange.getLower(), Math.min(c.zoomRange.getUpper(), zr));
+            cs.zoom = zr;
+            ctl.updateSettings(cs);
+            SystemClock.sleep(1300);
+            CameraController.Readout r = readout;
+            String name = "camera " + c.id + " lens at " + ExposureMath.zoomLabel(zr);
+            String got = r == null ? null : r.physicalId;
+            if (got == null) {
+                result(name, null, "no active-physical-camera id in the capture result");
+                continue;
+            }
+            String want = expectedPhysical(c, z);
+            boolean match = want == null || want.equals(got);
+            result(name, match ? Boolean.TRUE : null, "active physical " + got + " (" + c.physicalLabel(got) + ")"
+                    + (match ? "" : " · expected " + want + ": the camera chose another lens (low light or close focus?)"));
         }
+        cs.zoom = 1f;
+        ctl.updateSettings(cs);
+        SystemClock.sleep(700);
+    }
+
+    static String expectedPhysical(CameraCaps c, double zoom) {
+        String best = null;
+        double bestErr = 0.12;
+        for (int i = 0; i < c.physicalIds.length; i++) {
+            double f = c.physicalEqFocal[i];
+            if (Double.isNaN(f) || Double.isNaN(c.eqFocal) || zoom <= 0) continue;
+            double err = Math.abs(Math.log(f / c.eqFocal / zoom));
+            if (err < bestErr) {
+                bestErr = err;
+                best = c.physicalIds[i];
+            }
+        }
+        return best;
+    }
+
+    /** Steady-state shutter lag with and without CONTROL_ENABLE_ZSL (request → start of the frame's exposure). */
+    private void testShutterLag(CameraCaps c, CaptureSettings cs) {
+        boolean realtime = c.timestampSource == android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
+        StringBuilder d = new StringBuilder();
+        boolean ok = true;
+        for (int pass = 0; pass < 2 && !cancelled; pass++) {
+            cs.zsl = pass == 0;
+            ctl.updateSettings(cs);
+            SystemClock.sleep(1500);
+            double[] v = new double[3];
+            int n = 0;
+            for (int i = 0; i < v.length && !cancelled; i++) {
+                CameraController.ShotInfo s = shoot(DIR_P);
+                if (s != null) {
+                    if (s.jpegUri != null) created.add(s.jpegUri);
+                    long at = realtime && s.sensorTs > 0 ? s.sensorTs : s.startedElapsedNs;
+                    if (at > 0) v[n++] = (at - s.tapElapsedNs) / 1e6;
+                }
+                SystemClock.sleep(600);
+            }
+            ok &= n > 0;
+            Stats st = Stats.of(java.util.Arrays.copyOf(v, n));
+            d.append(pass == 0 ? "ZSL on: " : " · ZSL off: ").append(n == 0 ? "no shots"
+                    : String.format(Locale.ROOT, "p50 %.0f ms (min %.0f, max %.0f, n=%d)", st.p50, st.min, st.max, n));
+        }
+        cs.zsl = true;
+        ctl.updateSettings(cs);
+        result("camera " + c.id + " shutter lag (request → sensor exposure)", ok, d + (realtime ? " · sensor clock" : " · callback clock")
+                + " · negative = the frame was exposed just before the request (true zero lag)");
+    }
+
+    private MediaInfo recordClip(CameraCaps c, CameraCaps.VideoMode vm, boolean hevc) {
         CameraController.SessionSpec s = new CameraController.SessionSpec();
         s.mode = CameraController.MODE_VIDEO;
         s.video = vm.size;
         s.fps = vm.fps;
-        s.codec = vm.avc ? "video/avc" : "video/hevc";
-        s.bitrate = CameraController.autoBitrate(vm.size.getWidth(), vm.size.getHeight(), vm.fps, !vm.avc);
+        s.codec = hevc ? "video/hevc" : "video/avc";
+        s.bitrate = CameraController.autoBitrate(vm.size.getWidth(), vm.size.getHeight(), vm.fps, hevc);
         s.preview = c.previewSize(16.0 / 9);
+        String name = "video record " + vm.resLabel() + "@" + vm.fps + " " + (hevc ? "HEVC" : "H.264");
         if (!openAndWait(c, s, new CaptureSettings())) {
             ctl.stop();
-            return;
+            return null;
         }
         boolean audio = act.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
         recStarted = new CountDownLatch(1);
@@ -319,20 +391,25 @@ public final class SelfTest implements CameraController.Listener {
         boolean stopped = await(recStopped, 8000);
         ctl.stop();
         if (!started || !stopped || lastVideo == null) {
-            result("video record " + vm.resLabel() + "@" + vm.fps, false, String.valueOf(lastError));
-            return;
+            result(name, false, String.valueOf(lastError));
+            return null;
         }
         created.add(lastVideo);
         MediaInfo v;
         try {
             v = MediaProbe.probe(act, lastVideo);
         } catch (IOException e) {
-            result("video probe", false, e.getMessage());
-            return;
+            result(name + " probe", false, e.getMessage());
+            return null;
         }
-        boolean ok = v.durationUs > 2_200_000 && v.durationUs < 4_200_000 && v.orientedW() > 0;
-        result("video record " + vm.resLabel() + "@" + vm.fps + (audio ? " + mic" : " (no mic permission)"), ok,
-                v.summary() + " · " + com.nongmay.camera.util.Fmt.bitrate(v.bitrate) + " · " + v.videoMime);
+        boolean ok = v.durationUs > 2_200_000 && v.durationUs < 4_200_000 && v.orientedW() > 0 && (!audio || v.hasAudio);
+        result(name + (audio ? " + mic" : " (no mic permission)"), ok,
+                v.summary() + " · " + com.nongmay.camera.util.Fmt.bitrate(v.bitrate) + " · " + v.videoMime
+                        + (audio ? " · audio " + (v.hasAudio ? v.audioMime : "MISSING") : ""));
+        return ok ? v : null;
+    }
+
+    private void exportStory(MediaInfo v, String what) {
         ExportJob job = new ExportJob();
         job.source = v;
         job.profile = StoryProfiles.V1080_SDR;
@@ -345,9 +422,33 @@ public final class SelfTest implements CameraController.Listener {
         if (job.output != null) created.add(job.output);
         MediaInfo a = job.actual;
         boolean sOk = job.ok() && a != null && a.orientedW() == 1080 && a.orientedH() == 1920 && "video/avc".equals(a.videoMime)
-                && (Double.isNaN(a.fps) || a.fps <= 30.5) && Math.abs(a.durationUs - v.durationUs) < 300_000;
-        result("StoryMax video V1080_SDR export", sOk, job.ok() ? (a == null ? "" : a.summary()) + " · " + job.elapsedMs + " ms · "
+                && (Double.isNaN(a.fps) || a.fps <= 30.5) && Math.abs(a.durationUs - v.durationUs) < 300_000
+                && (!v.hasAudio || a.hasAudio);
+        result("StoryMax video V1080_SDR export from " + what, sOk, job.ok() ? (a == null ? "" : a.summary()) + " · " + job.elapsedMs + " ms · "
                 + job.notesText().replace('\n', ' ') : job.error);
+    }
+
+    private static CameraCaps.VideoMode pick(List<CameraCaps.VideoMode> modes, String res, int fps) {
+        CameraCaps.VideoMode r = null;
+        for (CameraCaps.VideoMode m : modes) if (m.resLabel().equals(res) && m.fps == fps) r = m;
+        return r;
+    }
+
+    private void testVideoAndStory(CameraCaps c) {
+        List<CameraCaps.VideoMode> modes = c.videoModes();
+        CameraCaps.VideoMode hd = pick(modes, "1080p", 30), uhd = pick(modes, "4K", 30), hd60 = pick(modes, "1080p", 60);
+        if (hd == null && !modes.isEmpty()) hd = modes.get(modes.size() - 1);
+        if (hd == null) {
+            result("video record", false, "no camera+encoder video mode available");
+            return;
+        }
+        MediaInfo a = recordClip(c, hd, !hd.avc);
+        if (a != null && !cancelled) exportStory(a, hd.resLabel() + "@" + hd.fps);
+        if (uhd != null && !cancelled) {
+            MediaInfo b = recordClip(c, uhd, uhd.hevc);   // the S25 Ultra's own camera app records 4K HEVC
+            if (b != null && !cancelled) exportStory(b, "4K@30 " + (uhd.hevc ? "HEVC" : "H.264"));
+        }
+        if (hd60 != null && !cancelled) recordClip(c, hd60, !hd60.avc);
     }
 
     private void testPhotoExport(Uri photo) {

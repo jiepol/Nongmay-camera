@@ -179,7 +179,21 @@ public final class CapabilityInspector {
             }
             s.put("high_speed_video", hs);
             m.put("stream_sizes_top", s);
+            // why a mode is missing: the HAL's own minimum frame duration for normal (non-high-speed) recording
+            Map<String, Object> maxFps = new LinkedHashMap<>();
+            Size[] rec = map.getOutputSizes(MediaRecorder.class);
+            int[][] std = {{7680, 4320}, {3840, 2160}, {1920, 1080}, {1280, 720}};
+            for (int[] wh : std) {
+                if (rec == null) break;
+                for (Size z : rec) {
+                    if (z.getWidth() != wh[0] || z.getHeight() != wh[1]) continue;
+                    long d = map.getOutputMinFrameDuration(MediaRecorder.class, z);
+                    maxFps.put(z.getWidth() + "x" + z.getHeight(), d > 0 ? Math.round(1e9 / d * 10) / 10.0 : null);
+                }
+            }
+            m.put("video_max_fps_by_size", maxFps);
         }
+        m.put("ultra_high_resolution_sensor", c.ultraHighRes);
         if (Build.VERSION.SDK_INT >= 31 && c.ultraHighRes) {
             StreamConfigurationMap max = ch.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION);
             if (max != null) {

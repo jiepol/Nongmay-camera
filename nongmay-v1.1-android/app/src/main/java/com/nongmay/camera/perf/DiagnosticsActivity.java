@@ -136,8 +136,24 @@ public final class DiagnosticsActivity extends Activity {
         }
     }
 
+    private static final int REQ_MIC = 41;
+    private boolean micAsked;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_MIC) selfTest(); // runs either way; without the mic the voice/audio checks SKIP
+    }
+
     private void selfTest() {
         if (running != null) return;
+        if (!micAsked && checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            // first self-test on the S25 Ultra skipped the microphone loop and recorded video without sound
+            micAsked = true;
+            out.setText("Self-test ขอใช้ไมค์เพื่อทดสอบ Voice Shutter และเสียงในวิดีโอ (ไม่มีการบันทึกเสียงเก็บไว้) — ปฏิเสธได้ จะข้ามข้อนั้น");
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_MIC);
+            return;
+        }
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             out.setText("ต้องอนุญาตกล้องก่อน (เปิดหน้ากล้องหลักหนึ่งครั้ง)");
             return;

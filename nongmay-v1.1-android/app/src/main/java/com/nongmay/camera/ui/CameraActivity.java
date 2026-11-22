@@ -112,6 +112,7 @@ public final class CameraActivity extends Activity implements CameraController.L
     private boolean resumed;
     private boolean awaitFirstFrame;
     private long warmStartNs;
+    private long startCameraNs;
     private long switchStartNs;
     private String switchMetric;
     private Uri lastUri;
@@ -314,6 +315,7 @@ public final class CameraActivity extends Activity implements CameraController.L
         layoutPreview();
         rebuildControls();
         awaitFirstFrame = true;
+        startCameraNs = SystemClock.elapsedRealtimeNanos();
         sessionReady = false;
         overlay.setBanner(null);
         ctl.setFocusBeforeCapture(prefs.getBool(Settings.FOCUS_BEFORE_CAPTURE, false));
@@ -1964,6 +1966,13 @@ public final class CameraActivity extends Activity implements CameraController.L
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture st) {
             if (!awaitFirstFrame) return;
+            // When the app comes back, the TextureView can still show the last buffer of the previous
+            // session (seen on the S25 Ultra: a "30 ms warm start" and a 36.8 s open→frame sample).
+            // Only a frame exposed after this start/switch request counts. Camera timestamps share the
+            // elapsedRealtime clock when the source is REALTIME; otherwise wait for the new session.
+            long since = switchMetric != null ? switchStartNs : startCameraNs;
+            boolean realtime = caps != null && caps.timestampSource == CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
+            if (realtime ? st.getTimestamp() < since : !sessionReady) return;
             awaitFirstFrame = false;
             long now = SystemClock.elapsedRealtimeNanos();
             double sinceProcess = now / 1e6 - PerfLog.processStartElapsed();
@@ -1976,9 +1985,10 @@ public final class CameraActivity extends Activity implements CameraController.L
             if (switchMetric != null) {
                 PerfLog.add(switchMetric, (now - switchStartNs) / 1e6);
                 switchMetric = null;
-            } else if (ctl.openRequestNs() > 0) {
-                PerfLog.add(PerfLog.OPEN_TO_FRAME, (now - ctl.openRequestNs()) / 1e6);
+            } else if (startCameraNs > 0) {
+                PerfLog.add(PerfLog.OPEN_TO_FRAME, (now - startCameraNs) / 1e6);
             }
+            startCameraNs = 0;
             overlay.setBanner(null);
         }
     };

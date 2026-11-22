@@ -4,9 +4,18 @@ A fast Camera2 camera for the Galaxy S25 Ultra with four pillars: **StoryMax** (
 **True Pro** (capability-gated manual controls, RAW, overlays, Pro Video), **Voice Shutter** (say `น้องเม`, or
 any phrase you teach it, offline) and **Speed** (opens straight to the viewfinder, instrumented latency).
 
-> **Status (2026-11-22): code complete for the four-pillar slice, built, unit-tested — but never run on a phone.**
-> The build machine had no device or emulator. Read `FEATURE_MATRIX.md` before trusting any feature, and run the
-> checklist at the end of this file. Voice numbers so far are synthetic (`VOICE_EVAL.md`).
+> **Status (2026-11-22, 1.1.1-debug):** built, unit-tested, and the 1.1.0 on-device self-test passed on Pol's
+> Galaxy S25 Ultra (28 PASS · 0 FAIL · 1 SKIP — camera capture on all 4 cameras, manual ISO/shutter/focus/Kelvin,
+> RAW, 1080p video, StoryMax photo + video export). Screens, finger/voice paths and Voice Shutter accuracy are still
+> unverified — see `FEATURE_MATRIX.md`. Voice numbers so far are synthetic (`VOICE_EVAL.md`).
+
+### New in 1.1.1 (from the S25 Ultra evidence)
+- Fixed: first-frame timing could count a stale viewfinder frame after returning to the app (30 ms “warm start”,
+  36.8 s open→frame sample in 1.1.0).
+- Self-test timings are now stored separately (`selftest_*`) from real finger/voice timings.
+- Self-test asks for the microphone, checks which physical lens streams at each zoom preset, measures shutter lag
+  with ZSL on/off, records 4K30 HEVC, 1080p60 and video with sound, and exports a Story from the 4K clip.
+- Capability report adds the camera's max fps per video size (explains why 4K60 is not offered).
 
 | File | What it is |
 |---|---|
@@ -15,12 +24,13 @@ any phrase you teach it, offline) and **Speed** (opens straight to the viewfinde
 | `PERFORMANCE_REPORT.md` | how latency is measured; device values NOT MEASURED |
 | `VOICE_EVAL.md` | synthetic Voice Shutter evaluation (same code as the APK) |
 | `STORY_AB_TEST.md` | blank posted-Story A/B worksheet |
-| `DEVICE_CAPABILITIES.md/json` | generator description + NOT RUN placeholder |
+| `DEVICE_CAPABILITIES.md/json` | measured capabilities of Pol's S25 Ultra (raw reports in `device-reports/`) |
 | `TEST_RESULTS.md` | what was run and the actual results |
 
 ## Install (debug build)
-- APK: `NongMayCamera-1.1.0-debug.apk` (delivered separately; never committed). Application id
+- APK: `NongMayCamera-1.1.1-debug.apk` (delivered separately; never committed). Application id
   `com.nongmay.camera.v11`, so it installs **next to** v1.0 (`app.nongmay.camera`); v1.0 is not replaced.
+  1.1.1 is signed with the same key as 1.1.0, so it installs **over** 1.1.0 and keeps phrases, presets and timings.
 - Allow "install unknown apps" for the file manager you open it from. Android 10+ (minSdk 29).
 - Signed with a personal **debug** key. Future v1.1.x builds must be signed with the same key to update in
   place; a different key means uninstall first (voice phrases and presets would be lost). Keep the `.jks` private.
@@ -49,7 +59,7 @@ Verified (offline, no Gradle):
 cd nongmay-v1.1-android
 ./tools/setup_toolchain.sh                 # android.jar API 35 + aapt2 from the pinned Apktool jar (SHA-256 checked) + apt tools
 export NONGMAY_TOOLCHAIN=$HOME/nongmay-toolchain
-./tools/build_apk.sh                       # -> build/apk/NongMayCamera-1.1.0-debug.apk
+./tools/build_apk.sh                       # -> build/apk/NongMayCamera-1.1.1-debug.apk
 ./tools/run_unit_tests.sh                  # 31 JUnit tests
 ```
 The signing key is created on first build at `~/.nongmay/nongmay-v11-debug.jks` (override with
@@ -82,12 +92,14 @@ deletes them. No Instagram login/API; you post manually.
 - Nothing verified on a device yet (see `FEATURE_MATRIX.md`).
 - Voice Shutter is a speaker-dependent sound matcher, not speech recognition: re-teach if it misses; other
   people with a similar voice can trigger it; weak among other people talking (10% in the synthetic test).
-- Not implemented: 10-bit HDR/LOG video, high-speed video, 200 MP max-resolution stills, time-lapse video,
-  voice start/stop recording, location tags, non-AAC audio re-encode in StoryMax, HDR retention profile.
+- Not implemented: 10-bit HLG video and 120/240 fps slow motion (both available on the S25 Ultra), time-lapse
+  video, voice start/stop recording, location tags, non-AAC audio re-encode in StoryMax, HDR retention profile.
+- Not possible for a third-party app on the S25 Ultra (camera HAL): 4K60, 8K, 200 MP, LOG, OIS control.
 - Blocked here: Macrobenchmark / Baseline Profiles, CameraX / Media3 / Kotlin (no Maven access), Gradle build check.
 
 ## Pol's 10-minute test (S25 Ultra)
-Before starting: Settings → Diagnostics → “ล้างสถิติความเร็ว”. ทำตามนี้แล้วส่งไฟล์ใน `Download/NongMay/` กลับมา
+Before starting: ลง 1.1.1 ทับตัวเดิม → Settings → Diagnostics → “ล้างสถิติความเร็ว” → **Self-test อีกรอบ (อนุญาตไมค์ด้วย)**.
+ทำตามนี้แล้วส่งไฟล์ใน `Download/NongMay/` กลับมา
 1. **เปิดแอปแบบ cold 10 ครั้ง** (ปัดแอปทิ้งก่อนทุกครั้ง) → กดถ่าย 1 รูปทุกครั้ง; จดว่าเห็นภาพสดเร็วไหม รูปเข้าแกลเลอรีไหม
 2. **Voice:** แตะไอคอนไมค์ → สอน `น้องเม` 3 ครั้ง → พูด `น้องเม` 20 ครั้งในห้องเงียบ + 20 ครั้งตอนเปิดทีวี/พัดลม;
    นับรูปที่ได้จริงเทียบ 40 ครั้ง และพูด `น้องเมย์`, `น้องแม่`, คุยปกติ 2 นาที → นับรูปที่ถ่ายเอง.
