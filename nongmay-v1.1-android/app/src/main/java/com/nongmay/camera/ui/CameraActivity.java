@@ -116,6 +116,11 @@ public final class CameraActivity extends Activity implements CameraController.L
     private long switchStartNs;
     private String switchMetric;
     private Uri lastUri;
+    // "ไม่ใช่คำนี้": the last voice trigger, so the owner can mark it false (and drop the photo it took)
+    private KwsCore.Event lastVoiceTrigger;
+    private Uri lastVoiceShotUri;
+    private boolean dropNextVoiceShot;
+    private boolean voiceUndoShowing;
     private boolean lastIsVideo;
     private Runnable countdownTask, intervalTask, recTicker, loupeReset, statusReset;
     private int intervalDone;
@@ -506,6 +511,16 @@ public final class CameraActivity extends Activity implements CameraController.L
 
     @Override
     public void onSaved(CameraController.ShotInfo s) {
+        if ("voice".equals(s.source) && s.index == 0 && s.jpegUri != null) {
+            if (dropNextVoiceShot) {
+                dropNextVoiceShot = false;
+                lastUri = s.jpegUri;
+                deleteVoiceShot(s.jpegUri);
+                if (s.index == s.count - 1) shutter.setBusy(false);
+                return;
+            }
+            lastVoiceShotUri = s.jpegUri;
+        }
         lastUri = s.jpegUri;
         lastIsVideo = false;
         loadThumb(s.jpegUri, false);
@@ -800,6 +815,9 @@ public final class CameraActivity extends Activity implements CameraController.L
         public void onTrigger(KwsCore.Event e, long speechEndNs, long decisionNs) {
             PerfLog.voiceOutcome("trigger", e.score / e.threshold);
             if (!voiceAllowedNow() || countdownTask != null || intervalTask != null) return;
+            lastVoiceTrigger = e;
+            lastVoiceShotUri = null;
+            dropNextVoiceShot = false;
             PerfLog.add(PerfLog.VOICE_END_TO_TRIGGER, (decisionNs - speechEndNs) / 1e6);
             setStatus("ได้ยิน “" + phraseLabel() + "” แล้ว!", 1500);
             int cd = prefs.voiceCountdown();
@@ -807,6 +825,7 @@ public final class CameraActivity extends Activity implements CameraController.L
                 startCountdown(cd, 0, "voice");
             } else {
                 fire(0, speechEndNs, "voice", 0);
+                offerVoiceUndo();
             }
         }
 
@@ -837,6 +856,57 @@ public final class CameraActivity extends Activity implements CameraController.L
             refreshVoiceHint();
         }
     };
+
+    /** After a voice photo: one tap says “that wasn't my phrase” → remember the sound, delete that photo. */
+    private void offerVoiceUndo() {
+        showMessage("ถ่ายด้วยเสียงแล้ว · ไม่ได้พูด “" + phraseLabel() + "”?", "ไม่ใช่คำนี้ (ลบรูป + จำเสียงนี้)", new Runnable() {
+            @Override
+            public void run() {
+                markLastVoiceFalse();
+            }
+        });
+        voiceUndoShowing = true;   // set after showMessage(), which clears it for every other message
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (voiceUndoShowing) {
+                    voiceUndoShowing = false;
+                    hideMessage();
+                }
+            }
+        }, 6000);
+    }
+
+    private void markLastVoiceFalse() {
+        voiceUndoShowing = false;
+        hideMessage();
+        KwsCore.Event e = lastVoiceTrigger;
+        lastVoiceTrigger = null;
+        if (e != null && template != null) {
+            template.addAnti(e.mel, e.noise);
+            try {
+                store.save(template);
+            } catch (IOException ignored) {
+            }
+            PerfLog.voiceOutcome("marked_false", e.score / e.threshold);
+        }
+        if (lastVoiceShotUri != null) deleteVoiceShot(lastVoiceShotUri);
+        else dropNextVoiceShot = true;   // still being saved: delete it when it lands
+        setStatus("จำเสียงนี้แล้ว จะไม่ถ่ายเพราะเสียงนี้อีก", 2500);
+    }
+
+    private void deleteVoiceShot(Uri uri) {
+        try {
+            getContentResolver().delete(uri, null, null);   // the app's own MediaStore item, deleted on the owner's tap
+        } catch (RuntimeException ignored) {
+            setStatus("ลบรูปไม่ได้ ลบเองในแกลเลอรีได้", 2500);
+        }
+        if (uri.equals(lastUri)) {
+            lastUri = null;
+            thumb.setImageDrawable(null);
+        }
+        lastVoiceShotUri = null;
+    }
 
     private void refreshVoiceHint() {
         boolean on = prefs.voiceEnabled();
@@ -2140,6 +2210,7 @@ public final class CameraActivity extends Activity implements CameraController.L
     }
 
     private void showMessage(String text, String action, final Runnable run) {
+        voiceUndoShowing = false;
         messageText.setText(text);
         messageBtn2.setVisibility(View.GONE);
         if (action == null) {

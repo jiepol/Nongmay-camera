@@ -8,7 +8,16 @@ any phrase you teach it, offline) and **Speed** (opens straight to the viewfinde
 > Ultra (1.1.2: 39 PASS · 0 FAIL · 1 SKIP — all 4 cameras, real 3×/5× tele lenses, manual ISO/shutter/focus/Kelvin,
 > RAW, 4K30 HEVC / 1080p60 / 1080p30 video with sound, StoryMax exports, microphone). Pol's first real Voice
 > Shutter use: 21 voice photos, end of speech → capture request p95 233 ms. Voice accuracy, finger-shutter timing and
-> most screens are still unverified — see `FEATURE_MATRIX.md`.
+> most screens are still unverified — see `FEATURE_MATRIX.md`. **Known issue found by Pol in 1.1.2/1.1.3: a loud
+> short “เฮ้ย” could fire the shutter — 1.1.4 tightens the voice gates and adds “ไม่ใช่คำนี้”.**
+
+### New in 1.1.4 (false trigger reported by Pol)
+- Voice Shutter is stricter: a sound must last at least 0.65× your recorded takes (a short shout no longer passes),
+  2 of the 3 takes must agree, and the sensitivity thresholds are lower (1.10 / 1.20 / 1.35 × your calibrated base).
+- **“ไม่ใช่คำนี้”:** after a voice photo the camera shows a button for 6 s — tap it and the app deletes that photo and
+  remembers the sound as “not this” (mel envelope only, no audio, up to 12). The same sound won't fire again.
+  The Voice screen's test area has the same button for any sound you try there.
+- Synthetic evaluation re-run with the new gates and a fixed background-noise bug in the test corpus.
 
 ### New in 1.1.3 (from the 1.1.2 run)
 - Lens buttons: the 3× button now asks for 3.0× — the S25 Ultra only switches to its 3× tele from 3.0×, not at the
@@ -45,7 +54,7 @@ any phrase you teach it, offline) and **Speed** (opens straight to the viewfinde
 | `TEST_RESULTS.md` | what was run and the actual results |
 
 ## Install (debug build)
-- APK: `NongMayCamera-1.1.3-debug.apk` (delivered separately; never committed). Application id
+- APK: `NongMayCamera-1.1.4-debug.apk` (delivered separately; never committed). Application id
   `com.nongmay.camera.v11`, so it installs **next to** v1.0 (`app.nongmay.camera`); v1.0 is not replaced.
   1.1.x builds share one key, so each installs **over** the previous one and keeps phrases, presets and timings.
 - Allow "install unknown apps" for the file manager you open it from. Android 10+ (minSdk 29).
@@ -76,8 +85,8 @@ Verified (offline, no Gradle):
 cd nongmay-v1.1-android
 ./tools/setup_toolchain.sh                 # android.jar API 35 + aapt2 from the pinned Apktool jar (SHA-256 checked) + apt tools
 export NONGMAY_TOOLCHAIN=$HOME/nongmay-toolchain
-./tools/build_apk.sh                       # -> build/apk/NongMayCamera-1.1.3-debug.apk
-./tools/run_unit_tests.sh                  # 33 JUnit tests
+./tools/build_apk.sh                       # -> build/apk/NongMayCamera-1.1.4-debug.apk
+./tools/run_unit_tests.sh                  # 34 JUnit tests
 ```
 The signing key is created on first build at `~/.nongmay/nongmay-v11-debug.jks` (override with
 `NONGMAY_KEYSTORE` / `NONGMAY_KS_PASS`).
@@ -115,7 +124,7 @@ deletes them. No Instagram login/API; you post manually.
 - Blocked here: Macrobenchmark / Baseline Profiles, CameraX / Media3 / Kotlin (no Maven access), Gradle build check.
 
 ## Pol's 10-minute test (S25 Ultra)
-Before starting: ลง 1.1.3 ทับตัวเดิม → Settings → Diagnostics → “ล้างสถิติความเร็ว” แล้วค่อยเริ่มทดสอบ
+Before starting: ลง 1.1.4 ทับตัวเดิม → Settings → Diagnostics → “ล้างสถิติความเร็ว” แล้วค่อยเริ่มทดสอบ
 (Self-test ให้หันกล้องหลังไปที่สว่างและไกลกว่า 2 เมตร).
 ทำตามนี้แล้วส่งไฟล์ใน `Download/NongMay/` กลับมา
 1. **เปิดแอปแบบ cold 10 ครั้ง** (ปัดแอปทิ้งก่อนทุกครั้ง) → กดถ่าย 1 รูปทุกครั้ง; จดว่าเห็นภาพสดเร็วไหม รูปเข้าแกลเลอรีไหม

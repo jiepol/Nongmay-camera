@@ -26,11 +26,11 @@ public final class KwsCore {
         public int preRollMs = 120;
         public int postRollMs = 60;
         public int maxSegmentMs = 2500;
-        public double minDurRatio = 0.55;
+        public double minDurRatio = 0.65;   // 1.1.4: a short loud “เฮ้ย” passed at 0.55
         public double maxDurRatio = 1.8;
         public int cooldownMs = 1500;
         public double band = 0.25;
-        public double medianSlack = 1.25;
+        public double medianSlack = 1.10;
         public double minSnrDb = 6.0;
         /** Noise-compensated matching (see {@link Matcher}); false = plain MFCC/DTW (v1.1 prototype). */
         public boolean compensate = true;
@@ -47,6 +47,8 @@ public final class KwsCore {
         public double roomDrrDb = 6.0;
         /** VAD: a pause is also anything this far below the segment's peak (99 = off). */
         public double endRelDb = 14.0;
+        /** Reject when a marked false-trigger sound is within this factor of the phrase's best distance. */
+        public double antiMargin = 1.0;
     }
 
     public static final class Event {
@@ -65,6 +67,8 @@ public final class KwsCore {
         /** Mel power of the segment and the background estimate just before it (what a take stores). */
         public float[][] mel;
         public float[] noise;
+        /** Distance to the closest “not this” sample (NaN when none were checked). */
+        public double antiScore = Double.NaN;
 
         public boolean accepted() {
             return reject == null;
@@ -249,6 +253,7 @@ public final class KwsCore {
         else if (ratio > cfg.maxDurRatio) ev.reject = "longer_than_samples";
         else if (!(ev.score <= ev.threshold)) ev.reject = "no_match";
         else if (!(ev.median <= ev.threshold * cfg.medianSlack)) ev.reject = "weak_match";
+        else if (closerToAnti(ev)) ev.reject = "not_this";
         else if (ev.speechEndSample <= suppressUntil) ev.reject = "suppressed";
         else if (written < cooldownUntil) ev.reject = "cooldown";
         if (ev.reject == null) {
@@ -256,6 +261,22 @@ public final class KwsCore {
             cooldownUntil = written + (long) cfg.cooldownMs * Mfcc.SAMPLE_RATE / 1000;
         }
         return ev;
+    }
+
+    /** True when the segment sounds more like a sound the owner marked “ไม่ใช่คำนี้” than like the phrase. */
+    private boolean closerToAnti(Event ev) {
+        if (template.antiCount() == 0) return false;
+        List<?>[] snap = template.antiSnapshot();
+        double best = Double.POSITIVE_INFINITY;
+        for (int i = 0; i < snap[0].size(); i++) {
+            float[][] m = (float[][]) snap[0].get(i);
+            float[] n = (float[]) snap[1].get(i);
+            double d = Matcher.distance(mfcc, ev.mel, ev.noise, m, n, cfg);
+            if (cfg.room == 1) d = Math.min(d, Matcher.distance(mfcc, ev.mel, ev.noise, m, n, cfg, true));   // same two chances as the phrase
+            if (d < best) best = d;
+        }
+        ev.antiScore = best;
+        return best <= ev.score * cfg.antiMargin;
     }
 
     /** Thai text for a reject code, shown in the test screen. */
@@ -270,6 +291,7 @@ public final class KwsCore {
             case "longer_than_samples": return "ยาวกว่าตอนสอนมาก";
             case "no_match": return "ไม่เหมือนเสียงที่สอนไว้";
             case "weak_match": return "เหมือนแค่บางตัวอย่าง";
+            case "not_this": return "เหมือนเสียงที่บอกไว้ว่าไม่ใช่";
             case "suppressed": return "ข้ามเสียงชัตเตอร์ของแอปเอง";
             case "cooldown": return "เพิ่งถ่ายไป รอสักครู่";
             default: return code;

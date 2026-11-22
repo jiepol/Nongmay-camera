@@ -45,7 +45,7 @@ Battery drain and heat over a 15–20 min session: NOT MEASURED (thermal status 
 | `camera_open_request_to_opened` | 7 | 7.7 | 27.6 | — | measured |
 | `camera_opened_to_session_configured` | 7 | 223 | 310 | — | measured |
 | `camera_open_request_to_first_preview_frame` | 6 | 665 | 753 | — | measured |
-| `voice_utterance_end_to_trigger` | 21 | 200.7 | 210.5 | — | **real use by Pol**; 200 ms is the designed end-of-speech pause |
+| `voice_utterance_end_to_trigger` | 21 | 200.7 | 210.5 | — | real use by Pol (some were false triggers, see below); 200 ms is the designed end-of-speech pause |
 | `voice_utterance_end_to_capture_request` | 21 | 220.2 | 232.5 | ≤ 750 ms p95 | **within target** |
 | `story_photo_export_ms` | 2 | 177 | 198 | — | measured |
 | `story_video_export_ms_per_second_of_video` | 4 | 248 | 256 | — | ≈ 4× faster than real time (1080p and 4K HEVC sources) |
@@ -56,8 +56,9 @@ Battery drain and heat over a 15–20 min session: NOT MEASURED (thermal status 
 Shutter lag with the three request types (1.1.2 self-test, camera 0, n=3 each): STILL + ZSL key 142 ms, ZSL template
 137 ms, STILL without ZSL 149 ms. **Neither ZSL path is honoured by Samsung's HAL for this app**; the lag is about four
 to five frame times (≈ 140 ms at 30 fps here, ≈ 310 ms in the dimmer 1.1.1 run where exposure ran longer).
-Voice accuracy (misses, false triggers) was not logged by 1.1.2 — 1.1.3 adds an outcome table (counts and
-score ÷ threshold only) and the voice → exposure / saved times.
+Voice accuracy was not logged by 1.1.2. **Pol then reported false triggers: a loud “เฮ้ย” fires the shutter.** So
+the 21 triggers include an unknown number of false ones. 1.1.3 logs every decision (outcome + score ÷ threshold);
+1.1.4 tightens the gates and lets Pol mark a false trigger (“ไม่ใช่คำนี้”), which is logged as `marked_false`.
 
 ## S25 Ultra results (1.1.1-debug, 19:58, evening indoors)
 The 1.1.1 report still contained the 1.1.0 samples (stats were not reset), so only the new samples are listed.
@@ -93,9 +94,11 @@ PRIVATE_REPROCESSING). The on-screen shutter acknowledgement (next frame) is sep
    them as `selftest_*` in a separate table, so finger/voice timings stay clean. 1.1.1's self-test also measures
    steady-state shutter lag with ZSL on vs. off (after the preview has run), which is what a real tap sees.
 
-## Voice Shutter — synthetic results only (build machine, espeak-ng TTS)
+## Voice Shutter — synthetic results (build machine, espeak-ng TTS, 1.1.4 gates)
 Full tables: `VOICE_EVAL.md`. NORMAL sensitivity, 4 synthetic voices × 5 phrases × 6 tries per condition:
-quiet 100% · white noise 20 dB 94% · street-like pink noise 10 dB 48% · other people talking 15 dB 10% ·
-room reverb 68%. Other words accepted 0/3600 (incl. `น้องเมย์`, `น้องแม่`); false triggers in 12 min of
-conversation 0/h; another voice saying the phrase 15%. Decision latency 200 ms after the end of speech by design;
-matcher compute p95 2.71 ms on the build machine's JVM. Not human speech — the phone test is still to come.
+quiet 99% · white noise 20 dB 83% · street-like pink noise 10 dB 37% · other people talking 15 dB 8% · room reverb
+53% (`น้องเม` alone: 24/24 · 24/24 · 22/24 · 4/24 · 20/24). Other words accepted 0/3600 (incl. `น้องเมย์`, `น้องแม่`);
+false triggers in 12 min of conversation 0/h (quiet room and cafe); another voice saying the phrase 11%.
+The corpus's background beds were fixed in 1.1.4 (the “quiet room” was digitally silent before). The synthetic
+corpus never contained a shout like “เฮ้ย”, which is why it missed the false trigger Pol found: synthetic voices are
+far more consistent than a person, so thresholds tuned on them were too loose for real speech.

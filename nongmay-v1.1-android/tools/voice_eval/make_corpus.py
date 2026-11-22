@@ -92,7 +92,8 @@ def noise_like(n, kind, rng):
         return w
     f = np.fft.rfft(w)
     f /= np.sqrt(np.arange(1, f.size + 1))
-    return np.fft.irfft(f, n)
+    y = np.fft.irfft(f, n)
+    return y / (np.sqrt(np.mean(y ** 2)) + 1e-12)   # unit RMS, so the dBFS levels below are what they say
 
 
 def room(sig, rng, rt60=0.4, drr_db=4.0):

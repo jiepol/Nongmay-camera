@@ -39,6 +39,8 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
     private AudioKwsEngine engine;
     private VoiceTemplate draft;
     private VoiceTemplate testing;
+    private KwsCore.Event lastTestEvent;
+    private TextView notThisBtn;
     private int stage; // 0 idle, 1 recording samples, 2 live test
     private String pendingText, pendingId;
 
@@ -172,6 +174,15 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
         enrollCard.addView(enrollStatus);
         enrollCard.addView(meter, UiKit.lpm(ViewGroup.LayoutParams.MATCH_PARENT, UiKit.dp(this, 6), 0, UiKit.dp(this, 10), 0, UiKit.dp(this, 10)));
         enrollCard.addView(testResult);
+        notThisBtn = UiKit.button(this, "อันนี้ไม่ใช่คำสั่ง — จำไว้ ไม่ให้ถ่าย", false);
+        notThisBtn.setVisibility(View.GONE);
+        notThisBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                markNotThis();
+            }
+        });
+        enrollCard.addView(notThisBtn, UiKit.lpm(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0, UiKit.dp(this, 6), 0, UiKit.dp(this, 6)));
         enrollCard.addView(warn);
         enrollCard.addView(UiKit.text(this, "ความไวในการฟัง", 14, UiKit.TEXT, true));
         sensRow = UiKit.row(this);
@@ -335,6 +346,8 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
         enrollDesc.setText("พูดคำว่า “" + draft.text + "” ให้ฟัง " + SAMPLES + " ครั้ง ด้วยน้ำเสียงปกติ เว้นช่วงสั้น ๆ ระหว่างครั้ง "
                 + "และอยู่ห่างประมาณที่จะใช้จริง แอปจะจำลายเสียงไว้ในเครื่องนี้เท่านั้น");
         testResult.setText("");
+        lastTestEvent = null;
+        if (notThisBtn != null) notThisBtn.setVisibility(View.GONE);
         warn.setText("");
         refreshEnroll("พร้อมฟังแล้ว พูดได้เลย", UiKit.OK);
         startEngine();
@@ -352,6 +365,8 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
         enrollTitle.setText("ทดสอบ “" + ThaiText.display(t.text) + "”");
         enrollDesc.setText("พูดเพื่อดูว่าระบบจะถ่ายหรือไม่ ลองทั้งคำนี้และคำอื่น ๆ (ไม่มีการถ่ายรูปจริงในหน้านี้)");
         testResult.setText("");
+        lastTestEvent = null;
+        if (notThisBtn != null) notThisBtn.setVisibility(View.GONE);
         warn.setText("");
         refreshEnroll("กำลังฟัง…", UiKit.OK);
         startEngine();
@@ -464,6 +479,10 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
             return;
         }
         if (stage == 2) {
+            if (e.mel != null) {
+                lastTestEvent = e;
+                notThisBtn.setVisibility(View.VISIBLE);
+            }
             if (e.type == KwsCore.Event.TRIGGER) {
                 testResult.setTextColor(UiKit.OK);
                 testResult.setText(String.format(Locale.ROOT, "✓ ได้ยินคำสั่ง (คะแนน %.2f จากเกณฑ์ %.2f · %d ms)", e.score, e.threshold, e.durMs));
@@ -478,6 +497,24 @@ public final class VoiceActivity extends Activity implements AudioKwsEngine.List
     @Override
     public void onTrigger(KwsCore.Event e, long speechEndElapsedNs, long decisionElapsedNs) {
         // onSegment already shows the result for triggers in this screen.
+    }
+
+    /** Test area: the last sound heard was not the phrase (e.g. a loud “เฮ้ย”) — never trigger on it. */
+    private void markNotThis() {
+        VoiceTemplate t = draft != null ? draft : testing;
+        KwsCore.Event e = lastTestEvent;
+        if (t == null || e == null) return;
+        t.addAnti(e.mel, e.noise);
+        lastTestEvent = null;
+        notThisBtn.setVisibility(View.GONE);
+        if (t == testing) {
+            try {
+                store.save(t);
+            } catch (IOException ignored) {
+            }
+        }
+        testResult.setTextColor(UiKit.OK);
+        testResult.setText("จำเสียงนี้แล้ว จะไม่ถ่ายเพราะเสียงนี้อีก (เสียงที่ห้ามถ่าย " + t.antiCount() + "/" + VoiceTemplate.MAX_ANTI + ")");
     }
 
     @Override

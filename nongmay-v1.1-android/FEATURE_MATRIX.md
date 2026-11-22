@@ -1,4 +1,4 @@
-# FEATURE MATRIX — NongMay Camera v1.1 (1.1.3-debug, versionCode 14)
+# FEATURE MATRIX — NongMay Camera v1.1 (1.1.4-debug, versionCode 15)
 
 **Evidence so far:** on-device self-tests on Pol's Galaxy S25 Ultra (SM-S938B, Android 17, 2026-11-22):
 1.1.0 **28 PASS · 0 FAIL · 1 SKIP**, 1.1.1 **37 PASS · 0 FAIL · 2 SKIP**, 1.1.2 **39 PASS · 0 FAIL · 1 SKIP**, plus
@@ -84,9 +84,10 @@ Paths are relative to `app/src/main/java/com/nongmay/camera/`. Tests: `app/src/t
 | Matcher: VAD + background tracking + noise-compensated mel/MFCC + DTW + virtual-room hypothesis | WORKING (synthetic) | `voice/*`, `VoiceCoreTest` (incl. 12 dB noise test), `VOICE_EVAL.md` |
 | Default `น้องเม`, restore default, custom phrases (`โฮ่ง ๆ`, `ชาลี`, `ถ่ายเลย`, `cheese`, any phrase) | CODE COMPLETE · UNVERIFIED | `voice/VoiceActivity`, `VoiceProfileStore` |
 | Enrollment (3 takes, consistency + "too short" warnings), live test screen with score vs. threshold | CODE COMPLETE · UNVERIFIED | `VoiceActivity` |
-| Sensitivity STRICT / NORMAL / SENSITIVE | WORKING (synthetic) | thresholds tuned in `VOICE_EVAL.md` |
+| Sensitivity STRICT / NORMAL / SENSITIVE | WORKING (synthetic) | 1.10 / 1.20 / 1.35 × base since 1.1.4 (was 1.20 / 1.30 / 1.45), duration ≥ 0.65 × takes, 2 of 3 takes must agree — `VOICE_EVAL.md` |
+| False-trigger fix “ไม่ใช่คำนี้” (camera screen after a voice photo, or Voice screen test area) | CODE COMPLETE · UNVERIFIED | marked sound kept as a “not this” sample (mel envelope only, max 12), never fires again; the photo it took is deleted. Unit test `notThisSampleBlocksAMarkedSound` |
 | Microphone loop (AudioRecord 16 kHz, foreground) | WORKING (device) | 1.1.2: background −63.9 dBFS, 40 ms of start-up zeros ignored (the −180 dB bug of 1.1.1 is fixed) |
-| Enrolled phrase triggers photos in the camera screen | WORKING (device) | 1.1.2: 21 voice-triggered photos by Pol; end of speech → capture request p50 220 ms, p95 233 ms |
+| Enrolled phrase triggers photos in the camera screen | WORKING (device) · **false triggers seen** | 1.1.2: 21 voice triggers; end of speech → capture request p50 220 ms, p95 233 ms. Pol: a loud “เฮ้ย” also fires → 1.1.4 tightens the gates and adds “ไม่ใช่คำนี้” |
 | Offline only, foreground only, stops during video recording, own shutter sound ignored, 1.5 s cooldown | CODE COMPLETE · UNVERIFIED | `voice/AudioKwsEngine`, `CameraActivity.stopVoice()` |
 | Mic-active indicator on the viewfinder | CODE COMPLETE · UNVERIFIED | `CameraActivity` |
 | Accuracy on Pol's real voice (misses, false triggers), battery, heat | NOT MEASURED | 1.1.2 logged only successes; 1.1.3 logs every decision (outcome + score÷threshold, no audio) |

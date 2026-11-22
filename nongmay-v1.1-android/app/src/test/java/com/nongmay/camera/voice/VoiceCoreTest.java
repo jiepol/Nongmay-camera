@@ -251,6 +251,35 @@ public class VoiceCoreTest {
     }
 
     @Test
+    public void notThisSampleBlocksAMarkedSound() throws Exception {
+        // the owner taps “ไม่ใช่คำนี้” after a false trigger; the same sound must not fire again (also after save/load)
+        Random rnd = new Random(21);
+        VoiceTemplate t = enroll(rnd);
+        short[] key = word(KEY_F0, KEY_FM, 1.0, 1.0, 1.0, rnd, 30);
+        short[] audio = concat(silence(800, 30, rnd), key, silence(600, 30, rnd));
+        KwsCore core = new KwsCore(new KwsCore.Config());
+        core.setTemplate(t);
+        KwsCore.Event fired = null;
+        for (KwsCore.Event e : run(core, audio)) if (e.type == KwsCore.Event.TRIGGER) fired = e;
+        assertTrue(fired != null);
+        t.addAnti(fired.mel, fired.noise);
+        VoiceTemplate back = VoiceTemplate.fromBytes(t.toBytes());
+        assertEquals(1, back.antiCount());
+        KwsCore again = new KwsCore(new KwsCore.Config());
+        again.setTemplate(back);
+        int trig = 0;
+        String reason = null;
+        for (KwsCore.Event e : run(again, audio)) {
+            if (e.type == KwsCore.Event.TRIGGER) trig++;
+            else if (!Double.isNaN(e.score)) reason = e.reject;
+        }
+        assertEquals(0, trig);
+        assertEquals("not_this", reason);
+        back.clearAnti();
+        assertEquals(0, back.antiCount());
+    }
+
+    @Test
     public void templateRoundTripAndSensitivityOrder() throws Exception {
         VoiceTemplate t = enroll(new Random(5));
         t.sensitivity = VoiceTemplate.SENSITIVE;

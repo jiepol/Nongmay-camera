@@ -51,7 +51,9 @@ needs the phone is marked UNVERIFIED in `FEATURE_MATRIX.md`.
   tracking → isolated segment → **noise-compensated** mel matching (both sides rebuilt as "clean estimate + the
   same background", clamp 1.25×) and a second **virtual-room** hypothesis (late reverb RT60 0.3 s / DRR +6 dB)
   → MFCC + CMVN + deltas → DTW against each take → threshold calibrated from the owner's own repetitions ×
-  sensitivity (STRICT 1.20 / NORMAL 1.30 / SENSITIVE 1.45), median agreement, duration gate, 1.5 s cooldown.
+  sensitivity (STRICT 1.10 / NORMAL 1.20 / SENSITIVE 1.35 since 1.1.4), 2 of 3 takes must agree, duration ≥ 0.65×
+  the takes, 1.5 s cooldown, and “not this” samples the owner marked (a segment closer to one of those than to the
+  phrase is rejected).
 - Works for any phrase or language (it matches sound, not text): default `น้องเม`, custom `โฮ่ง ๆ`, `ชาลี`,
   `ถ่ายเลย`, `cheese`, … It is **not** a lock: a similar voice can pass (synthetic test: ~15% at NORMAL).
 - The first prototype (plain MFCC/DTW) failed completely in noise and reverb in the synthetic test (0% in
@@ -106,6 +108,12 @@ needs the phone is marked UNVERIFIED in `FEATURE_MATRIX.md`.
 - Third run (1.1.2, room light): the HAL switches to the 3× tele only from 3.0× (stays on the main sensor at the
   native 2.74×) and to the 5× tele at 5.06×. Lens buttons use 3.0× from 1.1.3 (`ExposureMath.lensChipRatio`, unit-tested).
 - AudioRecord delivers exact zeros at start; the VAD treats anything below −100 dBFS as the quietest real level.
+- Real false trigger (Pol, after 1.1.2): a loud short “เฮ้ย” fired the shutter. Lesson: the 1.20/1.30/1.45 thresholds
+  were tuned on synthetic voices, which repeat themselves far more exactly than a person, so they were too loose for
+  real speech. 1.1.4 lowers them, raises the duration gate (0.55 → 0.65) and the take agreement (median slack
+  1.25 → 1.10), and gives the owner a one-tap “ไม่ใช่คำนี้” that stores the false sound as a negative example and
+  deletes the photo it caused. Real accuracy numbers now come from the phone: every decision is logged as outcome +
+  score ÷ threshold, and marked false triggers as `marked_false`.
 
 ## D8. Supported software
 - Target: Galaxy S25 Ultra (Android 15/16, One UI 7/8). Runs on any Android 10+ phone with Camera2; Pro features

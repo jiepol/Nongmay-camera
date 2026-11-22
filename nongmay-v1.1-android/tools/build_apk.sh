@@ -12,13 +12,13 @@ KEYSTORE="${NONGMAY_KEYSTORE:-$HOME/.nongmay/nongmay-v11-debug.jks}"
 KS_PASS="${NONGMAY_KS_PASS:-nongmay-debug}"
 APP_ID="com.nongmay.camera.v11"
 NAMESPACE="com.nongmay.camera"
-VERSION_CODE=14
-VERSION_NAME="1.1.3-debug"
+VERSION_CODE=15
+VERSION_NAME="1.1.4-debug"
 MIN_SDK=29
 TARGET_SDK=35
 SRC="$ROOT/app/src/main"
 OUT="$ROOT/build/apk"
-APK="$OUT/NongMayCamera-1.1.3-debug.apk"
+APK="$OUT/NongMayCamera-1.1.4-debug.apk"
 
 quiet() { grep -vE "^(Picked up|warning: \[options\])" || true; }
 

@@ -269,7 +269,9 @@ public final class VoiceEval {
         md.append("Shipped = background tracker + noise-compensated mel matching (clamp 1.25×) + a second “virtual room” hypothesis ")
                 .append("(RT60 0.3 s, DRR +6 dB — deliberately not the corpus room of 0.4 s / +4 dB) + VAD pause at 14 dB below the phrase peak. ")
                 .append("Prototype = plain MFCC/DTW on the raw segment. The settings were chosen with a parameter sweep on this same corpus, ")
-                .append("so treat the shipped numbers as optimistic.\n\n");
+                .append("so treat the shipped numbers as optimistic. Decision gates since 1.1.4 (after a real false trigger on a loud “เฮ้ย”): ")
+                .append("duration ≥ 0.65 × the takes, 2 of 3 takes must agree (median ≤ 1.10 × threshold), sensitivity 1.10 / 1.20 / 1.35 × base. ")
+                .append("“Not this” samples (taught by the owner) are not part of this corpus.\n\n");
         md.append("| Condition | plain MFCC/DTW (first prototype) | noise-compensated (shipped) |\n|---|---|---|\n");
         for (int c = 0; c < COND.length; c++) {
             md.append("| ").append(COND_TEXT[c]).append(" | ").append(pct(sumHit(base, c), 24 * KW.length)).append(" | ")
